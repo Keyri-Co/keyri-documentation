@@ -2,6 +2,11 @@ import React from 'react';
 import { DocsThemeConfig } from 'nextra-theme-docs';
 
 const config: DocsThemeConfig = {
+  head: (
+    <>
+      <link rel='icon' href='/favicon.ico' />
+    </>
+  ),
   logo: <span>Keyri Documentation</span>,
   project: {
     link: 'https://github.com/Keyri-Co',
