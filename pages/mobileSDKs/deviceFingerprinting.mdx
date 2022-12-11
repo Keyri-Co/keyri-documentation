@@ -61,8 +61,8 @@ fun registerUser(username: String, password: String) {
         // Keyri Handles saving the key in the Secure Enclave for you
         // For example, you can later use this key pair to passwordlessly authenticate the user
     }
-
-}````
+}
+````
 
 </Tab>
 <Tab>
@@ -82,24 +82,26 @@ void registerUser(String username, String password) {
                 // For example, you can later use this key pair to passwordlessly authenticate the user
             }
     });
-}````
+}
+````
 
 </Tab>
 <Tab>
 ```javascript copy
 function registerUser(username: string, password: string) {
-  const keys = Keyri.listAssociationKey();
+    const keys = Keyri.listAssociationKey();
 
-if (keys?.length > 0) {
+    if (keys?.length > 0) {
 // Alert user that there is an existing user, and encourage them to sign in here
-} else {
-const key = Keyri.generateAssociationKey(username);
+    } else {
+    const key = Keyri.generateAssociationKey(username);
 // Then run your regular registration process
 // Optionally, do something else with the key that just got generated.
 // Keyri Handles saving the key in the Secure Enclave for you
 // For example, you can later use this key pair to passwordlessly authenticate the user
+    }
 }
-}```
+```
 
 </Tab>
 </Tabs>
