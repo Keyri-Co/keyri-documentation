@@ -1,6 +1,10 @@
+---
+description: 'Keyri cryptographic SDKs for mobile apps allow you to implement passwordless authentication and device fingerprinting.'
+---
+
 # User + Mobile Device Signatures
 
-Keyri's mobile SDKs inlcude [ECDSA](https://cryptobook.nakov.com/digital-signatures/ecdsa-sign-verify-messages) methods that allow you to tie an individual account to a specific device. These methods associate a signing key pair to an account, and the private key is persistent on and non-extractable from the device on which it was generated. The private key is used to generate cryptographic signatures for a given account that can then be validated by your backend application using the key pair's public key, which is extractable from the device and can be passed to your backend applications.&#x20;
+Keyri's mobile SDKs inlcude [ECDSA](https://cryptobook.nakov.com/digital-signatures/ecdsa-sign-verify-messages) methods that allow you to tie an individual account to a specific device. These methods associate a signing key pair to an account, and the private key is persistent on and non-extractable from the device on which it was generated. The private key is used to generate cryptographic signatures for a given account that can then be validated by your backend application using the key pair's public key, which is extractable from the device and can be passed to your backend applications.
 
 Potential applications for this ECDSA functionality include:
 

@@ -1,5 +1,6 @@
 import React from 'react';
-import { DocsThemeConfig } from 'nextra-theme-docs';
+import { useRouter } from 'next/router';
+import { DocsThemeConfig, useConfig } from 'nextra-theme-docs';
 
 const config: DocsThemeConfig = {
   head: (
@@ -16,13 +17,16 @@ const config: DocsThemeConfig = {
   },
   docsRepositoryBase: 'https://github.com/Keyri-Co/keyri-documentation',
   useNextSeoProps() {
+    const { asPath } = useRouter();
+    const { frontMatter } = useConfig();
+
     return {
       titleTemplate: '%s – Keyri Documentation',
-      description: 'Keyri Documentation',
+      description: `${frontMatter.description || 'Keyri Documentation'}`,
       openGraph: {
         type: 'website',
         locale: 'en_US',
-        url: 'https://docs.keyri.com',
+        url: `https://docs.keyri.com${asPath}`,
         site_name: 'Keyri Documentation',
       },
     };

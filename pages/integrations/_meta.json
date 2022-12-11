@@ -1,8 +1,9 @@
 {
-  "alphapointApex": "AlphaPoint APEX",
-  "amazonCognito": "Amazon Cognito",
+  "alphapoint-apex-system": "AlphaPoint APEX",
+  "amazon-cognito": "Amazon Cognito",
+  "banno-digital-banking": "Banno Digital Banking",
   "auth0": "Auth0",
   "firebase": "Firebase",
-  "pingIdentity": "Ping Identity",
+  "ping-identity": "Ping Identity",
   "supabase": "Supabase"
 }
