@@ -1,0 +1,22 @@
+{
+  "index": "Keyri and its Uses",
+  "smartDeepLinking": "Smart Deep Linking",
+  "userDeviceSignatures": "User + Device Signatures",
+  "riskAnalytics": "Risk Analytics",
+  "endToEndEncryption": "End-to-End Encryption",
+  "browserWidgetQuickStart": "Browser Widget Quickstart",
+  "mobileSDKs": "Mobile SDKs",
+  "serverSideAuthentication": "Server-Side Authentication",
+  "dashboard": {
+    "title": "Keyri Dashboard ↗",
+    "type": "page",
+    "href": "https://app.keyri.com",
+    "newWindow": true
+  },
+  "homePage": {
+    "title": "Keyri Home Page ↗",
+    "type": "page",
+    "href": "https://keyri.com",
+    "newWindow": true
+  }
+}

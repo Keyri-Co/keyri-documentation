@@ -1,0 +1,58 @@
+# Keyri Browser Widget Quickstart
+
+1.  Serve `KeyriQR.html` (available [here](https://raw.githubusercontent.com/Keyri-Co/library-keyri-connect/main/KeyriQR.html)) from the same origin as your login page (e.g., a `/public` directory)
+
+2.  _RECOMMENDED_: serve everything on your login's origin with the header `X-Frame-Options: SAMEORIGIN` (examples of how to do so [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options#examples))[](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options#examples)
+
+3.  Embed an iframe in your login page in the desired DOM element with `./KeyriQR.html` as its `src`
+
+```html copy {2}
+<iframe
+  src="./KeyriQR.html"
+  id="qr-frame"
+  frameborder="0"
+  height="300"
+  width="300"
+  scrolling="no"
+  style="border: solid 5px white;"
+></iframe>
+```
+
+Now add an event listener to the iframe to listen for messages from it, processing that data however you would like. The example below assumes the mobile app is sending an auth token and places that auth token into local storage. Other options include passing the data into different functions and POSTing to your backend.
+
+```javascript copy
+window.addEventListener('message', (evt) => {
+  // Make sure the event is one from our iFrame
+  if (evt.data.keyri && evt.data.data && document.location.origin == evt.origin) {
+    const { data } = evt;
+
+    // Since you're sending the data, your situation will differ,
+    // but for this example, we'll store the data in localStorage and reload
+    if (!data.error) {
+      localStorage.token = data.data.token;
+      document.location.reload();
+    } else {
+      // Made up code...
+      showErrorModal({ title: 'Uh Oh', body: 'Helpful Error Message' });
+    }
+  }
+});
+```
+
+### Local Development
+
+To work in a local development environment, add the following query-string to your iframe's `src` attribute (please note that this only works for localhost - any port is fine).
+
+`Environment=dev&Origin=your.registered.domain.com`, where `your.registered.domain.com` is the domain with which you registered on (https://app.keyri.com). Example as follows:
+
+```html copy {2}
+<iframe
+  src="./KeyriQR.html?Environment=dev&Origin=your.registered.domain.com"
+  id="qr-frame"
+  frameborder="0"
+  height="300"
+  width="300"
+  scrolling="no"
+  style="border: solid 5px white;"
+></iframe>
+```

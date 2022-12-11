@@ -1,0 +1,17 @@
+{
+  "index": "Keyri and its Uses",
+  "smartDeepLinking": "Smart Deep Linking",
+  "userDeviceSignatures": "User + Device Signatures",
+  "riskAnalytics": "Risk Analytics",
+  "endToEndEncryption": "End-to-End Encryption",
+  "about": {
+    "title": "About",
+    "type": "page"
+  },
+  "contact": {
+    "title": "Contact ↗",
+    "type": "page",
+    "href": "https://twitter.com/shuding_",
+    "newWindow": true
+  }
+}

@@ -1,0 +1,23 @@
+# User + Mobile Device Signatures
+
+Keyri's mobile SDKs inlcude [ECDSA](https://cryptobook.nakov.com/digital-signatures/ecdsa-sign-verify-messages) methods that allow you to tie an individual account to a specific device. These methods associate a signing key pair to an account, and the private key is persistent on and non-extractable from the device on which it was generated. The private key is used to generate cryptographic signatures for a given account that can then be validated by your backend application using the key pair's public key, which is extractable from the device and can be passed to your backend applications.&#x20;
+
+Potential applications for this ECDSA functionality include:
+
+1.  **Enabling full passwordless authentication**: registration of an account entails storing the user's public key in your user database. Login is subsequently accomplished by generating a signature on the device, passing it through the SDK's `payload` param, and validating it in your backend authentication application against the user's stored public key
+
+2.  **Mobile device fingerprinting**: a phone can be permanently associated with a given account by storing the account's public key in your backend application and validating its signatures. Alternatively, a device's fingerprint can be identified simply by parsing the list of public keys present in the device. Device fingerprinting in turn has multiple uses:
+
+    1.  **Prevent account opening fraud**: by querying a device to check for any signing key pairs present on the device, you can identify which accounts have been used on it before. If, for example, you have marked one of those accounts as having been engaged in fraudulent activity in the past, you can prevent new accounts from being opened on that device. Similarly, you can choose to prevent that device from accessing your service from any account. Or, you can simply flag a new account as having been opened on a device that is already associated with an existing account.
+
+    2.  **Continuous authentication**: given that ECDSA-based authentication with the Keyri SDK operates in the background with no user input required, you can continuously authenticate the user by generating signatures for each request to your API. This mechanism allows you to ensure session continuity and integrity.
+
+## Practical Example
+
+Let's say you have a user with a username of "Jane" registering or logging into your iOS app.
+
+To generate a persistent key pair for Jane, run `func generateAssociationKey(publicUserId: "Jane").` This will create a private key that will be stored in the phone's Secure Enclave, and return its associated public key. You can pass this public key to your user database and associate it with Jane's account.
+
+To authenticate Jane, run `func getUserSignature(publicUserId: "Jane", customSignedData: "I'm trying to log in")`. This will return a signature of the customSignedData with Jane's private key. Pass this signature and customSignedData to your backend either directly or through Keyri's QR API via `func Session.confirm(publicUserId: "Jane", payload: signature)`. Validate that signature on your backend with ECDSA. If validated, then you can trust that Jane is using that specific device on that specific session.
+
+If Jane is known to be a fraudster on your platform that you've since banned, you'd want to prevent them from creating new accounts on that same phone. To accomplish this, run `func getAssociationKey(publicUserId: "Jane") `at the registration stage. If that function returns a string, then you know Jane is trying to create a new account to circumvent the ban. Thus, you can block that registration. To get around this, Jane would have to purchase a new phone in order to create new accounts, which makes running their fraud operation substantially more costly, potentially disrupting the entire economics of the fraud technique so as to render it futile.

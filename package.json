@@ -1,0 +1,30 @@
+{
+  "name": "keyri-documentation",
+  "version": "0.0.1",
+  "description": "MDX based documentation for Keyri, rendered on docs.keyri.com",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Keyri-Co/keyri-documentation.git"
+  },
+  "author": "Zain Azeem <zain@keyri.com>",
+  "license": "MIT",
+  "homepage": "https://keyri.com",
+  "dependencies": {
+    "next": "^13.0.6",
+    "next-seo": "^5.15.0",
+    "nextra": "2.0.1",
+    "nextra-theme-docs": "2.0.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "18.11.10",
+    "@types/react": "18.0.26",
+    "typescript": "^4.9.3"
+  }
+}
