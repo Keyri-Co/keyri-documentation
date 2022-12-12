@@ -1,0 +1,209 @@
+---
+description: How to add QR login to your Firebase app with Keyri Authentication
+---
+
+# Keyri Firebase QR Login Integration - Session Extension
+
+Incorporating Keyri QR login into your Firebase-based authentication system with session extension involves sending the user's `uid`, `emailVerified`, `isAnonymous`, `providerData`, and `stsTokenManager` strings, booleans, and objects from your mobile app to your web app via the Keyri mobile SDK and web Widget. On the mobile side, just load these items (as an object) as the payload into the Keyri method you're using in your app. On the web side, extract these items from the payload that the Widget outputs and set them into the IndexedDB. The Firebase client SDK you have already installed on your web app takes care of the rest automatically. The following example code walks through how to do this with a vanilla Webpack-based web app and a Flutter mobile app.
+
+**Usage notes:**
+
+1.  You must first have a Keyri account with a service registered under the domain name on which you will be showing the login QR code
+
+2.  Your user must already be registered in your Firebase auth system
+
+3.  Your user must already be logged in on your mobile app (the five items listed above must be available and valid for a logged-in session)
+
+## Web
+
+The following video walks you through the entire web app integration process:
+
+<br />
+<iframe
+  width='560'
+  height='315'
+  src='https://www.youtube.com/embed/hJWuk9Sa9Js'
+  title='YouTube video player'
+  frameborder='0'
+  allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+  allowfullscreen
+></iframe>
+
+Source code for an example web app can be found here: https://github.com/Keyri-Co/keyri-firebase-example-web.
+
+The live demo is here: https://example-keyri-auth.web.app
+
+Example HTML web page below. First, simply add the Keyri Widget iFrame
+
+```html copy
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Keyri Firebase Auth Demo</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <div id="keyriQR">
+      <iframe
+        src="./KeyriQR.html?Environment=dev&Origin=example-keyri-auth.web.app"
+        id="keyriQR"
+        frameborder="0"
+        height="300"
+        width="300"
+        scrolling="no"
+        style="border: solid 5px white"
+      ></iframe>
+    </div>
+  </body>
+</html>
+```
+
+Example JS:
+
+```javascript copy
+import './styles.css';
+import { hideLoginError, showLoginState, showLoginForm, showApp } from './ui';
+
+import { initializeApp } from 'firebase/app';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+
+// Replace these with your Firebase config values
+const firebaseConfig = {
+  apiKey: 'AIzaSyCSdJ7cDqtGsxLsTL22FU0s8WYnCyS-43E',
+  authDomain: 'example-keyri-auth.firebaseapp.com',
+  projectId: 'example-keyri-auth',
+  storageBucket: 'example-keyri-auth.appspot.com',
+  messagingSenderId: '723969996728',
+  appId: '1:723969996728:web:ce0cb6f546c51edeac014d',
+  measurementId: 'G-636DMTXSHJ',
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+
+// Monitor auth state
+const monitorAuthState = async () => {
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      showApp();
+      showLoginState(user);
+      hideLoginError();
+    } else {
+      showLoginForm();
+      lblAuthState.innerHTML = `You're not logged in.`;
+    }
+  });
+};
+
+// IndexedDB storage function
+window.dbMaker = async () => {
+  return new Promise((resolve, reject) => {
+    const openRequest = indexedDB.open('firebaseLocalStorageDb');
+
+    openRequest.onerror = (event) => {
+      // handle error
+      console.log('error', event);
+    };
+
+    openRequest.onupgradeneeded = (event) => {
+      const db = event.target.result;
+    };
+
+    let db;
+    openRequest.onsuccess = (event) => {
+      db = event.target.result;
+      resolve(event.target.result);
+    };
+  });
+};
+
+//Keyri event listener
+window.onmessage = async (eventData) => {
+  if (eventData.data.keyri && !eventData.data.error) {
+    let info = JSON.parse(eventData.data.data);
+
+    // Transform the payload into the format expected by Firebase
+    let obj = {
+      fbase_key: `firebase:authUser:${firebaseConfig.apiKey}:[DEFAULT]`,
+      value: {
+        uid: info.uid,
+        emailVerified: info.emailVerified,
+        isAnonymous: info.isAnonymous,
+        providerData: info.providerData,
+        stsTokenManager: {
+          refreshToken: info.refresh_token,
+          accessToken: info.access_token,
+          expirationTime: info.expirationTimestamp,
+        },
+      },
+    };
+
+    // Store the transformed payload in the indexedDB
+    let db = await window.dbMaker();
+
+    const transaction = db.transaction('firebaseLocalStorage', 'readwrite');
+    const store = transaction.objectStore('firebaseLocalStorage');
+
+    store.put(obj);
+  }
+};
+
+const auth = getAuth(firebaseApp);
+
+monitorAuthState();
+```
+
+That should be it for a very basic implementation that includes both Firebase's built-in email/password auth option and Keyri's QR code login method. In your HTML file, be sure to include the proper divs to hold the Keyri QR code and the login form.
+
+## Mobile (Flutter Example)
+
+The following video walks you through the mobile app integration process to enable QR login:
+
+<br />
+<iframe
+  width='560'
+  height='315'
+  src='https://www.youtube.com/embed/o3VGmAKYZbg'
+  title='YouTube video player'
+  frameborder='0'
+  allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+  allowfullscreen
+></iframe>
+
+This Flutter example shows how to extract the user's `uid`, `emailVerified`, `isAnonymous`, `providerData`, and `stsTokenManager` strings/booleans/objects provided by Firebase in your app and send it to the web Widget via the Keyri SDK. Be sure to visit the appropriate [mobile SDK documentation](/mobile-sdks) for more information about how to install the relevant Keyri SDK for your mobile app.
+
+```dart copy
+try {
+    final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+    email: emailAddress,
+    password: password,
+    );
+
+    final uid = credential.uid
+    final emailVerified = credential.emailVerified
+    final isAnon = credential.isAnonymous
+    final providerData = credential.providerData
+
+    await keyri
+    .easyKeyriAuth("[APPKey]",
+        '{"refreshToken":"$refreshToken",
+        "uid": "$uid",
+        "emailVerified": "emailVerified"}', emailAddress)
+    .then((authResult) => _onAuthResult(authResult))
+    .catchError((error, stackTrace) => _onError(error));
+
+
+
+} on FirebaseAuthException catch (e) {
+  if (e.code == 'weak-password') {
+    print('The password provided is too weak.');
+  } else if (e.code == 'email-already-in-use') {
+    print('The account already exists for that email.');
+  }
+} catch (e) {
+  print(e);
+}
+```

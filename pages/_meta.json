@@ -5,8 +5,8 @@
   "risk-analytics": "Risk Analytics",
   "end-to-end-encryption": "End-to-End Encryption",
   "browser-keyri-widget-quickstart": "Browser Widget Quickstart",
-  "mobile-sdks": "Mobile SDKs",
   "server-side-authentication": "Server-Side Authentication",
+  "mobile-sdks": "Mobile SDKs",
   "dashboard": {
     "title": "Keyri Dashboard ↗",
     "type": "page",

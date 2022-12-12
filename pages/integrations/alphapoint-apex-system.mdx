@@ -1,0 +1,33 @@
+---
+description: Keyri QR Login is a secure, easy-to-use, and convenient login system for APEX-powered web portals.
+---
+
+# Add QR Login to you AlphaPoint APEX-Powered Exchange System
+
+As an AlphaPoint Gold Partner, Keyri has a first-class integration with the APEX exchange system. The integration provides instantaneous, secure QR login on APEX web interfaces through simple modifications to your web app and mobile app.
+
+Keyri's QR login system allows users to sign into an APEX-powered web portal by scanning a QR code located on the login page if they have the associated APEX-powered mobile app installed. This system provides additional security in the form of automatic biometric verification and makes login easier by removing the need for the user to type in their email address, password, and 2FA code.
+
+## Technical Overview
+
+The technical principles behind Keyri's QR login implementation with the APEX system are as follows.
+
+1.  Once the user scans the login QR code, the mobile app asks the APEX WebSocket gateway to provision a temporary API key and API secret for the given UserId.
+
+2.  These three items are then loaded into the Keyri SDK as the `payload`, which encrypts them and sends them to the Keyri Widget on the browser.&#x20;
+
+3.  The browser Widget decrypts these items, and using a frontend script custom-made for APEX systems, generates a login signature and authenticates the user with APEX, receiving a SessionToken in return.
+
+4.  The browser script de-provisions the temporary API credentials from the APEX system.
+
+5.  The browser script uses the SessionToken to log the user in.
+
+The entire system employs end-to-end encryption. All credentials transmitted through it are encrypted from the mobile client and can only be decrypted by the original browser client.
+
+## Integration
+
+Integrating Keyri QR login into an APEX-powered system is comprised of two components:
+
+1.  [Mobile App Setup](/integrations/alphapoint-apex-system/mobile-app-setup)
+
+2.  [Web App Integration](/integrations/alphapoint-apex-system/web-app-integration)
