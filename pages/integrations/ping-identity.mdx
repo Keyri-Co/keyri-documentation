@@ -12,11 +12,11 @@ Keyri QR login can be incorporated into a new or existing [Ping Identity](https:
 
 First, install the Keyri connector in your DaVinci environment by searching for it in the "Connections" tab.
 
-![](https://archbee-image-uploads.s3.amazonaws.com/FQ4YmCkDokMJylbTAsoOR/xqHA66XJ9U3HarzwHTkXQ_image.png)
+![Add Keyri DaVinci Connector](/addKeyriDaVinciConnector.png)
 
 Next, insert the connector into your flow as follows:
 
-![](https://archbee-image-uploads.s3.amazonaws.com/FQ4YmCkDokMJylbTAsoOR/ylCESuNSdeDsLTJe8FE5b_image.png)
+![Add Keyri Connector to DaVinci Flow](/addKeyriConnectorToFlow.png)
 
 Note that the Keyri connector follows a PingOne connector in which the user's public key is extracted from the PingOne user database based on a user identifier passed to the Keyri frontend widget from your mobile app. The Keyri connector accepts the following three parameters and outputs a boolean indicating the cryptographic validity of the login request:
 
@@ -230,3 +230,4 @@ fun generatePayload(user: String): String {
 ```
 </Tab>
 </Tabs>
+

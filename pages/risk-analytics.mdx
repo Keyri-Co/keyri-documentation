@@ -2,6 +2,9 @@
 description: Keyri provides mobile device intelligence to protect your users from phishing attacks.
 ---
 
+import { Callout } from 'nextra-theme-docs';
+import Image from 'next/image';
+
 # Authentication Risk Analytics
 
 Keyri's Scaling and Enterprise plans provide you and your users with IP-based risk analytics that block man-in-the-middle phishing attacks.
@@ -22,10 +25,58 @@ With risk analytics, the mobile SDK's built-in confirmation modal will include e
 
 The screenshots of the built-in confirmation modals below represent different risk signal scenarios:
 
-![Built-in confirmation modal without risk analytics](https://archbee-image-uploads.s3.amazonaws.com/FQ4YmCkDokMJylbTAsoOR/7dEvcWFjil5POgZdMzhqR_no-ra.png)
-
-![Confirmation modal with low risk](https://archbee-image-uploads.s3.amazonaws.com/FQ4YmCkDokMJylbTAsoOR/yITaPdoS7Y-qHxifKomTf_low-risk.png)
-
-![Confirmation modal alerting user to possible phishing attack](https://archbee-image-uploads.s3.amazonaws.com/FQ4YmCkDokMJylbTAsoOR/6kxOeZXsLpz6g_ilo16Lh_warning.png)
-
-![Confirmation modal showing reasons for login denial](https://archbee-image-uploads.s3.amazonaws.com/FQ4YmCkDokMJylbTAsoOR/H5aeuQbVGU63vAJ-nTzbs_blocked.png)
+<br />
+<Image
+  src='/noRAConfirmation.png'
+  width={300}
+  height={595}
+  alt={'Mobile confirmation screen without risk analytics enabled'}
+/>
+<Callout type='info' emoji='ℹ️'>
+  {' '}
+  Mobile confirmation screen without risk analytics enabled
+</Callout>
+<br />
+<Image
+  src='/lowRAConfirmation.png'
+  width={300}
+  height={595}
+  alt={'Mobile confirmation screen with low risk detected'}
+/>
+<Callout type='info' emoji='ℹ️'>
+  {' '}
+  Mobile confirmation screen with low risk detected
+</Callout>
+<br />
+<Image
+  src='/lowRAConfirmation.png'
+  width={300}
+  height={595}
+  alt={'Mobile confirmation screen with low risk detected'}
+/>
+<Callout type='info' emoji='ℹ️'>
+  {' '}
+  Mobile confirmation screen with low risk detected
+</Callout>
+<br />
+<Image
+  src='/medRAConfirmation.png'
+  width={300}
+  height={595}
+  alt={'Mobile confirmation screen with phishing risk detected'}
+/>
+<Callout type='info' emoji='ℹ️'>
+  {' '}
+  Mobile confirmation screen with phishing risk detected
+</Callout>
+<br />
+<Image
+  src='/blockedRAConfirmation.png'
+  width={300}
+  height={595}
+  alt={'Mobile request block screen with phishing risk detected'}
+/>
+<Callout type='info' emoji='ℹ️'>
+  {' '}
+  Mobile request block screen with phishing risk detected
+</Callout>
