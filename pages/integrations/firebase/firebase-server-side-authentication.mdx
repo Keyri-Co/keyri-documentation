@@ -28,19 +28,19 @@ To enable Keyri passwordless authentication on an application (mobile and/or web
 
 The only strictly necessary Firebase configuration required to make Keyri passwordless authentication work is enabling "Anonymous" as a sign-in provider. Keyri full passwordless users will not truly be anonymous - you can assign to them email addresses, phone numbers, display names, etc., and even provide the same user additional methods to log in, such as email/password
 
-![](https://archbee-image-uploads.s3.amazonaws.com/FQ4YmCkDokMJylbTAsoOR/QaeIgpzU0jpPX7CxWFmic_image.png)
+![Firebase Auth Options - Add "Anonymous"](/firebaseAuthOptions.png)
 
 ### Enable Admin SDK
 
 To access specific Firebase functionalities that are only available from servers, you need to create an Admin Service Account. To do so, navigate to Project settings -> Service accounts, then click "Create service account" or "Generate new private key" to receive credentials that your server must use access Firebase services.
 
-![](https://archbee-image-uploads.s3.amazonaws.com/FQ4YmCkDokMJylbTAsoOR/m0sERjgaSrMFwTg17_W7Z_image.png)
+![Enable Firebase Admin](/enableFirebaseAdmin.png)
 
 ### Get Firebase Client Credentials
 
 Get Firebase client SDK credentials, from the application-specific Project settings menu under the General tab. This will provide the credentials and config files for your mobile apps and web app.
 
-![](https://archbee-image-uploads.s3.amazonaws.com/FQ4YmCkDokMJylbTAsoOR/QT8u5s7Ak6FzcGpGSeaDu_image.png)
+![Get Firebase Client Creds](/getFirebaseClientCreds.png)
 
 ### Firestore
 
