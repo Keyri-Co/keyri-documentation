@@ -48,6 +48,7 @@ const config: DocsThemeConfig = {
   sidebar: {
     defaultMenuCollapseLevel: 1,
   },
+  primaryHue: { light: 240, dark: 200 },
   docsRepositoryBase: 'https://github.com/Keyri-Co/keyri-documentation',
   useNextSeoProps() {
     const { asPath } = useRouter();
