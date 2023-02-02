@@ -62,6 +62,7 @@ const config: DocsThemeConfig = {
         locale: 'en_US',
         url: `https://docs.keyri.com${asPath}`,
         site_name: 'Keyri Documentation',
+        images: [{ url: '/ogImage.png' }],
       },
     };
   },
