@@ -1,8 +1,8 @@
 {
   "index": "Introduction",
   "authentication": "Authentication",
-  "device-fingerprinting": "Device fingerprinting",
   "mobile-sdks": "Mobile SDKs",
+  "device-fingerprinting": "Device Fingerprinting",
   "dashboard": {
     "title": "Keyri Dashboard ↗",
     "type": "page",
