@@ -2,7 +2,7 @@
 description: Permanently associate your users with their devices to improve UX and reduce fraud
 ---
 
-# Web app fingerprinting
+# Web App Fingerprinting
 
 Keyri provides a free Javascript agent that produces durable device ID fingerprints that persist across sessions and incognito / private browsing modes. The agent is lightweight and can be deployed in a few minutes.
 
@@ -60,7 +60,7 @@ After you create new `Device` instance you will be able to use the following pub
 | getMainParams()         | -         | `Record<string, string>` | Method return object with device parameters                             |
 ```
 
-### Responses examples
+### Responses Examples
 
 #### createFingerprintHash()
 
@@ -136,7 +136,7 @@ console.log(JSON.stringify(deviceMainParams));
 }
 ```
 
-**Note** If you try to get device params in a `nodeJs` environment, you always will receive the same response object
+**Note** If you try to get device params in a Node.js environment, you will always receive the same response object
 
 ```json
 {

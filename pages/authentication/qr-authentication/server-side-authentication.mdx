@@ -2,7 +2,7 @@
 description: Keyri's cryptographic methods available in its mobile SDKs enable authentication via QR code scanning and continuous, invisible authentication within your mobile app.
 ---
 
-# QR server-side authentication
+# QR Server-Side Authentication
 
 The Keyri server-side authentication flow is similar to WebAuthn - the user supplies your client app with their cryptographic signature, which you then validate against their public key which you have on file from their registration phase. This requires:
 
@@ -16,9 +16,9 @@ The primary benefit of this route is that it allows you to ensure that all of a 
 
 ![Keyri Serverside Authenticaiton Diagram](/serversideAuthDiagram.png 'Keyri Serverside Authenticaiton Diagram')
 
-## Web implementation
+## Web Implementation
 
-Keyri installation on your login page with server-side auth is broadly the same as that described in the [widget quickstart](/authentication/qr-authentication/keyri-qr-widget), with the key difference being that the event listener must pass the data that it receives from the Widget along to your server for validation. Example below:
+Keyri installation on your web page with server-side auth is broadly the same as that described in the [widget quickstart](/authentication/qr-authentication/keyri-qr-widget), with the key difference being that the event listener must pass the data that it receives from the Widget along to your server for validation. Example below:
 
 ```javascript copy
 window.addEventListener('message', (evt) => {

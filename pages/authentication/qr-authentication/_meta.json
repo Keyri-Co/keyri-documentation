@@ -1,6 +1,6 @@
 {
-  "keyri-qr-auth-features": "Keyri QR auth features",
-  "keyri-qr-widget": "Keyri QR web widget",
-  "client-session-extension": "Client session extension",
-  "server-side-authentication": "Server-side authentication"
+  "keyri-qr-auth-features": "QR Auth Features",
+  "keyri-qr-widget": "QR Web Widget",
+  "client-session-extension": "Client Session Extension",
+  "server-side-authentication": "Server-Side Authentication"
 }

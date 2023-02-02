@@ -2,11 +2,11 @@
 description: Keyri's makes implementing "sign in with QR" easy, secure, and reliable.
 ---
 
-# Keyri QR Login
+# QR Authentication
 
-QR login allows your users to log into your web app just by scanning a QR code and confirming the login in your mobile app. This is a great way to make your app more secure and convenient for your users.
+Keyri's QR authentication allows your users to log into your web app just by scanning a QR code with a phone camera and confirming the login event in your mobile app. This multi-factor authentication flow is extremely secure and convenient for your users, and can be used for either login or for any subsequent high-risk events in your application.
 
-The primary use of this system is to quickly launch QR login on your multi-client platform. Your users will be able to use your mobile app to log in to your desktop web platform or smart TV app, all without a single click or keystroke. Our frontend Widget, mobile SDKs, and API handle the heavy lifting, ensuring the smoothest UX and most secure architecture possible.
+The primary use of this system is to quickly launch QR authentication on your multi-client platform. Your users will be able to use your mobile app to authenticate into your desktop web platform or smart TV app, all without a single click or keystroke. Our frontend Widget, mobile SDKs, and API handle the heavy lifting, ensuring the smoothest UX and most secure architecture possible.
 
 The only requirement for using the Keyri QR system is that your platform must have both a mobile app and another client app that will show the QR code. The client displays the QR code through the Keyri Widget, while the mobile app uses the Keyri SDK to send payloads over to the Widget via our API.
 
@@ -27,15 +27,15 @@ The Keyri flow proceeds as follows, taking QR login as an example:
 
 1.  User navigates to web login page
 
-    - Keyri Widget loaded
+    - Keyri QR widget loaded
 
       1.  Creates a session-specific P-256 keypair
 
-      2.  Establishes a WebSocket connection with Keyri API
+      2.  Establishes a websocket connection with Keyri API
 
-      3.  Receives sessionId from Keyri API
+      3.  Receives session ID from Keyri API
 
-      4.  Renders QR code with sessionId
+      4.  Renders QR code with session ID
 
 2.  User scans QR code with mobile phone containing your app
 
@@ -53,7 +53,7 @@ The Keyri flow proceeds as follows, taking QR login as an example:
 
 7.  SDK encrypts payload using browser's public key
 
-8.  Keyri API recieves encrypted payload and passes it back to Keyri Widget on the browser to be decrypted
+8.  Keyri API recieves encrypted payload and passes it back to Keyri widget on the browser to be decrypted
 
 For a more visual representation of this flow and some more details into its inner workings, see the diagrams on the [client session extension](/authentication/qr-authentication/client-session-extension) and [server-side authentication](/authentication/qr-authentication/server-side-authentication) documentation pages, each of which represent two distinct ways to implement QR login with Keyri. The vast majority of the steps you see here are automated by the Keyri Widget and mobile SDKs.
 

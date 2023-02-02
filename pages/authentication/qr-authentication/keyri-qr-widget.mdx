@@ -2,13 +2,13 @@
 description: How to incorporate the Keyri QR browser widget
 ---
 
-# Keyri Browser Widget Quickstart
+# Browser QR Widget Quickstart
 
-1.  Serve `KeyriQR.html` (available [here](https://raw.githubusercontent.com/Keyri-Co/library-keyri-connect/main/KeyriQR.html)) from the same origin as your login page (e.g., a `/public` directory)
+1.  Serve `KeyriQR.html` (available [here](https://raw.githubusercontent.com/Keyri-Co/library-keyri-connect/main/KeyriQR.html)) from the same origin as your authentication page (e.g., a `/public` directory)
 
-2.  _RECOMMENDED_: serve everything on your login's origin with the header `X-Frame-Options: SAMEORIGIN` (examples of how to do so [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options#examples))[](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options#examples)
+2.  _RECOMMENDED_: serve everything on your page's origin with the header `X-Frame-Options: SAMEORIGIN` (examples of how to do so [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options#examples))[](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options#examples)
 
-3.  Embed an iframe in your login page in the desired DOM element with `./KeyriQR.html` as its `src`
+3.  Embed an iframe in your authentication page in the desired DOM element with `./KeyriQR.html` as its `src`
 
 ```html copy {2}
 <iframe
