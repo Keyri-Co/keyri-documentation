@@ -2,13 +2,23 @@
 description: Keyri's cryptographic methods available in its mobile SDKs enable authentication via QR code scanning and continuous, invisible authentication within your mobile app.
 ---
 
-# Keyri Server-Side Authentication
+# QR server-side authentication
 
-Server-side authentication with Keyri is a WebAuthn-like cryptographic flow whereby ECDSA signature verification is used to log the user in. A signed data object is sent to your server from your mobile app, routed through the Widget, and the signature is verified with the user's public key that you have stored in a database.
+The Keyri server-side authentication flow is similar to WebAuthn - the user supplies your client app with their cryptographic signature, which you then validate against their public key which you have on file from their registration phase. This requires:
 
-## Web Implementation
+- One additional field in your user database to hold the user's public key
 
-Keyri installation on your login page with server-side auth is broadly the same as that described in the widget quickstart (https://docs.keyri.com/browser-keyri-widget-quickstart), with the key difference being that the event listener must pass the data that it receives from the Widget along to your server for validation. Example below:
+- One additional API route to receive the user's public key from your mobile app
+
+- One new backend auth case for signature verification
+
+The primary benefit of this route is that it allows you to ensure that all of a given user's client devices are associated with different session tokens, which allows you to deauthorize individual devices. Additionally, the involvement of device-generated ECDSA signatures allows you to leverage mobile device fingerprinting and automatic, continuous authentication in the background without any user involvement.
+
+![Keyri Serverside Authenticaiton Diagram](/serversideAuthDiagram.png 'Keyri Serverside Authenticaiton Diagram')
+
+## Web implementation
+
+Keyri installation on your login page with server-side auth is broadly the same as that described in the [widget quickstart](/authentication/qr-authentication/keyri-qr-widget), with the key difference being that the event listener must pass the data that it receives from the Widget along to your server for validation. Example below:
 
 ```javascript copy
 window.addEventListener('message', (evt) => {
@@ -70,7 +80,7 @@ Login is based on ECDSA signature verification. The mobile app will send four pi
 
 4.  `signature`: The ECDSA signature, a SHA256 digest, of the `data`
 
-```javascript
+```javascript copy
 const crypto = require('crypto');
 const db = require('../db'); // Give this application access to your database
 const express = require('express');
@@ -137,7 +147,7 @@ const verifySignature = (pubKeyB64, data, signatureB64) => {
 
 ## Mobile
 
-Please refer to the Mobile SDK documentation for a full description of installation and configuration.
+Please refer to the [Mobile SDK documentation](/mobile-sdks) for a full description of installation and configuration.
 
 ### Registration
 

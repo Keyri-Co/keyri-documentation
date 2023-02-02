@@ -1,11 +1,7 @@
 {
-  "index": "Keyri and its Uses",
-  "smart-deep-linking": "Smart Deep Linking",
-  "userdevice-signatures": "User + Device Signatures",
-  "risk-analytics": "Risk Analytics",
-  "end-to-end-encryption": "End-to-End Encryption",
-  "browser-keyri-widget-quickstart": "Browser Widget Quickstart",
-  "server-side-authentication": "Server-Side Authentication",
+  "index": "Introduction",
+  "authentication": "Authentication",
+  "device-fingerprinting": "Device fingerprinting",
   "mobile-sdks": "Mobile SDKs",
   "dashboard": {
     "title": "Keyri Dashboard ↗",
