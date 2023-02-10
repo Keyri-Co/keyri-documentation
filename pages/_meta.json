@@ -3,6 +3,8 @@
   "authentication": "Authentication",
   "mobile-sdks": "Mobile SDKs",
   "device-fingerprinting": "Device Fingerprinting",
+  "integrations": "Integrations",
+  "changelog": "Changelog",
   "dashboard": {
     "title": "Keyri Dashboard ↗",
     "type": "page",
