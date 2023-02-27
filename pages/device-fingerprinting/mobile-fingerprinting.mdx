@@ -4,27 +4,47 @@ description: Permanently associate your users with their devices to improve UX a
 
 import { Tab, Tabs } from 'nextra-theme-docs';
 
-# Mobile app fingerprinting
+### Overview
+Keyri offers best in class mobile fingerprinting and device integrity verification, and it’s all accessible in as little as one line of code.
 
-One major utility of the Keyri mobile SDKs is strong device fingerprinting; in other words, stably associating a given device on which your app is installed to a given user account or set of user accounts, then reading those associations when you want to in order to handle different situations. The fingerprint persists even if the user deletes your app and re-installs it.
+The SDK will:
+Generate a unique fingerprint which persists even when the app is deleted
+This is something many developers struggle with. It’s quite easy to keep a fingerprint UNTIL the app is deleted, but persistence is tricky. This is exacerbated by the ease with which bad actors can clear out records in the Keychain or Android Secure Storage.
+Send the information to our API using a strong cryptography technique which ensures the information cannot be tampered with or intercepted
+Note: This information will be available on the Keyri Dashboard
+Verify device integrity to stop bad actors in their tracks. We have checks to protect against
+* Jailbreaks
+* Malicious sideloaded applications
+* Method swizzling
+* Code tampering
+* Emulators
+* Optional protection against
+* VPN
+* Blocklist usage
+* TOR
 
-All Keyri device fingerprinting functionality and intelligence takes place within the confines of your mobile app, through Keyri SDK methods. Custom logic can be set up on your mobile app or dictated by your backend based on the outputs of Keyri's mobile fingerprint-related methods.
+### Requirements
+iOS: iOS 14+
+Android: TODO
 
-This device fingerprinting and fingerprint reading functionality is independent of the authentication system you use, and the fingerprinting methods outlined below can be embedded into your existing signup and login functions as additional sources of data that enable further conditional app behavior.
+### Installation
+iOS: https://docs.keyri.com/mobile-sdks/ios
+	Step 1: add “keyri-pod” to podfile
+	Step 2: run “pod install”
+	Step 3 “import keyri_pod” to whichever file you are triggering Fingerprinting from
 
-## Implementation
+Android: (https://docs.keyri.com/mobile-sdks/android)
 
-<iframe
-  width='560'
-  height='315'
-  src='https://www.youtube.com/embed/NDMjEIrpWis'
-  title='YouTube video player'
-  frameborder='0'
-  allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
-  allowfullscreen
-></iframe>
 
-The two primary Keyri SDK methods used to implant and retrieve user-related device fingerprints are `generateAssociationKey(userIdentifier)` and `listUniqueAccounts()` respectively. The former is used to create a key pair for a user and return a public key that you can either ignore or save to your database for further use, such as continuous authentication. The latter is simply used to list the key pairs present on the device, associated with your app, as well as the user identifiers they are associated with, returning an array. If this array is empty, it is highly likely that the user has only recently installed your app and is a legitimate user, thereby allowing them to complete registration with no added friction. On the other hand, if this array is not empty, they can be confidently directed to log into their existing account.
+### Methods
+* generateAssociationKey(username: String) -> p256Key: Create a persistent (even on app deletion) record of a user
+* getAssociationKey(username: String) -> p256Key?: Retrieve key for a given user, if the user has been created
+* listAssociationKeys() -> [String: p256Key]: List the accounts that have been created
+* sign(data: Data for username: String) -> Signature: Sign a piece of data with the user’s key
+* generateFingerprint(eventType: String?, customData: JSON?): Send Keyri a fingerprint of the device
+
+
+
 
 ### Example: Protecting Registration/Signup
 
