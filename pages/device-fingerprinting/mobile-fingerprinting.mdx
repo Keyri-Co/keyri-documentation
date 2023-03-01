@@ -126,6 +126,48 @@ const key = Keyri.generateAssociationKey(username);
 </Tab>
 </Tabs>
 
+### Example: Full Serverside Fingerprinting
+<Tabs items={['Swift', 'Kotlin']}>
+<Tab>
+```swift copy
+func createUser(username: String) -> P256.Signing.PublicKey? {
+	If Keyri().listAssociationKeys().count < MAX_ACCOUNT_LIMIT {
+		
+	let key = Keyri().generateAssociationKey(username: username)
+		
+	// Optionally sign custom data with the key at this stage
+		// remember, the key can always be retrieved with getAssociationKey
+		Keyri().generateFinerprint(eventType: .login, custom: [Custom data here])
+		Return key
+	} else {
+		// Alert user that they’re exceeding the limit here
+		return nil
+	}
+}
+````
+</Tab>
+<Tab>
+```kotlin copy
+fun createUser(username: String): String? {
+    val keyri = Keyri(this@MainActivity, appKey) 
+    
+    return if (keyri.listAssociationKey().size < MAX_ACCOUNT_LIMIT) {
+        val key = keyri.generateAssociationKey(username)
+
+        // Optionally sign custom data with the key at this stage
+        // remember, the key can always be retrieved with getAssociationKey
+        keyri.generateFinerprint(eventType: EventType.Login, custom: "[Custom data here]")
+        
+        key
+    } else {
+        // Alert user that they're exceeding the limit here
+        null
+    }
+}
+````
+</Tab>
+</Tabs>
+
 ## Android Accounts Backup
 
 Preserving user-device fingerprints even after your app is deleted and re-installed requires additional backup configuration steps. This document will help you set up your account backup configuration.
