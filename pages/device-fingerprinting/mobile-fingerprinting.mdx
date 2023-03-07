@@ -4,15 +4,33 @@ description: Permanently associate your users with their devices to improve UX a
 
 import { Tab, Tabs } from 'nextra-theme-docs';
 
-# Mobile app fingerprinting
+# Overview
 
-One major utility of the Keyri mobile SDKs is strong device fingerprinting; in other words, stably associating a given device on which your app is installed to a given user account or set of user accounts, then reading those associations when you want to in order to handle different situations. The fingerprint persists even if the user deletes your app and re-installs it.
+Keyri offers best in class mobile fingerprinting and device integrity verification, accessible in as little as one line of code.
 
-All Keyri device fingerprinting functionality and intelligence takes place within the confines of your mobile app, through Keyri SDK methods. Custom logic can be set up on your mobile app or dictated by your backend based on the outputs of Keyri's mobile fingerprint-related methods.
+The SDK will:
 
-This device fingerprinting and fingerprint reading functionality is independent of the authentication system you use, and the fingerprinting methods outlined below can be embedded into your existing signup and login functions as additional sources of data that enable further conditional app behavior.
+- Generate a unique fingerprint which persists even when the app is deleted
+  This is something many developers struggle with. It's quite easy to keep a fingerprint UNTIL the app is deleted, but persistence across installations is tricky. This is exacerbated by the ease with which bad actors can clear out records in the iOS Keychain or Android Secure Storage.
+- Send the information to our API using a strong cryptography technique which ensures the information cannot be tampered with or intercepted
+  Note: This information will be available on the Keyri Dashboard
+- Verify device integrity to stop bad actors in their tracks. We have checks to protect against
+  - Jailbreaks
+  - Malicious sideloaded applications
+  - Method swizzling
+  - Code tampering
+  - Emulators
+  - Optional protection against:
+    - VPN
+    - Blocklist usage
+    - TOR
 
-## Implementation
+## Requirements
+
+- iOS: iOS 14+
+- Android: API Level 23
+
+## Implementation and Installation
 
 <iframe
   width='560'
@@ -24,7 +42,16 @@ This device fingerprinting and fingerprint reading functionality is independent 
   allowfullscreen
 ></iframe>
 
-The two primary Keyri SDK methods used to implant and retrieve user-related device fingerprints are `generateAssociationKey(userIdentifier)` and `listUniqueAccounts()` respectively. The former is used to create a key pair for a user and return a public key that you can either ignore or save to your database for further use, such as continuous authentication. The latter is simply used to list the key pairs present on the device, associated with your app, as well as the user identifiers they are associated with, returning an array. If this array is empty, it is highly likely that the user has only recently installed your app and is a legitimate user, thereby allowing them to complete registration with no added friction. On the other hand, if this array is not empty, they can be confidently directed to log into their existing account.
+- iOS: https://docs.keyri.com/mobile-sdks/ios
+- Android: (https://docs.keyri.com/mobile-sdks/android)
+
+### Methods
+
+- `generateAssociationKey(username: String) -> p256Key`: Create a persistent (even on app deletion) record of a user
+- `getAssociationKey(username: String) -> p256Key?`: Retrieve key for a given user, if the user has been created
+- `listAssociationKeys() -> [String: p256Key]`: List the accounts that have been created
+- `sign(data: Data for username: String) -> Signature`: Sign a piece of data with the user's key
+- `generateFingerprint(eventType: String?, customData: JSON?)`: Send Keyri a fingerprint of the device
 
 ### Example: Protecting Registration/Signup
 
@@ -63,6 +90,7 @@ fun registerUser(username: String, password: String) {
         // Keyri Handles saving the key in the Secure Enclave for you
         // For example, you can later use this key pair to passwordlessly authenticate the user
     }
+
 }
 ````
 </Tab>
@@ -85,6 +113,7 @@ void registerUser(String username, String password) {
     });
 }
 ````
+
 </Tab>
 <Tab>
 ```javascript copy
@@ -100,9 +129,51 @@ const key = Keyri.generateAssociationKey(username);
 // Optionally, do something else with the key that just got generated.
 // Keyri Handles saving the key in the Secure Enclave for you
 // For example, you can later use this key pair to passwordlessly authenticate the user
+    }
 }
+````
+</Tab>
+</Tabs>
+
+### Example: Full Serverside Fingerprinting
+<Tabs items={['Swift', 'Kotlin']}>
+<Tab>
+```swift copy
+func createUser(username: String) -> P256.Signing.PublicKey? {
+	If Keyri().listAssociationKeys().count < MAX_ACCOUNT_LIMIT {
+
+	let key = Keyri().generateAssociationKey(username: username)
+
+	// Optionally sign custom data with the key at this stage
+		// remember, the key can always be retrieved with getAssociationKey
+		Keyri().generateFinerprint(eventType: .login, custom: [Custom data here])
+		Return key
+	} else {
+		// Alert user that they’re exceeding the limit here
+		return nil
+	}
 }
-```
+````
+</Tab>
+<Tab>
+```kotlin copy
+fun createUser(username: String): String? {
+    val keyri = Keyri(this@MainActivity, appKey) 
+    
+    return if (keyri.listAssociationKey().size < MAX_ACCOUNT_LIMIT) {
+        val key = keyri.generateAssociationKey(username)
+
+        // Optionally sign custom data with the key at this stage
+        // remember, the key can always be retrieved with getAssociationKey
+        keyri.generateFinerprint(eventType: EventType.Login, custom: "[Custom data here]")
+
+        key
+    } else {
+        // Alert user that they're exceeding the limit here
+        null
+    }
+}
+````
 </Tab>
 </Tabs>
 
@@ -206,7 +277,7 @@ To implement a backup agent, you must:
 
 Android currently provides backup helpers that will back up and restore complete files from SharedPreferences and internal storage.
 
-You can implement your own backup according to the documentation: [Back up key-value pairs with Android Backup Service](https://developer.android.com/guide/topics/data/keyvaluebackup) . In this case just include `keyri_backup_prefs` string to your BackupAgentHelper as shown below:
+You can implement your own backup according to the documentation: [Back up key-value pairs with Android Backup Service](https://developer.android.com/guide/topics/data/keyvaluebackup). In this case just include `keyri_backup_prefs` string to your BackupAgentHelper as shown below:
 
 ```kotlin
 class MyBackupAgent : BackupAgentHelper() {
@@ -247,4 +318,13 @@ Or you can just use our [KeyriPrefsBackupAgent](https://github.com/Keyri-Co/key
 
 ### Testing backup
 
-See [Test backup and restore](https://developer.android.com/guide/topics/data/testingbackup) to test backup of Keyri accounts.
+See [Test backup and restore](https://developer.android.com/guide/topics/data/testingbackup) to test backup of Keyri accounts.
+
+## Privacy Disclosures
+
+When submitting your Android app that uses the Keyri SDK for fingerprinting, be sure to disclose the following data collection practice:
+| Data Types | Collected | Shared | Processed ephemerally | Required or Optional | Purposes |
+| --- | --- | --- | --- | --- | --- |
+| Device or other IDs | Yes | Yes | No | Required | Analytics |
+
+An analogous disclosure is not required for iOS apps, since the device data is not used by Keyri for cross-app tracking.
