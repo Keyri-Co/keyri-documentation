@@ -146,7 +146,7 @@ func createUser(username: String) -> P256.Signing.PublicKey? {
 
 	// Optionally sign custom data with the key at this stage
 		// remember, the key can always be retrieved with getAssociationKey
-		Keyri().generateFinerprint(eventType: .login, custom: [Custom data here])
+		Keyri().generateFingerprint(eventType: .login, custom: [Custom data here])
 		Return key
 	} else {
 		// Alert user that they’re exceeding the limit here
@@ -165,7 +165,7 @@ fun createUser(username: String): String? {
 
         // Optionally sign custom data with the key at this stage
         // remember, the key can always be retrieved with getAssociationKey
-        keyri.generateFinerprint(eventType: EventType.Login, custom: "[Custom data here]")
+        keyri.generateFingerprint(eventType: EventType.Login, custom: "[Custom data here]")
 
         key
     } else {
