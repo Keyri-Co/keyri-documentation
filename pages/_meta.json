@@ -1,8 +1,10 @@
 {
   "index": "Introduction",
+  "qr_integration": "QR Integration",
   "authentication": "Authentication",
   "mobile-sdks": "Mobile SDKs",
   "device-fingerprinting": "Device Fingerprinting",
+  "passkeys": "Passkeys",
   "integrations": "Integrations",
   "changelog": "Changelog",
   "dashboard": {
