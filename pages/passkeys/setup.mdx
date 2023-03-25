@@ -1,47 +1,3 @@
-# Installation
-
-__Using Yarn or NPM__
-
-`$ npm insall --save keyri-front-end`
-
-or
-
-`$ yarn add keyri-front-end`
-
-# Server
-
-You need to set up two routes (`registration`,`authentication`) to verify the information the client is providing you is valid.
-
-## Registration
-
-```js
-import * as KeyriFrontEnd  from "keyri-front-end";
-
-//
-// The publicSignatureKey and privateSignatureKey come from the Keyri-Dashboard.
-// In a production Environment, these variables are .env variables
-//
-import {publicSignatureKey, privateSignatureKey} from "./keys.mjs";
-const {passkeyRegister} = KeyriFrontEnd.default.ApplessServer; 
-
-const host = "my.app.com";
-const userId = 
-
-export async function passkey_registration(req, res, nxt)  {
-    let response = await passkeyRegister(
-        publicSignatureKey, 
-        privateSignatureKey, 
-        req.body, 
-        host, 
-        userId, 
-        userName,
-        metaData);
-    res.status(200).send(response);
-}
-```
-
-## 
-
 ## Desktop Passkey Setup
 This 
 
@@ -51,27 +7,6 @@ Lorem Ipsum Dolor Sed Amat...
 
 ## Setup
 
-Do something like this.
-
-```js
-
-//
-// This file sets up our "localAppless" object
-// and exposes some functions that we can tie to buttons
-// on the demo page
-//
-
-const { ApplessLocal } = KeyriFrontEnd;
-
-//
-// Set up
-//
-let localAppless = new ApplessLocal(
-  "./api/passkey/register",
-  "./api/passkey/login"
-);
-
-```
 
 ## Local Registration
 In the same file (or not) do this:

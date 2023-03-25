@@ -12,9 +12,32 @@ Good News! Keyri provides this out of the box for desktop and QR authentication 
 
 ## Setup
 
-Keyri's mobile SDKs handle the identification of relevant mobile parameters, secure cryptographic key generation, key storage, encryption, and API communications required to create a persistent mobile device fingerprint to track and identify your customers' mobile devices.
-### Desktop
+_(this assumes you've already installed `keyri-auth-core`. If not, just npm i `keyri-auth-core`)_
 
-### Mobile
+Somewhere in your application, instantiate and export `ApplessLocal` from `keyri-auth-core` with information about where your api-end-points are (more on that in a minute)
 
-### Server
+```js
+
+//
+// This file sets up our "localAppless" object
+// and exposes some functions that we can tie to buttons
+// to
+//
+
+import { ApplessLocal } from "keyri-auth-core";
+
+//
+// Instantiate the `ApplessLocal` class, telling it where your
+// passkey-registration-route and passkey-validation-route are 
+//
+let localAppless = new ApplessLocal(
+  "./api/passkey/register",
+  "./api/passkey/login"
+);
+
+//
+// export your live object for use elsewhere in your project
+//
+
+export {localAppless}
+```

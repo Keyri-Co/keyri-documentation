@@ -1,5 +1,5 @@
 {
-  "local-passkeys": "Local Passkeys",
-  "qr-passkeys": "QR Passkeys",
-  "setup": "Setup"
+  "server": "Server",
+  "desktop": "Desktop",
+  "mobile": "Mobile"
 }
