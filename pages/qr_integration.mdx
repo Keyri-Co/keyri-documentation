@@ -22,8 +22,7 @@ To put a QR on your login page you'll need to do the following:
     <div class="pre-blurry" id="qr-target"></div>
     <div id="qr-lay-over"></div>
 ```
-
-( Working example of [iframe](https://github.com/Keyri-Co/keyri-hello-world/blob/main/static/qr.html) and [css](https://github.com/Keyri-Co/keyri-hello-world/blob/main/static/css/qr.css))
+( By the way, the working example of [iframe](https://github.com/Keyri-Co/keyri-hello-world/blob/main/static/qr.html) and [css](https://github.com/Keyri-Co/keyri-hello-world/blob/main/static/css/qr.css) which are probably good enough to get you started)
 
 4. Start the `IFrameManager`
 
@@ -33,10 +32,27 @@ To put a QR on your login page you'll need to do the following:
   await iFrameManager.start();
 ```
 
-## Embedding the IFrame
+## Embedding the iFrame
 
-Embed an iframe in your authentication page in the desired DOM element with ./qr.html as its src
+Embed an iframe in your authentication page in the desired DOM element with ./qr.html as its src. 
 
+Any querystring parameters you add to that src are available to your mobile app via our API.
+
+Also, there are a few "special" parameters that do things:
+
+### Special iFrame Parameters
+
+Please note none of these are necessary, but are avaible to use if they help you and your situation.
+
+- _qsd_ - If true, all query-string-data will be put into the QR code itself.
+
+- _mobile_ - If you are allowing "appless" auth, this is the address of your mobile site.
+
+- _Environment_ - If "dev" or "test", puts you on that environment and lets your change your origin.
+
+- _Origin_ - The `origin` your site actually sits on when not on localhost. This only works if you are on localhost, and your `Environment` is "dev". 
+
+### Production Example
 ```html
 <!-- PRODUCTION -->
 <iframe
@@ -49,6 +65,7 @@ Embed an iframe in your authentication page in the desired DOM element with ./qr
 ></iframe>
 ```
 
+### Development Example
 ```html
 <!-- DEVELOPMENT -->
 <iframe
@@ -63,32 +80,28 @@ Embed an iframe in your authentication page in the desired DOM element with ./qr
 
 ## QR Event Handling
 
-### - Getting Data
+### Getting Data
 So you've got a QR code on your page now? Great! Next, you'll probably want to something with the information coming out of it and your user's phone.
 
-### - Event Types
+### Event Types
 Below are the event types that are currently avaible to listen to from the library:
 
-* qr_event_mobile_connect - this is when a mobile device connects to your QR Code
+* _qr_event_mobile_connect_ - this is when a mobile device connects to your QR Code
 
-* qr_event_socket_error - when there's an error coming from the API
+* _qr_event_socket_error_ - when there's an error coming from the API
 
-* qr_event_risk_data - Risk Data about the connection coming from the API
+* _qr_event_risk_data_ - Risk Data about the connection coming from the API
 
-* qr_event_session_validate - Decrypted data from the mobile app
+* _qr_event_session_validate_ - Decrypted data from the mobile app
 
-* qr_event_appless_login - If you're using mobile QR login, this is what will be emmitted when the user is logged in
+* _qr_event_appless_login_ - If you're using mobile QR login, this is what will be emmitted when the user is logged in
 
-* qr_event_appless_registration - When the user registers their phone via QR for appless, this is the event that it emmitted
+* _qr_event_appless_registration_ - When the user registers their phone via QR for appless, this is the event that it emmitted
 
-### - Setup
+### Setup
 
 ```js
-/**
- * 
- * ./src/mjs/eventManager.mjs
- *
- **/ 
+// ./src/mjs/eventManager.mjs
 
 import {EventManager} from "keyri-auth-core";
 window.eventManager = new EventManager(window);
