@@ -1,0 +1,43 @@
+# Mobile Passkeys
+
+This is what shows up on the user's phone's browser after they scan a QR code.
+
+## Mobile HTML
+
+```html
+<script type="module">
+  import { ApplessMobile } = "keyri-auth-core";
+
+  //
+  // App Key will only work in dev environments.
+  // In production, it will make your app fail
+  //
+  const mobileAppless = new ApplessMobile(
+    "dev",
+    "IT7VrTQ0r4InzsvCNJpRCRpi1qzfgpaj"
+  );
+
+  //
+  // This makes a request to the Keyri API to get the data 
+  // for the QR Code that was scanned.
+  //
+  // n.b. `mobileData` has an object called "template" which tells you everything
+  // the API has decided about the request.
+  //
+  const mobileData = await mobileAppless.start();
+
+  if (mobileData.userParameters?.register === "true") {
+    //
+    // If you made the user put in a PIN on the desktop, make them
+    // enter the same PIN here
+    //
+    let ONE_TIME_PIN = prompt("Enter a number between 1 and 100");
+    
+    //
+    let output = await mobileAppless.finish(ONE_TIME_PIN);
+  } else {
+    let output = await mobileAppless.finish();
+  }
+</script>
+
+```

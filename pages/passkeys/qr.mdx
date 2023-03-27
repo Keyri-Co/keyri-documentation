@@ -1,0 +1,35 @@
+# QR Passkeys
+
+This allows you to put a passkey on your phone, and later scan other devices to login - without having to install an App.
+
+## Desktop Validation
+
+Nothing! If you are set up for local passkeys a registered phone just has to scan the QR.
+
+## Desktop Registration
+
+```js
+//
+// This generates a url for the iframe.
+// YOU have to set the `src` of the iframe.
+//
+async function makeMobilePassKey(e) {
+  e.preventDefault();
+
+  // Since the user is already logged in, we send something to prove that a logged in user is initiating this request
+  const SESSION_TOKEN = "{SESSION_TOKEN}";
+
+  // This is the iframe the user will scan to register their phone
+  const QR_IFRAME = document.getElementById("qr-iframe");
+
+  // We get random input from the user to prove they control both the DESKTOP and PHONE.
+  const ONE_TIME_PIN = prompt("Pick a number between 1 and 100");
+
+  // Get the querystring we need to set for the iframe
+  let QUERY_STRING = localAppless.registerMobile(SESSION_TOKEN, ONE_TIME_PIN);
+
+  // Finally, set the src of the iframe.
+  let TMP_SRC = `./qr.html?mobile=http://localhost/mobile.html&qsd=false&Environment=dev&Origin=misc.keyri.com&${QUERY_STRING}`;
+  QR_IFRAME.src = TMP_SRC;
+}
+```

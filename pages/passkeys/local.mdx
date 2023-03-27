@@ -1,0 +1,28 @@
+# Local Passkey Implementation
+
+
+## Local Registration
+Import the `localAppless` object you created in your passkey set up so you can trigger it with buttons or whatever.
+
+```js
+// Register a LOGGED IN USER
+async function makeLocalPassKey(e) {
+  e.preventDefault();
+  let idToken = "{USER-SESSION-TOKEN}";
+  await localAppless.register(idToken);
+  alert("LOCAL PASS KEY CREATED");
+}
+```
+Where `{USER-SESSION-TOKEN}` is the session token or something to prove the user trying to register is logged in that you can prove server side.
+
+
+## Local Authentication
+```js
+// Authenticate an EXISTING USER
+async function authenticateLocalPasskey(e) {
+  e.preventDefault();
+  let authData = await localAppless.authenticate(true);
+  console.log({ authData });
+  alert("LOGGED IN!");
+}
+```

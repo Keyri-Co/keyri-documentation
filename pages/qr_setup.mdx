@@ -1,4 +1,4 @@
-# QR Integration
+# QR Setup
 
 To put a QR on your login page you'll need to do the following:
 
@@ -84,19 +84,20 @@ Please note none of these are necessary, but are avaible to use if they help you
 So you've got a QR code on your page now? Great! Next, you'll probably want to something with the information coming out of it and your user's phone.
 
 ### Event Types
+
 Below are the event types that are currently avaible to listen to from the library:
 
-* _qr_event_mobile_connect_ - this is when a mobile device connects to your QR Code
+* _qr_event_session_validate_ - Decrypted data from the __mobile app__ from an approved a login request.
 
-* _qr_event_socket_error_ - when there's an error coming from the API
+* _qr_event_socket_error_ - This is when there's an error coming from the API. 
 
-* _qr_event_risk_data_ - Risk Data about the connection coming from the API
+* _qr_event_risk_data_ - Risk Data about the connection coming from the API that was also signed by the API.
 
-* _qr_event_session_validate_ - Decrypted data from the mobile app
+* _qr_event_appless_login_ - If you're using mobile QR login, this is what will be emmitted when the user is logged in. __Alert the user or reload the page.__
 
-* _qr_event_appless_login_ - If you're using mobile QR login, this is what will be emmitted when the user is logged in
+* _qr_event_appless_registration_ - When the user registers their phone via QR for appless. __Alert the user their request was successful.__
 
-* _qr_event_appless_registration_ - When the user registers their phone via QR for appless, this is the event that it emmitted
+* _qr_event_mobile_connect_ - this is when a mobile device connects to your QR Code. The QR code becomes blurry.
 
 ### Setup
 
