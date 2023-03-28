@@ -18,6 +18,10 @@ The SDK can be utilized for
 - Runtime injection detction
 - [Coming soon] Obfucscation and hardening
 
-## Implementation
+## Integration
 
-See [mobile SDK documentation](/mobile-sdks) for details
+See [mobile SDK documentation](/mobile-sdks) for detailed instructions on how to integrate our SDKs into your application
+
+## Usage
+
+- Keyri automatically runs our security checks upon the instantiation of the Keyri object built into our SDKs. So simply calling the Keyri Constructor will trigger each check. The SDK is configured to terminate the application if any of these checks fail, as the entire runtime environment and all of the data within your application are compromised in this situation. 
