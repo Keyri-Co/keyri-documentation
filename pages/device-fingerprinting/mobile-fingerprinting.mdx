@@ -51,7 +51,7 @@ The SDK will:
 - `getAssociationKey(username: String) -> p256Key?`: Retrieve key for a given user, if the user has been created
 - `listAssociationKeys() -> [String: p256Key]`: List the accounts that have been created
 - `sign(data: Data for username: String) -> Signature`: Sign a piece of data with the user's key
-- `generateFingerprint(eventType: String?, customData: JSON?)`: Send Keyri a fingerprint of the device
+- `sendEvent(username: String?, eventType: String?, success: Bool?)`: Send Keyri a fingerprint of the device
 
 ### Example: Protecting Registration/Signup
 
@@ -146,7 +146,7 @@ func createUser(username: String) -> P256.Signing.PublicKey? {
 
 	// Optionally sign custom data with the key at this stage
 		// remember, the key can always be retrieved with getAssociationKey
-		Keyri().generateFingerprint(eventType: .login, custom: [Custom data here])
+		Keyri().sendEvent(eventType: .login, success: true)
 		Return key
 	} else {
 		// Alert user that they’re exceeding the limit here
@@ -165,7 +165,7 @@ fun createUser(username: String): String? {
 
         // Optionally sign custom data with the key at this stage
         // remember, the key can always be retrieved with getAssociationKey
-        keyri.generateFingerprint(eventType: EventType.Login, custom: "[Custom data here]")
+        keyri.sendEvent(eventType: EventType.Login, success: true)
 
         key
     } else {
