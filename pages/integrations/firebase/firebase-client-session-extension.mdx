@@ -182,16 +182,28 @@ try {
     password: password,
     );
 
-    final uid = credential.uid
-    final emailVerified = credential.emailVerified
-    final isAnon = credential.isAnonymous
-    final providerData = credential.providerData
+    final time = DateTime.now();
+    final expTime = time.add(Duration(hours: 1));
+    
+    final token = {
+      ‘refreshToken’: credential.refreshToken,
+      ‘accessToken’: credential.accessToken,
+      ‘expirationTime’: expTime
+    };
+    
+    final json = {
+        ‘uid’: credential.uid,
+        ‘emailVerified’: credential.emailVerified,
+        ‘isAnonymous’: credential.isAnonymous,
+        ‘providerData’: credential.providerData,
+        ‘stsTokenManager’: token
+      };
+
+    final payload = json.toString();
 
     await keyri
     .easyKeyriAuth("[APPKey]",
-        '{"refreshToken":"$refreshToken",
-        "uid": "$uid",
-        "emailVerified": "emailVerified"}', emailAddress)
+        payload, credential.emailAddress)
     .then((authResult) => _onAuthResult(authResult))
     .catchError((error, stackTrace) => _onError(error));
 
