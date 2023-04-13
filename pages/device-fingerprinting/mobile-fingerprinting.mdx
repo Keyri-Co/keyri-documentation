@@ -51,7 +51,7 @@ Note: This information will be available on the Keyri Dashboard
 - `getAssociationKey(username: String) -> p256Key?`: Retrieve key for a given user, if the user has been created
 - `listAssociationKeys() -> [String: p256Key]`: List the accounts that have been created
 - `sign(data: Data for username: String) -> Signature`: Sign a piece of data with the user's key
-- `sendEvent(username: String?, eventType: String?, success: Bool?)`: Send Keyri a fingerprint of the device
+- `sendEvent(username: String?, eventType: EventType, eventResult: EventResult)`: Send Keyri a fingerprint of the device
 
 ### Example: Protecting Registration/Signup
 
@@ -90,7 +90,7 @@ suspend fun registerUser(username: String, password: String) {
         // Keyri Handles saving the key in the Secure Enclave for you
         // For example, you can later use this key pair to passwordlessly authenticate the user
     }
-    }
+}
 ````
 </Tab>
 <Tab>
