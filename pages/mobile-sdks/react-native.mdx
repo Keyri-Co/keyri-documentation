@@ -106,7 +106,7 @@ getInitialUrl();
 
 ### Option 2 - In-App Scanner
 
-Use `authWithScanner` built-in functionality to delegate authentication to SDK. Call a method for `authWithScanner` and pass `App Key`, optional public user ID, and payload:
+Use `authWithScanner` built-in functionality to delegate authentication to SDK. Call a method for `authWithScanner` and pass optional public user ID, and payload:
 
 ```javascript copy
 import Keyri from 'react-native-keyri';
@@ -116,7 +116,6 @@ const InitialScreen: React.FC<InitialScreenProps> = ({ route }) => {
     const params: ISearchParam = parseUrlParams(scan.data);
     const sessionId: string = params?.sessionId ?? '';
     const options = {
-      appKey: APP_KEY,
       sessionId: sessionId,
       publicUserId: '',
     };
@@ -141,7 +140,6 @@ const InitialScreen: React.FC<InitialScreenProps> = ({ route }) => {
     const onReadSuccess = async (scan: BarCodeReadEvent) => {
         const params: ISearchParam = parseUrlParams(scan.data);
         const options = {
-            appKey: APP_KEY,
             sessionId: params?.sessionId,
             publicUserId: '',
         };
@@ -202,6 +200,8 @@ const PopupModal: React.FC<IPopupModalProps> = ({
 
 The following methods are available to interact with the Keyri SDK API, which can be used to craft your own custom flows and leverage the SDK in different ways:
 
+- `initializeKeyri: (options: InitializeKeyriOptions)`- call it before all Keyri operations
+
 - `initiateQrSession: (options: InitiateQrSessionOptions)`- call it after obtaining the sessionId from QR code or deep link. Returns Session object with Risk attributes (needed to show confirmation screen) or Exception
 
 - `initializeDefaultScreen: (sessionId: string, payload: string) `- to show Confirmation with default UI. Returns Boolean result. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
@@ -216,7 +216,13 @@ The following methods are available to interact with the Keyri SDK API, which ca
 
 - `listAssociationKey: ()` - returns a list of names (publicUserIds) of "association keys" (public keys)
 
+- `listUniqueAccounts: ()` - returns a list of association keys except key for Anon user
+
 - `getAssociationKey: (publicUserId?: string)` - returns Base64 public key for the specified publicUserId
+
+- `removeAssociationKey: (publicUserId?: string)` - removes public key for the specified publicUserId
+
+- `sendEvent: (data: SendEventOptions)` - sends fingerprint event with specified event type and result. Returns created event response
 
 ### Session Object
 
