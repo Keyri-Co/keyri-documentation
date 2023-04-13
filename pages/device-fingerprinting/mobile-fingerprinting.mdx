@@ -58,30 +58,30 @@ Note: This information will be available on the Keyri Dashboard
 The following example protects your registration/signup flow. Regardless of the credentials that the user inputs when trying to create a new account (like a new username), the Keyri methods included here will detect whether that device has already registered an account, and if so, suggest to the user to log in with that existing account rather than create a new one. Of course, you can implement other logic like allowing up to two accounts, blocking certain accounts altogether, etc. All you're getting when running `listUniqueAccounts()` is a useful, reliable array of accounts associated with that device, and you can parse and act upon it however you'd like.
 
 <Tabs items={['Swift', 'Kotlin', 'Dart/Flutter', 'React Native']}>
-    <Tab>
-        ```swift copy
-        func registerUser(username: String) throws {
-        if let list = Keyri().listAssociationKey() {
+<Tab>
+```swift copy
+func registerUser(username: String) throws {
+    if let list = Keyri().listAssociationKey() {
         if let existingUsername = list.keys.first {
-        // Alert user that there is an existing user, and encourage them to sign in here
-    }
+            // Alert user that there is an existing user, and encourage them to sign in here
+        }
     } else {
-        let key = try Keyri().generateAssociationKey(username: username)
-        // Then run your regular registration process
-        // Optionally, do something else with the key that just got generated.
-        // Keyri Handles saving the key in the Secure Enclave for you
-        // For example, you can later use this key pair to passwordlessly authenticate the user
+       let key = try Keyri().generateAssociationKey(username: username)
+       // Then run your regular registration process
+       // Optionally, do something else with the key that just got generated.
+       // Keyri Handles saving the key in the Secure Enclave for you
+       // For example, you can later use this key pair to passwordlessly authenticate the user
     }
-    }
-        ````
-    </Tab>
-    <Tab>
-        ```kotlin copy
-        suspend fun registerUser(username: String, password: String) {
-        val keyri = Keyri(this@MainActivity, appKey, publicApiKey)
-        val keys = keyri.listAssociationKey()
+}
+````
+</Tab>
+<Tab>
+```kotlin copy
+suspend fun registerUser(username: String, password: String) {
+    val keyri = Keyri(this@MainActivity, appKey, publicApiKey)
+    val keys = keyri.listAssociationKey()
 
-        if (keys.isNotEmpty()) {
+    if (keys.isNotEmpty()) {
         // Alert user that there is an existing user, and encourage them to sign in here
     } else {
         val key = keyri.generateAssociationKey(publicUserId = username)
@@ -90,64 +90,60 @@ The following example protects your registration/signup flow. Regardless of the 
         // Keyri Handles saving the key in the Secure Enclave for you
         // For example, you can later use this key pair to passwordlessly authenticate the user
     }
-
     }
-        ````
-    </Tab>
-    <Tab>
-        ```dart copy
-        void registerUser(String username, String password) {
-        Keyri keyri = Keyri();
+````
+</Tab>
+<Tab>
+```dart copy
+void registerUser(String username, String password) {
+    Keyri keyri = Keyri();
 
-        // Call this method before access to SDK's methods
-        await keyri.initialize(appKey, publicApiKey);
+    // Call this method before access to SDK's methods
+    await keyri.initialize(appKey, publicApiKey);
 
-        keyri.listAssociationKey()
+    keyri.listAssociationKey()
         .then((keys) => {
-        if (keys.isNotEmpty()) {
+            if (keys.isNotEmpty()) {
+                // Alert user that there is an existing user, and encourage them to sign in here
+            } else {
+                String key = keyri.generateAssociationKey(username)
+                // Then run your regular registration process
+                // Optionally, do something else with the key that just got generated.
+                // Keyri Handles saving the key in the Secure Enclave for you
+                // For example, you can later use this key pair to passwordlessly authenticate the user
+            }
+        });
+    }
+````
+</Tab>
+<Tab>
+```javascript copy
+async function registerUser(username: string, password: string) {
+    // Call this method before access to SDK's methods
+    await Keyri.initialize(appKey, publicApiKey);
+
+    const keys = await Keyri.listAssociationKey();
+
+    if (keys?.length > 0) {
         // Alert user that there is an existing user, and encourage them to sign in here
     } else {
-        String key = keyri.generateAssociationKey(username)
+        const key = await Keyri.generateAssociationKey(username);
         // Then run your regular registration process
         // Optionally, do something else with the key that just got generated.
         // Keyri Handles saving the key in the Secure Enclave for you
         // For example, you can later use this key pair to passwordlessly authenticate the user
     }
-    });
-    }
-        ````
-
-    </Tab>
-    <Tab>
-        ```javascript copy
-        async function registerUser(username: string, password: string) {
-        // Call this method before access to SDK's methods
-        await Keyri.initialize(appKey, publicApiKey);
-
-        const keys = await Keyri.listAssociationKey();
-
-        if (keys?.length > 0) {
-
-// Alert user that there is an existing user, and encourage them to sign in here
-    } else {
-        const key = await Keyri.generateAssociationKey(username);
-// Then run your regular registration process
-// Optionally, do something else with the key that just got generated.
-// Keyri Handles saving the key in the Secure Enclave for you
-// For example, you can later use this key pair to passwordlessly authenticate the user
-    }
-    }
-        ````
-    </Tab>
+}
+````
+</Tab>
 </Tabs>
 
 ### Example: Full Serverside Fingerprinting
 <Tabs items={['Swift', 'Kotlin']}>
-    <Tab>
-        ```swift copy
-        func createUser(username: String) -> P256.Signing.PublicKey? {
-        If Keyri().listAssociationKeys().count < MAX_ACCOUNT_LIMIT {
-
+<Tab>
+```swift copy
+func createUser(username: String) -> P256.Signing.PublicKey? {
+    If Keyri().listAssociationKeys().count < MAX_ACCOUNT_LIMIT {
         let key = Keyri().generateAssociationKey(username: username)
 
         // Optionally sign custom data with the key at this stage
@@ -155,26 +151,26 @@ The following example protects your registration/signup flow. Regardless of the 
         Keyri().sendEvent(eventType: .login, success: true)
         Return key
     } else {
-        // Alert user that they’re exceeding the limit here
-        return nil
+    // Alert user that they’re exceeding the limit here
+    return nil
     }
-    }
-        ````
-    </Tab>
-    <Tab>
-        ```kotlin copy
-        suspend fun createUser(username: String): String? {
-        val keyri = Keyri(this@MainActivity, appKey, publicApiKey)
+}
+````
+</Tab>
+<Tab>
+```kotlin copy
+suspend fun createUser(username: String): String? {
+    val keyri = Keyri(this@MainActivity, appKey, publicApiKey)
 
-        return if (keyri.listAssociationKey().size < MAX_ACCOUNT_LIMIT) {
+    return if (keyri.listAssociationKey().size < MAX_ACCOUNT_LIMIT) {
         val key = keyri.generateAssociationKey(username)
 
         // Optionally sign custom data with the key at this stage
         // remember, the key can always be retrieved with getAssociationKey
         keyri.sendEvent(
-        publicUserId: username,
-        eventType: EventType.Login,
-        eventResult: FingerprintLogResult.Success
+            publicUserId: username,
+            eventType: EventType.Login,
+            eventResult: FingerprintLogResult.Success
         )
 
         key
@@ -182,9 +178,9 @@ The following example protects your registration/signup flow. Regardless of the 
         // Alert user that they're exceeding the limit here
         null
     }
-    }
-        ````
-    </Tab>
+}
+````
+</Tab>
 </Tabs>
 
 ## Android Accounts Backup
