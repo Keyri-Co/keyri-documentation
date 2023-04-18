@@ -1,0 +1,68 @@
+# Server
+
+In this documentation, we'll guide you through setting up two endpoints to handle passkey registration and validation requests. The frontend library creates these requests from a logged-in user. We'll be using the keyri-auth-core library for authentication.
+
+## Passkey Registration
+
+First, set up an endpoint to handle the passkey registration request.
+
+```javascript
+// Import the keyri-auth-core library and required keys
+import * as KeyriAuthCore from "keyri-auth-core";
+import { publicSignatureKey, privateSignatureKey } from "./keys.mjs";
+const { passkeyRegister } = KeyriAuthCore.default.ApplessServer;
+const HOST = "example.com";
+
+// Verify the user's ID (replace IDP.getUserData with your identity provider's method)
+const user = await IDP.getUserData(request.body);
+
+// Create the passkey registration handler
+export async function passkey_registration(req, res, nxt) {
+  try {
+    const response = await passkeyRegister(
+      publicSignatureKey,
+      privateSignatureKey,
+      req.body,
+      HOST,
+      user.userId,
+      user.userName,
+      user.metaData
+    );
+
+    res.status(200).send(response);
+  } catch (error) {
+    console.error(error);
+    res.status(400).send({ message: "Passkey registration failed" });
+  }
+}
+
+```
+
+## Passkey Validation
+
+Next, set up an endpoint to handle the passkey validation request.
+
+```javascript
+// Import the keyri-auth-core library and required keys
+import * as KeyriAuthCore from "keyri-auth-core";
+import { publicSignatureKey, apiPublicKey } from "./keys.mjs";
+const { passkeyLogin } = KeyriAuthCore.default.ApplessServer;
+
+// Create the passkey validation handler
+export async function passkey_validation(req, res, nxt) {
+  try {
+    const response = await passkeyLogin(apiPublicKey, req.body, publicSignatureKey);
+    res.status(200).send({ message: "You are authorized to log in" });
+  } catch (error) {
+    console.error(error);
+    res.status(400).send({ message: "Passkey validation failed" });
+  }
+}
+
+```
+
+## Managing Keys
+
+In this example, we're importing keys from an mjs file. For better security in a production environment, store these keys as environment variables.
+
+To obtain your application's keys, visit app.keyri.com > Setup & Credentials > Passkey Public Key. 

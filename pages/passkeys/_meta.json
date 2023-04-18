@@ -1,0 +1,7 @@
+{
+  "setup": "Setup",
+  "events": "Events",
+  "server": "Server",
+  "qr": "QR Code",
+  "mobile": "Mobile Web App"
+}

@@ -1,0 +1,116 @@
+# Setup Documentation
+
+This guide demonstrates how to use the `ApplessLocal` class to handle user-triggered events in your login page. The `ApplessLocal` class manages the following actions:
+
+* Local Passkey Creation
+* Local Passkey Verification
+* Mobile Web Passkey Creation
+* Mobile Web Passkey Verification
+
+## Usage
+
+Import the `ApplessLocal` class:
+
+If you're using WebKit: 
+
+```javascript
+import { ApplessLocal } from 'keyri-auth-core';
+```
+
+Otherwise, access it through the global `KeyriFrontEnd` object:
+
+```javascript
+const { ApplessLocal } = KeyriFrontEnd;
+```
+
+Define the URL for mobile app authentication:
+
+```javascript
+const MobileAppUrl = "http://localhost/mobile.html";
+```
+
+Instantiate the `ApplessLocal` class with the API Routes:
+
+```javascript
+let localAppless = new ApplessLocal(
+  "./api/passkey/register",
+  "./api/passkey/login"
+);
+```
+
+## Register a Logged-in User
+
+Create an async function to register a logged-in user:
+
+```javascript
+async function makeLocalPassKey(e) {
+  // Prevent the default behavior of the event
+  e.preventDefault();
+  
+  // Replace {USER-SESSION-TOKEN} with the actual session token
+  let idToken = "{USER-SESSION-TOKEN}";
+  
+  // Register the user using the ApplessLocal instance
+  await localAppless.register(idToken);
+  
+  // In a production environment, you might reload the page or show a modal
+  // to inform the user about the successful registration
+  alert("LOCAL PASS KEY CREATED");
+}
+
+```
+
+## Authenticate an Existing User
+
+Create an async function to authenticate an existing user:
+
+```javascript
+async function authenticateLocalPasskey(e) {
+  // Prevent the default behavior of the event
+  e.preventDefault();
+  
+  // Authenticate the user using the ApplessLocal instance
+  let authData = await localAppless.authenticate(true);
+  
+  // In a production environment, you might reload the page
+  alert(authData.message);
+}
+```
+
+## Generate a URL for the iframe (Mobile Passkey)
+
+Create an async function to generate a URL for the iframe to register a mobile device:
+
+```javascript
+async function makeMobilePassKey(e) {
+  // Prevent the default behavior of the event
+  e.preventDefault();
+
+  // Replace {SESSION_TOKEN} with the actual session token
+  const SESSION_TOKEN = "{SESSION_TOKEN}";
+  
+  // Get the iframe element to update for user registration
+  const QR_IFRAME = document.getElementById("qr-iframe");
+
+  // Prompt the user for a one-time PIN to prevent shoulder surfing
+  const ONE_TIME_PIN = prompt("Pick a number between 1 and 100");
+
+  // Build the query string for the iframe using the ApplessLocal instance
+  let QUERY_STRING = localAppless.registerMobile(SESSION_TOKEN, ONE_TIME_PIN);
+  let TMP_SRC = `./qr.html?mobile=${MobileAppUrl}&qsd=false&${QUERY_STRING}`;
+  
+  // Set the 'src' attribute of the iframe, which takes the user to the mobile page
+  // where they can enter their passcode, submit biometrics, and register their device
+  QR_IFRAME.src = TMP_SRC;
+}
+
+```
+
+
+## Export Functions
+
+```javascript
+export { makeLocalPassKey, authenticateLocalPasskey, makeMobilePassKey };
+```
+
+By following this guide, you can handle user-triggered events on your login page using the `ApplessLocal` class.

@@ -1,0 +1,142 @@
+# QR Code
+
+In this documentation, we'll explain how to set up an iframe to handle QR code creation for user authentication. We will discuss event handling in the following section titled "Event Handling."
+
+Create an HTML file and add the following boilerplate code:
+
+```html
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link crossorigin="anonymous" media="all" rel="stylesheet" href="./css/qr.css" />
+  </head>
+  <body>
+    <div class="pre-blurry" id="qr-target"></div>
+    <div id="qr-lay-over"></div>
+  </body>
+</html>
+```
+
+Add the script tag to import the library and set up the iframe:
+
+```html
+<script src="./dist/index.min.js"></script>
+<script type="module">
+  // Note: If you're using a build tool like webpack, you can
+  // import `IFrameManager` from 'keyri-auth-core'. If you're
+  // not using a modular approach, the global `KeyriFrontEnd`
+  // is exposed by the library.
+
+  const { IFrameManager } = KeyriFrontEnd;
+  const iFrameManager = new IFrameManager();
+  await iFrameManager.start();
+</script>
+```
+
+This code initializes the iframe manager for QR code authentication. The IFrameManager is either imported from the keyri-auth-core library or accessed through the global KeyriFrontEnd object, depending on your project setup. The iframe manager is started using the start() method.
+
+## QR Code Styling (Optional)
+
+Below is an example of CSS styles that work well with the QR code iframe. Please note that these styles are not mandatory and can be customized to fit your preferences.
+
+```css
+/*
+* ***************************************************************************
+* CSS SUGGESTIONS THAT WE HAVE FOUND TO WORK WELL
+* BUT ARE BY NO MEANS MANDATORY
+* ***************************************************************************
+*/
+
+/* Set the dimensions and position of the QR overlay */
+#qr-lay-over {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+/* Set the dimensions and background size for the QR target */
+#qr-target {
+  height: 100%;
+  width: 100%;
+  z-index: -1;
+  background-size: 33%;
+}
+
+/* Define the blurOn animation for applying blur effect */
+@keyframes blurOn {
+  0% {
+    filter: opacity(1);
+  }
+  100% {
+    filter: opacity(0.3) blur(7px);
+  }
+}
+
+/* Define the blurOff animation for removing blur effect */
+@keyframes blurOff {
+  0% {
+    filter: opacity(0.3) blur(7px);
+  }
+  100% {
+    filter: opacity(1);
+  }
+}
+
+/* Apply initial blur effect to the QR target */
+.pre-blurry {
+  filter: opacity(0.3) blur(7px);
+}
+
+/* Apply the blurOn animation on the QR target when it becomes blurry */
+.blurry {
+  animation: blurOn 0.15s;
+  filter: opacity(0.3) blur(7px);
+}
+
+/* Apply the blurOff animation on the QR target when it becomes un-blurred */
+.off.blurry {
+  animation: blurOff 0.15s;
+  filter: opacity(1);
+}
+
+/* Set the reload background image and its properties */
+.reload {
+  background: url("https://static.keyri.com/library-keyri-connect/reload.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  background-size: contain;
+}
+
+/* Set the check background image and its properties */
+.check {
+  background: url("https://static.keyri.com/library-keyri-connect/check.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  background-size: contain;
+}
+
+/* Define the color animation for the QR code elements */
+rect:not(:first-child) {
+  animation: col 5s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+/* Set the color animation keyframes */
+@keyframes col {
+  0% {
+    fill: black;
+  }
+  100% {
+    fill: blue;
+  }
+}
+
+```
