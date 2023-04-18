@@ -1,0 +1,89 @@
+# Events
+
+The `EventHandler` module simplifies the handling of events coming from the QR iframe. This guide demonstrates how to listen for each event.
+
+## Usage
+
+Import the `EventManager` class:
+
+```javascript
+const { EventManager } = KeyriFrontEnd;
+window.eventManager = new EventManager(window);
+```
+
+## Handle Keyri App-Based Validation
+
+Set a handler for standard Keyri App-Based Validation. The `detail.data` attribute of the event object contains the decrypted payload from mobile. In a production environment, you would send this to your server for verification and session management.
+
+```javascript
+window.addEventListener("qr_event_session_validate", async (evt) => {
+  // Notify the user of the event, e.g., through a modal or by reloading the page
+  alert("SESSION VALIDATE!!");
+
+  // Log the session validation event
+  console.log("SESSION VALIDATE", evt.data);
+});
+```
+
+## Handle Risk Metrics
+
+If you are signed up for risk metrics, a base64 encoded risk detail object is made available to the browser, signed by the API, and twice by the browser. This can be sent to the server for analysis or decision-making.
+
+```javascript
+window.addEventListener("qr_event_risk_data", async (evt) => {
+  // Extract the risk data
+  let data = evt.detail.data.information.data;
+
+  // Log the risk data
+  console.log("RISK DATA", JSON.parse(atob(data)));
+});
+```
+
+## Handle Errors from the QR
+
+Set a handler for any errors coming out of the QR.
+
+```javascript
+window.addEventListener("qr_event_socket_error", async (evt) => {
+  // Display the error to the user
+  alert(evt?.detail?.data);
+});
+```
+
+## Listen for Passkey Framework Events
+
+### User Logins
+
+Listen for events coming from the passkey framework for user logins.
+
+```javascript
+window.addEventListener("qr_event_appless_login", async (evt) => {
+  // Log the event
+  console.log(evt);
+
+  // Notify the user
+  alert("PASSKEY LOGIN");
+});
+```
+
+### Registrations
+
+```javascript
+window.addEventListener("qr_event_appless_registration", async (evt) => {
+  // Log the event
+  console.log(evt);
+
+  // Notify the user
+  alert("PASSKEY LOG IN");
+});
+```
+
+## Export
+
+Export the module as default:
+
+```javascript
+export default true;
+```
+
+By following this guide, you can handle events coming from the QR iframe using the `EventHandler` module.
