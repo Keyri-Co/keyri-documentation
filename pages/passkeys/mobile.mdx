@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <title>KeyriQR - Demo</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <div></div>
+  </body>
+</html>
+
+<script src="./dist/index.min.js"></script>
+<script type="module">
+  const { ApplessMobile } = KeyriFrontEnd;
+
+  //
+  // App Key will only work in dev environments.
+  // In production, it will make your app fail
+  //
+  const mobileAppless = new ApplessMobile(
+    "prod",
+    "E2WRuvPglrD6fvxIDfrB31UOUk86ghd5"
+  );
+  const mobileData = await mobileAppless.start();
+
+  if (mobileData.userParameters?.register === "true") {
+    let ONE_TIME_PIN = prompt("Enter a number between 1 and 100");
+    let output = await mobileAppless.finish(ONE_TIME_PIN);
+  } else {
+    let output = await mobileAppless.finish();
+  }
+</script>
