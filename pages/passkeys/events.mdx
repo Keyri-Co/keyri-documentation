@@ -21,7 +21,7 @@ window.addEventListener("qr_event_session_validate", async (evt) => {
   alert("SESSION VALIDATE!!");
 
   // Log the session validation event
-  console.log("SESSION VALIDATE", evt.data);
+  console.log("SESSION VALIDATE", evt.detail.data);
 });
 ```
 
