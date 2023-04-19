@@ -46,7 +46,7 @@ const config: DocsThemeConfig = {
     link: 'https://github.com/Keyri-Co',
   },
   sidebar: {
-    defaultMenuCollapseLevel: 1,
+    defaultMenuCollapseLevel: 0,
   },
   primaryHue: { light: 240, dark: 200 },
   docsRepositoryBase: 'https://github.com/Keyri-Co/keyri-documentation',
