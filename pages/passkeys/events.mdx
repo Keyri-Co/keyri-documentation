@@ -58,11 +58,19 @@ Listen for events coming from the passkey framework for user logins.
 
 ```javascript
 window.addEventListener("qr_event_appless_login", async (evt) => {
-  // Log the event
-  console.log(evt);
+  
+  // Parse Data from the Event
+  let data = JSON.parse(evt.detail.data);
+  
+  // Hit the Relying Party's API with the provided information
+  let output = await localAppless.rp_validate_data(data);
 
-  // Notify the user
-  alert("PASSKEY LOGIN");
+  // TODO: ERROR HANDLING!
+  
+
+  // Let the user know that everything went to plan
+  alert("OK!");
+  
 });
 ```
 
