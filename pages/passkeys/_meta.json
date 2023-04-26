@@ -2,8 +2,8 @@
   "install": "Installation",
   "login": "Login Page",
   "setup": "Library Setup",
-  "events": "Events",
-  "server": "Server",
-  "qr": "QR Code",
+  "events": "API Event Handler",
+  "server": "Passkey Server",
+  "qr": "QR Code Styling",
   "mobile": "Mobile Web App"
 }
