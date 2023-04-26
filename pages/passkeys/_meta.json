@@ -1,9 +1,9 @@
 {
   "install": "Installation",
-  "setup": "Setup",
+  "login": "Login Page",
+  "setup": "Library Setup",
   "events": "Events",
   "server": "Server",
   "qr": "QR Code",
-  "login": "Login Page",
   "mobile": "Mobile Web App"
 }
