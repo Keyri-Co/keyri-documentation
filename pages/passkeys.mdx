@@ -1,0 +1,42 @@
+# About Passkeys
+
+Introducing our innovative product, Passkeys, designed to simplify passkey implementation and enhance user experience. Passkeys allows developers to utilize our infrastructure for free, enabling seamless same-device passkey registration and login for both developers and users.
+
+## Free Features
+
+- Easy-to-use infrastructure for same-device passkey registration and login
+- Streamlined passkey implementation process
+
+## Premium Features
+
+- Cross-device passkey login via QR code, eliminating the need for Bluetooth
+- Passkey backups using QR codes, without relying on cloud storage
+- Risk intelligence and device fingerprinting for added security
+
+Our goal is to make passkey implementation 10 times easier for developers. We believe our solution achieves this with its user-friendly features. Additionally, we have developed innovative solutions for using passkeys across devices and platforms without Bluetooth and for backing up passkeys without cloud storage dependence. These solutions are available as premium features at a minimal cost.
+
+Experience Passkeys for yourself by [testing it out here](#).
+
+Note: The QR code features are premium (priced at $0.0001 after the first 1000 uses per month). We're excited to share Passkeys with you and look forward to receiving your valuable feedback.
+
+## Setup Overview
+
+### Browser
+
+1. Add the [QR iframe](./passkeys/qr) to your login page
+2. [Install](./passkeys/install) the library
+3. Configure the library to handle user-triggered events ([registration, authentication, etc](./passkeys/setup))
+4. Set up the library to handle QR-triggered [events](./passkeys/events) (info from API - risk data, errors, registrations, etc)
+
+### Server
+
+1. Set up passkey registration endpoint
+2. Create passkey validation endpoint
+
+### Mobile Web Application
+
+1. Import the library
+2. Handle Registration Events
+3. Handle Authentication Events
+
+If you have any questions or need support, feel free to reach out to our team at [support@keyri.com](mailto:support@keyri.com).

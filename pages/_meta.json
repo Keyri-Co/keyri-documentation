@@ -1,7 +1,7 @@
 {
   "index": "Introduction",
   "authentication": "Authentication",
-  "passkeys": "Web, QR, and Passkeys",
+  "passkeys": "Passkeys",
   "mobile-sdks": "Mobile SDKs",
   "device-fingerprinting": "Device Fingerprinting",
   "mobile-security-features": "Mobile Security Features",
