@@ -2,15 +2,17 @@
 description: Keyri - Passwordless Authentication and Device Fingerprinting Tools
 ---
 
-# About
+# Process Overview
 
-Keyri provides passwordless multi-factor authentication and fraud protection workflows, seamlessly integrating into your apps for a frictionless digital customer experience.
+The authentication process flow for Keyri can be summarized as follows:
 
-Our tools enable user authentication and device fingerprinting for mobile and web applications. By incorporating our mobile SDKs and web packages, you can:
+## Existing User
 
-- Implement secure, phishing-resistant ["Sign in with QR" functionality](/authentication/qr-authentication) across multiple platforms
-- [Authenticate users in your mobile app](/authentication/mobile-app-authentication) using biometrics, eliminating the need for passwords
-- Cryptographically link users' phones to their accounts, enabling automatic background authentication
-- [Fingerprint](/device-fingerprinting) users' [mobile devices](/device-fingerprinting/mobile-fingerprinting) and [web browsers](/device-fingerprinting/web-fingerprinting) to detect and block malicious activity, as well as enhance user experience and reduce your 2FA cost
+Starting a secure login is simple: a QR code with the browser's public encryption key shows up on the user's browser. The user scans the QR code with their phone to get the key.
 
-To get started, sign up for a free account on the [Keyri dashboard](https://app.keyri.com/sign-up) and explore our documentation. If you have any questions, feel free to reach out to us at [hello@keyri.com](mailto:hello@keyri.com).
+Next, the user is asked to log in and approve the request. In return, the phone signs a nonce with its private signature key. The nonce, signature, and public signature key, plus some other info, are encrypted using the browser's public encryption key.
+
+The phone sends the encrypted data to the browser. Once the browser gets it, the data is decrypted and sent to your server. At the end, your server checks the signature and figures out who the user is based on the public key.
+
+
+
