@@ -1,10 +1,9 @@
 {
   "index": "Introduction",
-  "authentication": "Authentication",
-  "passkeys": "Passkeys",
-  "mobile-sdks": "Mobile SDKs",
+  "web": "Web and Passkeys",
+  "mobile": "Mobile",
+  "server": "Server",
   "device-fingerprinting": "Device Fingerprinting",
-  "mobile-security-features": "Mobile Security Features",
   "integrations": "Integrations",
   "changelog": "Changelog",
   "dashboard": {

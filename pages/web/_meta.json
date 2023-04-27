@@ -1,9 +1,8 @@
 {
   "install": "Installation",
   "login": "Login Page",
-  "setup": "Library Setup",
   "events": "API Event Handler",
-  "server": "Passkey Server",
   "qr": "QR Code Styling",
-  "mobile": "Mobile Web App"
+  "passkey-overview": "Passkey Overview",
+  "setup": "Passkey Setup"
 }
