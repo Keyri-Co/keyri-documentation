@@ -106,7 +106,7 @@ getInitialUrl();
 
 ### Option 2 - In-App Scanner
 
-Use `authWithScanner` built-in functionality to delegate authentication to SDK. Call a method for `authWithScanner` and pass optional public user ID, and payload:
+Use `authWithScanner` built-in functionality to delegate authentication to SDK. Call the method for `authWithScanner` and pass optional public user ID, and payload:
 
 ```javascript copy
 import Keyri from 'react-native-keyri';
@@ -222,7 +222,7 @@ The following methods are available to interact with the Keyri SDK API, which ca
 
 - `removeAssociationKey: (publicUserId?: string)` - removes public key for the specified publicUserId
 
-- `sendEvent: (data: SendEventOptions)` - sends fingerprint event with specified event type and result. Returns created event response
+- `sendEvent: (data: SendEventOptions)` - sends fingerprint event with specified event type and result. Returns the event risk response object from the Keyri API
 
 ### Session Object
 

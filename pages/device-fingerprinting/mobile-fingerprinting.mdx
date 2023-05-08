@@ -98,7 +98,7 @@ suspend fun registerUser(username: String, password: String) {
 void registerUser(String username, String password) {
     Keyri keyri = Keyri();
 
-    // Call this method before access to SDK's methods
+    // Call this method before accessing the SDK's methods
     await keyri.initialize(appKey, publicApiKey);
 
     keyri.listAssociationKey()
@@ -193,7 +193,7 @@ Keyri backup file `keyri_backup_prefs` is a SharedPreferences file that contains
 
 ### Keyri fingerprint-based backup
 
-To increase backup efficiency and stability you can use our Keyri fingerprint-based backup. This should prevent common Android backup issues and possible workarounds. Go to your service on [Keyri Dashboard](https://app.keyri.com), in `MANAGE` section select `Setup & Credentials` tab and copy your `Fingerprint Api Key` value. Save it to your Android project secrets and use during the initialization of the SDK object:
+To increase backup efficiency and stability, you can use our Keyri fingerprint-based backup. This should prevent common Android backup issues and possible workarounds. Go to your service on [Keyri Dashboard](https://app.keyri.com), then in the "Fraud analytics" section, select `Setup & Credentials` tab and copy your `Fingerprint Api Key` value. Save it to your Android project secrets and use it during the initialization of the SDK object:
 
 ```kotlin
 val appKey = "Your App Key"

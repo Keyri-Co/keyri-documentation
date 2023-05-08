@@ -75,7 +75,7 @@ private fun processLink(data: Uri?) {
                 this,
                 easyKeyriAuthLauncher,
                 "[Your appKey]", // Get this value from the Keyri Developer Portal
-                "[Your publicApiKey]", // Get this optional value from the Keyri Developer Portal for fingerprint
+                "[Your publicApiKey]", // Get this optional value from the Keyri Dashboard for Fraud analytics
                 "Custom payload here",
                 "public-User-Id", // publicUserId is optional
             )
@@ -87,7 +87,7 @@ private fun processLink(data: Uri?) {
                 this,
                 REQUEST_CODE,
                 "[Your appKey]", // Get this value from the Keyri Developer Portal
-                "[Your publicApiKey]", // Get this optional value from the Keyri Developer Portal for fingerprint
+                "[Your publicApiKey]", // Get this optional value from the Keyri Dashboard for Fraud analytics
                 "Custom payload here",
                 "public-User-Id", // publicUserId is optional
             )
@@ -270,8 +270,7 @@ default: `ConfirmationModalBottomSheet`. Provide next arguments:
 
 - `session: Session?` - session object to process \(should not be null when modalBottomSheetState is shown\).
 
-- `payload: String` - can be anything (session token or a stringified JSON containing multiple
-items. Can include things like publicUserId, timestamp, customSignedData and ECDSA signature).
+- `payload: String` - can be anything (session token or a stringified JSON containing multiple items. Can include things like publicUserId, timestamp, customSignedData and ECDSA signature).
 
 - `onResult: (Result<Boolean>)` - callback for handling result of user confirmation.
 
