@@ -64,7 +64,8 @@ void main() {
   runApp(const MyApp());
 }
 
-const String appKey = '[App Key Here]';
+const String appKey = '[Your App Key]';
+const String publicApiKey = '[Your Fingerprint Api Key]';
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -107,8 +108,10 @@ class _KeyriHomePageState extends State<KeyriHomePage> {
   }
 
   void _easyKeyriAuth() async {
+    avait keyri.initialize(appKey, publicApiKey);
+
     await keyri
-        .easyKeyriAuth(appKey, 'Some payload', 'Public user ID')
+        .easyKeyriAuth(appKey, publicApiKey, 'Some payload', 'Public user ID')
         .then((authResult) => _onAuthResult(authResult == true ? true : false))
         .catchError((error, stackTrace) => _onError(error));
   }
@@ -198,8 +201,10 @@ class _KeyriScannerAuthPageState extends State<KeyriScannerAuthPage> {
   }
 
   Future<void> _onReadSessionId(String sessionId) async {
+    avait keyri.initialize(appKey, publicApiKey);
+
     await keyri
-        .initiateQrSession(appKey, sessionId, 'Public user ID')
+        .initiateQrSession(sessionId, 'Public user ID')
         .then((session) => keyri
             .initializeDefaultScreen(sessionId, 'Some payload')
             .then((authResult) => _onAuthResult(authResult))
@@ -313,10 +318,11 @@ override fun onNewIntent(intent: Intent) {
 private fun processLink(data: Uri?) {
     data?.getQueryParameters("sessionId")?.firstOrNull()?.let { sessionId ->
         lifecycleScope.launch(Dispatchers.IO) {
-            val result = Keyri().easyKeyriAuth(
+            easyKeyriAuth(
                 supportFragmentManager,
                 sessionId,
                 "[Your appKey]", // Get this value from the Keyri dashboard
+                "[Your publicApiKey]", // Get this value from the Keyri dashboard, optional
                 "public-User-ID", // publicUserId is optional
                 "Custom payload here"
             )

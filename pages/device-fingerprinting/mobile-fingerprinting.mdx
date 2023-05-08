@@ -2,7 +2,7 @@
 description: Permanently associate your users with their devices to improve UX and reduce fraud
 ---
 
-import { Tab, Tabs } from 'nextra-theme-docs';
+import {Tab, Tabs} from 'nextra-theme-docs';
 
 # Overview
 
@@ -11,19 +11,19 @@ Keyri offers best in class mobile fingerprinting and device integrity verificati
 The SDK will:
 
 - Generate a unique fingerprint which persists even when the app is deleted
-  This is something many developers struggle with. It's quite easy to keep a fingerprint UNTIL the app is deleted, but persistence across installations is tricky. This is exacerbated by the ease with which bad actors can clear out records in the iOS Keychain or Android Secure Storage.
+This is something many developers struggle with. It's quite easy to keep a fingerprint UNTIL the app is deleted, but persistence across installations is tricky. This is exacerbated by the ease with which bad actors can clear out records in the iOS Keychain or Android Keystore.
 - Send the information to our API using a strong cryptography technique which ensures the information cannot be tampered with or intercepted
-  Note: This information will be available on the Keyri Dashboard
+Note: This information will be available on the Keyri Dashboard
 - Verify device integrity to stop bad actors in their tracks. We have checks to protect against
-  - Jailbreaks
-  - Malicious sideloaded applications
-  - Method swizzling
-  - Code tampering
-  - Emulators
-  - Optional protection against:
-    - VPN
-    - Blocklist usage
-    - TOR
+- Jailbreaks
+- Malicious side-loaded applications
+- Method swizzling
+- Code tampering
+- Emulators
+- Optional protection against:
+- VPN
+- Blocklist usage
+- TOR
 
 ## Requirements
 
@@ -33,13 +33,13 @@ The SDK will:
 ## Implementation and Installation
 
 <iframe
-  width='560'
-  height='315'
-  src='https://www.youtube.com/embed/NDMjEIrpWis'
-  title='YouTube video player'
-  frameborder='0'
-  allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
-  allowfullscreen
+    width='560'
+    height='315'
+    src='https://www.youtube.com/embed/NDMjEIrpWis'
+    title='YouTube video player'
+    frameborder='0'
+    allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+    allowfullscreen
 ></iframe>
 
 - iOS: https://docs.keyri.com/mobile-sdks/ios
@@ -51,7 +51,7 @@ The SDK will:
 - `getAssociationKey(username: String) -> p256Key?`: Retrieve key for a given user, if the user has been created
 - `listAssociationKeys() -> [String: p256Key]`: List the accounts that have been created
 - `sign(data: Data for username: String) -> Signature`: Sign a piece of data with the user's key
-- `sendEvent(username: String?, eventType: String?, success: Bool?)`: Send Keyri a fingerprint of the device
+- `sendEvent(username: String?, eventType: EventType, eventResult: EventResult)`: Send Keyri a fingerprint of the device
 
 ### Example: Protecting Registration/Signup
 
@@ -77,8 +77,8 @@ func registerUser(username: String) throws {
 </Tab>
 <Tab>
 ```kotlin copy
-fun registerUser(username: String, password: String) {
-    val keyri = Keyri(this@MainActivity)
+suspend fun registerUser(username: String, password: String) {
+    val keyri = Keyri(this@MainActivity, appKey, publicApiKey)
     val keys = keyri.listAssociationKey()
 
     if (keys.isNotEmpty()) {
@@ -90,14 +90,16 @@ fun registerUser(username: String, password: String) {
         // Keyri Handles saving the key in the Secure Enclave for you
         // For example, you can later use this key pair to passwordlessly authenticate the user
     }
-
 }
 ````
 </Tab>
 <Tab>
 ```dart copy
 void registerUser(String username, String password) {
-    Keyri keyri = Keyri()
+    Keyri keyri = Keyri();
+
+    // Call this method before accessing the SDK's methods
+    await keyri.initialize(appKey, publicApiKey);
 
     keyri.listAssociationKey()
         .then((keys) => {
@@ -110,25 +112,26 @@ void registerUser(String username, String password) {
                 // Keyri Handles saving the key in the Secure Enclave for you
                 // For example, you can later use this key pair to passwordlessly authenticate the user
             }
-    });
-}
+        });
+    }
 ````
-
 </Tab>
 <Tab>
 ```javascript copy
-function registerUser(username: string, password: string) {
-    const keys = Keyri.listAssociationKey();
+async function registerUser(username: string, password: string) {
+    // Call this method before access to SDK's methods
+    await Keyri.initialize(appKey, publicApiKey);
+
+    const keys = await Keyri.listAssociationKey();
 
     if (keys?.length > 0) {
-
-// Alert user that there is an existing user, and encourage them to sign in here
-} else {
-const key = Keyri.generateAssociationKey(username);
-// Then run your regular registration process
-// Optionally, do something else with the key that just got generated.
-// Keyri Handles saving the key in the Secure Enclave for you
-// For example, you can later use this key pair to passwordlessly authenticate the user
+        // Alert user that there is an existing user, and encourage them to sign in here
+    } else {
+        const key = await Keyri.generateAssociationKey(username);
+        // Then run your regular registration process
+        // Optionally, do something else with the key that just got generated.
+        // Keyri Handles saving the key in the Secure Enclave for you
+        // For example, you can later use this key pair to passwordlessly authenticate the user
     }
 }
 ````
@@ -140,32 +143,35 @@ const key = Keyri.generateAssociationKey(username);
 <Tab>
 ```swift copy
 func createUser(username: String) -> P256.Signing.PublicKey? {
-	If Keyri().listAssociationKeys().count < MAX_ACCOUNT_LIMIT {
+    If Keyri().listAssociationKeys().count < MAX_ACCOUNT_LIMIT {
+        let key = Keyri().generateAssociationKey(username: username)
 
-	let key = Keyri().generateAssociationKey(username: username)
-
-	// Optionally sign custom data with the key at this stage
-		// remember, the key can always be retrieved with getAssociationKey
-		Keyri().sendEvent(eventType: .login, success: true)
-		Return key
-	} else {
-		// Alert user that they’re exceeding the limit here
-		return nil
-	}
+        // Optionally sign custom data with the key at this stage
+        // remember, the key can always be retrieved with getAssociationKey
+        Keyri().sendEvent(eventType: .login, success: true)
+        Return key
+    } else {
+    // Alert user that they’re exceeding the limit here
+    return nil
+    }
 }
 ````
 </Tab>
 <Tab>
 ```kotlin copy
-fun createUser(username: String): String? {
-    val keyri = Keyri(this@MainActivity, appKey) 
-    
+suspend fun createUser(username: String): String? {
+    val keyri = Keyri(this@MainActivity, appKey, publicApiKey)
+
     return if (keyri.listAssociationKey().size < MAX_ACCOUNT_LIMIT) {
         val key = keyri.generateAssociationKey(username)
 
         // Optionally sign custom data with the key at this stage
         // remember, the key can always be retrieved with getAssociationKey
-        keyri.sendEvent(eventType: EventType.Login, success: true)
+        keyri.sendEvent(
+            publicUserId: username,
+            eventType: EventType.Login,
+            eventResult: FingerprintLogResult.Success
+        )
 
         key
     } else {
@@ -184,6 +190,17 @@ Preserving user-device fingerprints even after your app is deleted and re-instal
 You can find a comparison of Key/Value Backup and Auto Backup here: [Android Backup Overview](https://developer.android.com/guide/topics/data/backup).
 
 Keyri backup file `keyri_backup_prefs` is a SharedPreferences file that contains Keyri accounts. You need to keep this file after app uninstall to prevent a loss of accounts. There are two options for how to do it.
+
+### Keyri fingerprint-based backup
+
+To increase backup efficiency and stability, you can use our Keyri fingerprint-based backup. This should prevent common Android backup issues and possible workarounds. Go to your service on [Keyri Dashboard](https://app.keyri.com), then in the "Fraud analytics" section, select `Setup & Credentials` tab and copy your `Fingerprint Api Key` value. Save it to your Android project secrets and use it during the initialization of the SDK object:
+
+```kotlin
+val appKey = "Your App Key"
+val publicApiKey = "Your Fingerprint Api Key"
+
+val keyri = Keyri(this@MainActivity, appKey, publicApiKey)
+```
 
 ### Android Auto Backup
 
