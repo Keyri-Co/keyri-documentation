@@ -1,4 +1,5 @@
 {
   "mobile-app-authentication": "Mobile App Authentication",
-  "qr-authentication": "Web and Smart TV - QR Authentication"
+  "qr-authentication": "Web and Smart TV - QR Authentication",
+  "passkeys": "Passkeys"
 }

@@ -1,8 +1,8 @@
 {
   "index": "Introduction",
   "authentication": "Authentication",
-  "mobile-sdks": "Mobile SDKs",
   "device-fingerprinting": "Device Fingerprinting",
+  "mobile-sdks": "Mobile SDK Reference",
   "mobile-security-features": "Mobile Security Features",
   "integrations": "Integrations",
   "changelog": "Changelog",
