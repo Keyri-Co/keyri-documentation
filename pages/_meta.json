@@ -1,10 +1,10 @@
 {
   "index": "Introduction",
   "authentication": "Authentication",
-  "device-fingerprinting": "Device Fingerprinting",
+  "device-fingerprinting": "Fraud analytics",
   "mobile-sdks": "Mobile SDK Reference",
   "mobile-security-features": "Mobile Security Features",
-  "integrations": "Integrations",
+  "integrations": "Auth Integrations",
   "changelog": "Changelog",
   "dashboard": {
     "title": "Keyri Dashboard ↗",

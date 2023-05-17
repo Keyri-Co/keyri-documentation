@@ -4,17 +4,16 @@ description: Permanently associate your users with their devices to improve UX a
 
 import { Tab, Tabs } from 'nextra-theme-docs';
 
-# Overview
+# Mobile App Fraud Analytics
 
 Keyri offers best in class mobile fingerprinting and device integrity verification, accessible in as little as one line of code.
 
 The SDK will:
 
 - Generate a unique fingerprint which persists even when the app is deleted
-  This is something many developers struggle with. It's quite easy to keep a fingerprint UNTIL the app is deleted, but persistence across installations is tricky. This is exacerbated by the ease with which bad actors can clear out records in the iOS Keychain or Android Secure Storage.
 - Send the information to our API using a strong cryptography technique which ensures the information cannot be tampered with or intercepted
   Note: This information will be available on the Keyri Dashboard
-- Verify device integrity to stop bad actors in their tracks. We have checks to protect against
+- Verify device integrity to stop bad actors in their tracks. We have checks to protect against:
   - Jailbreaks
   - Malicious sideloaded applications
   - Method swizzling
@@ -33,12 +32,12 @@ The SDK will:
 ## Implementation and Installation
 
 <iframe
-  width='560'
-  height='315'
-  src='https://www.youtube.com/embed/NDMjEIrpWis'
-  title='YouTube video player'
-  frameborder='0'
-  allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+  width="560"
+  height="315"
+  src="https://www.youtube.com/embed/NDMjEIrpWis"
+  title="YouTube video player"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
   allowfullscreen
 ></iframe>
 
@@ -92,6 +91,7 @@ fun registerUser(username: String, password: String) {
     }
 
 }
+
 ````
 </Tab>
 <Tab>
@@ -129,8 +129,9 @@ const key = Keyri.generateAssociationKey(username);
 // Optionally, do something else with the key that just got generated.
 // Keyri Handles saving the key in the Secure Enclave for you
 // For example, you can later use this key pair to passwordlessly authenticate the user
-    }
 }
+}
+
 ````
 </Tab>
 </Tabs>
@@ -154,6 +155,7 @@ func createUser(username: String) -> P256.Signing.PublicKey? {
 	}
 }
 ````
+
 </Tab>
 <Tab>
 ```kotlin copy
@@ -172,7 +174,9 @@ fun createUser(username: String): String? {
         // Alert user that they're exceeding the limit here
         null
     }
+
 }
+
 ````
 </Tab>
 </Tabs>
@@ -328,3 +332,4 @@ When submitting your Android app that uses the Keyri SDK for fingerprinting, be 
 | Device or other IDs | Yes | Yes | No | Required | Analytics |
 
 An analogous disclosure is not required for iOS apps, since the device data is not used by Keyri for cross-app tracking.
+````

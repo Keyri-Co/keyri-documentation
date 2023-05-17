@@ -2,9 +2,9 @@
 description: Permanently associate your users with their devices to improve UX and reduce fraud
 ---
 
-# Web App Fingerprinting
+# Web App Fraud Analytics
 
-Keyri provides a free Javascript agent that produces durable device ID fingerprints that persist across sessions and incognito / private browsing modes. The agent is lightweight and can be deployed in a few minutes.
+Keyri provides a JavaScript agent for fraud analytics that produces durable device ID fingerprints that persist across sessions and provides risk analytics data to your client and server. Trigger the fraud analytics agent at each event that you want to assess the risk of; the Keyri API will provide a summary of the risk level and details about the event's risk signals as well as details about the user such as location. The JavaScript agent is lightweight and can be deployed in a few minutes.
 
 ## Features
 
@@ -18,128 +18,72 @@ Keyri provides a free Javascript agent that produces durable device ID fingerpri
 Using npm:
 
 ```bash
-$ npm install keyri-fingerprint
+$ npm install keyri-browser-analytics
 ```
 
 Once the package is installed, you can import the library using `import` or `require`:
 
 ```typescript
-import { Device } from 'keyri-fingerprint';
+import keyriEvent from 'keyri-browser-analytics';
 ```
 
-If you use `require` for importing, **only default export is available**:
-
-```javascript
-const Device = require('keyri-fingerprint').Device;
-```
+You can get the constants you need (your `apiKey` and `serviceEncryptionKey`(pair) from the Keyri Dashboard under Setup & Credentials)
 
 ## Example
 
 **Note** CommonJS usage
 
-```typescript
-import { Device } from 'keyri-fingerprint';
-
-const device: Device = new Device();
-
-await device.load(); // load and set params with async loaders
-
-const deviceMainParams: Record<string, string> = device.getMainParams();
-const deviceHash: string = device.createFingerprintHash();
-```
-
-## API
-
-After you create new `Device` instance you will be able to use the following public methods:
-
-```
-| Method                  | Arguments | Return                   | Description                                                             |
-| ----------------------- | --------- | ------------------------ | ----------------------------------------------------------------------- |
-| async load()            | -         | Promise<`Device`>        | Method load async params and set to `Device`                            |
-| createFingerprintHash() | -         | `string`                 | This method allow create fingerprint hash string based on device params |
-| getMainParams()         | -         | `Record<string, string>` | Method return object with device parameters                             |
-```
-
-### Responses Examples
-
-#### createFingerprintHash()
+### Browser
 
 ```typescript
-import { Device } from 'keyri-fingerprint';
+import keyriEvent from 'keyri-browser-analytics';
 
-const device: Device = new Device();
+const keyriApiKey = 'your_api_key';
+const serviceEncryptionKey = 'your_ECDH_public_key';
 
-await device.load();
-
-const deviceHash = device.createFingerprintHash();
-console.log(deviceHash); // 'de91eb974773aa4937bd9b54d375ecf9'
-```
-
-#### getMainParams()
-
-```typescript
-import { Device } from 'keyri-fingerprint';
-
-const device: Device = new Device();
-await device.load();
-
-const deviceMainParams: Record<string, string> = device.getConstants();
-
-console.log(JSON.stringify(deviceMainParams));
-```
-
-```json
-{
-  "gpuVendor": "Google Inc. (Apple)",
-  "gpuRenderer": "ANGLE (Apple, Apple M1, OpenGL 4.1)",
-  "timezone": "Europe/Kiev",
-  "product": "Gecko",
-  "appName": "Netscape",
-  "appCodeName": "Mozilla",
-  "platform": "MacIntel",
-  "deviceMemory": "8",
-  "maxTouchPoints": "0",
-  "osInfo": "x86",
-  "osCpu": "unknown",
-  "hardwareConcurrency": "8",
-  "screenFrame": "[25,0,84,0]",
-  "screenColorDepth": "30",
-  "colorGamut": "rec2020",
-  "currentBrowserBuildNumber": "20030107",
-  "appVersion": "5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
-  "fonts": "[\"Arial Unicode MS\",\"Gill Sans\",\"Helvetica Neue\",\"Menlo\"]",
-  "domBlockers": "unknown",
-  "fontPreferences": "{\"default\":147.5625,\"apple\":147.5625,\"serif\":147.5625}",
-  "screenResolution": "[900,1440]",
-  "contrastPreferences": "0",
-  "cookiesEnabled": "false",
-  "languages": "[[\"ru-RU\"]]",
-  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
-  "pdfViewerEnabled": "true",
-  "deviceColorsForced": "false",
-  "usingHDR": "true",
-  "colorsInverted": "unknown",
-  "connection": "{}",
-  "audioFingerprint": "124.04344968475198",
-  "sessionStorage": "true",
-  "localStorage": "true",
-  "indexedDB": "true",
-  "openDatabase": "true",
-  "cpuClass": "unknown",
-  "plugins": "[{\"name\":\"PDF Viewer\",\"description\":\"Portable Document Format\",\"mimeTypes\":[{\"type\":\"application/pdf\",\"suffixes\":\"pdf\"},{\"type\":\"text/pdf\",\"suffixes\":\"pdf\"}]}]",
-  "canvas": "{\"winding\":true,\"geometry\":\"data:image/png;base64,iVB...\"}",
-  "vendorFlavors": "[\"chrome\"]",
-  "monochromeDepth": "0",
-  "motionReduced": "false",
-  "math": "{\"acos\":1.4473588658278522}",
-  "architecture": "127"
+async function login(userId, password) {
+  // Call the Keyri fraud analytics function and await its response
+  const encryptedRiskObject = await keyriEvent(
+    userId,
+    'login',
+    serviceEncryptionKey,
+    apiKey
+  );
+  // Send the Keyri response object
+  // as part of your API call to retrieve protected resources
+  const loginResponse = await fetch('/api/login', {
+    method: 'POST',
+    body: { userId, password, encryptedRiskObject },
+  });
 }
 ```
 
-**Note** If you try to get device params in a Node.js environment, you will always receive the same response object
+### Server
 
-```json
-{
-  "environment": "node-js"
-}
+```typescript
+// You'll want to decrypt the risk object through ECDH -> HKDF -> AES.
+// Our "EZCrypto" library makes decryption simple, but you can use
+// raw native crypto APIs as well
+import EZCrypto from '@justinwwolcott/ez-web-crypto';
+
+const { username, password, encryptedRiskObject } = req.body;
+const ezCrypto = new EZCrypto();
+
+const privateKey = 'your_ECDH_private_key';
+
+let decryptedRiskObject = await ezCrypto.HKDFDecrypt(
+  privateKey,
+  encryptedRiskObject.keyriEncryptionPublicKey,
+  encryptedRiskObject.salt,
+  encryptedRiskObject.iv,
+  encryptedRiskObject.encryptedPayload
+);
+
+decryptedRiskObject = new TextDecoder().decode(decryptedRiskObject);
+decryptedRiskObject = JSON.parse(decryptedLoginEvent).fingerprintEvent;
+
+// You can now parse through the `fingerprintEvent` object to read and
+// act on parts of the risk assessment you care about
+
+// ...proceed with your login function accordingly
 ```

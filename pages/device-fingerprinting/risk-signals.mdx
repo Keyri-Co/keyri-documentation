@@ -1,0 +1,40 @@
+---
+description: Keyri provides comprehensive risk signals for assessing real-life risk scenarios
+---
+
+# Risk signals
+
+Keyri evaluates risk data and outputs relevant signals that can be used to detect fraudulent activity. Further, Keyri’s real-time fraud prevention system enables you to choose whether to allow, warn, or deny user events based on these signals. Understanding risk signals, and how to handle them, is key to preventing fraud specific to your business.
+
+## Types of Risk signals
+
+Keyri risk signals fall into three categories: device-based signals, account-based signals, and IP-based signals. Keyri has over 100 customizable signals for enterprises to choose from, but the below list is intended to provide an overview of common risk signals that can be utilized by self-service customers.
+
+### Device-Based Signals
+
+| Signal                              | Description                                                                                                                                                                                                                     |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Multiple Account Signups per Device | The device attempting to register a new account has been used to register other accounts previously. Potential attacks include fake account creation, referral / promo abuse, identity fraud, and bot attacks.                  |
+| Multiple Account Access per Device  | The device attempting to enact this event has been used for events with other accounts previously. Potential attacks include account takeovers, fake account creation, referral / promo abuse, identity fraud, and bot attacks. |
+| Max Events per Time Frame           | The device has attempted too many events in a predetermined time frame. Potential attacks include DDoS, brute force, and bot attacks.                                                                                           |
+| Emulated Device                     | The device is running a program that allows a computer to emulate a mobile device. Potential attacks include fake account creation, referral / promo abuse, and bot attacks.                                                    |
+| Jailbroken / Rooted                 | The mobile device has been modified to remove restrictions imposed by the manufacturer or operator, e.g. to allow the installation of unauthorized software.                                                                    |
+| Swizzled / Tampered                 | The mobile device’s software or hardware has been interfered with.                                                                                                                                                              |
+| Dangerous Apps / Malicious Pkgs     | The device contains vulnerabilities or malicious code delivered through the software supply chain.                                                                                                                              |
+| Debuggable                          | The device is acting as if it is in development even though it is in production, signaling potential nefarious activity.                                                                                                        |
+
+### Account-Based Signals
+
+| Signal            | Description                                                                                                                                                                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| New Device        | The account has not previously seen an event with this device.                                                                                                                                                                       |
+| Improbable Travel | The account has enacted an event from an IP address that is too far away from a previous event IP address in the allotted time period (e.g., a user logging in from San Francisco and then logging in from New York one hour later). |
+| New Country       | The account has not previously seen an event with an IP address in a given country.                                                                                                                                                  |
+
+### IP-Based Signals
+
+| Signal        | Description                                                                                                               |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| VPN / Proxy   | The IP address for the event is a VPN or proxy, signaling that the user may not want you to know their location.          |
+| TOR           | The IP address for the event is a TOR, signaling that the user almost certainly does not want you to know their location. |
+| Suspicious IP | The IP address for the event has a low trust score and the user may be a bad actor.                                       |

@@ -2,13 +2,13 @@
 description: Keyri provides powerful fingerprinting for mobile and web applications
 ---
 
-# Device Fingerprinting
+# Fraud Analytics
 
-Keyri provides powerful tools for fingerprinting your users' devices, in both your mobile app and web app. The Keyri [mobile SDKs](/mobile-sdks) provide useful methods for permanently associating users with their devices, and our [Javascript fingerprinting agent](https://www.npmjs.com/package/keyri-fingerprint) can be used to fingerprint your users' browsers, whether they're on incognito/private browsing or not.
+Keyri provides powerful tools for analyzing your users' devices at critical moments in their journey. The Keyri [mobile SDKs](/mobile-sdks) provide useful methods for permanently associating users with their devices, and our [JavaScript fingerprinting agent](https://www.npmjs.com/package/keyri-fingerprint) can be used to fingerprint your users' browsers, whether they're on incognito/private browsing or not. These utilities interface with our fraud analytics API to protect your protected resources from bad actors in real time.
 
 ## Use Cases
 
-1.  **Avoid accidental multiple account creation:** during your registration flow, detect in the background even in an unauthenticated state, whether the user has used an account for your service in the past regardless of what credentials they are using to register the new account. While the user goes through your registration flow, you can call methods in the [Keyri mobile SDK](/mobile-sdks) (on mobile) or our [Javascript fingerprinting agent](https://www.npmjs.com/package/keyri-fingerprint), and if they return an account or list of accounts that have been used on that device before, you can suggest or force the user to log into one of those existing accounts, even if they used a different email address or phone number to attempt registering the new account.
+1.  **Avoid accidental multiple account creation:** during your registration flow, detect in the background even in an unauthenticated state, whether the user has used an account for your service in the past regardless of what credentials they are using to register the new account. While the user goes through your registration flow, you can call methods in the [Keyri mobile SDK](/mobile-sdks) (on mobile) or our [JavaScript fingerprinting agent](https://www.npmjs.com/package/keyri-fingerprint), and if they return an account or list of accounts that have been used on that device before, you can suggest or force the user to log into one of those existing accounts, even if they used a different email address or phone number to attempt registering the new account.
 
 2.  **Avoid fraudulent multiple account creation:** using the same existing-account-detection functionality outlined above, you can stop users from creating multiple accounts to exploit your app, such as signup bonus abuse and free trial abuse
 
