@@ -1,0 +1,29 @@
+# Fraud Analytics Dashboard
+
+Keyri’s dashboard is the foundation for setting up, customizing, and viewing historical logs of your service’s users and it can be accessed by creating an account or logging in at https://app.keyri.com/.
+
+## Application Setup
+
+To get started with fraud analytics once you've created an application in the Keyri Dashboard, simply navigate to the Setup & Credentials view in the "Manage" section. Take note of your `Fingerprint API Key`. That's all you'll need until you integrate Keyri fraud analytics into your application. You can also look through the Risk Management view if you'd like to customize your risk preferences at this stage.
+
+## Dashboard Walkthrough
+
+### Fraud Prevention logs
+
+Once you have accessed the dashboard, you will land on the fraud prevention logs tab by default. This tab is used as the basis for viewing all historical user activity and is organized into three pages: Events, Users, Devices. Each page is customizable and allows for filtering as well as data exporting to csv.
+
+### Events
+
+The event page of the fraud prevention logs tab is the most helpful place to view general historical activity. It is organized by event date and time with the most recent event displayed at the top of the page. This page displays event time, device ID, user ID, event, location (based on IP address or geolocation), device type, client, risk, and signals. Notably, this page allows you to sort by event, risk, and signal and you can also filter by time frame. If you would like to undergo additional sorting or filtering, you can also export data to csv by clicking the export button. For additional information on specific events, refer to the [events page](/fraud-prevention/events).
+
+### Users
+
+The users page of the fraud prevention logs tab is the most helpful place to view the activity and devices of a given user. This view displays a single user’s events and can be helpful in assessing abnormal activity in a user’s account. By default, the user selected in this view is the user with the most recent event, but you can search based on User ID as well. As with the events page, events, risks, and signals are sortable along with filtering for time frames. Additionally, you can export all data to csv.
+
+### Devices
+
+The devices page of the fraud prevention lobs tab is the most helpful place to view the device activity of a given user. This view displays a single user’s devices and can be helpful in assessing which devices, if any, are fraudulent. As with the users page, the user selected in this view is the user with the most recent event by default, but you can search based on User ID as well.
+
+### Fraud Prevention Risk management
+
+The fraud prevention risk management tab is the place where you can customize the behavior of your risks. Choose to allow, warn, or deny for certain behaviors and set thresholds for maximum registrations and account access per device. For additional information on specific risk signals, refer to the risk [signals page](/device-fingerprinting/risk-signals).
