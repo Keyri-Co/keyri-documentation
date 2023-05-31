@@ -1,4 +1,9 @@
 {
+  "use-cases": "Fraud Analytics Use Cases",
+  "fraud-dashboard": "Getting Started: Fraud Dashboard",
   "web-fingerprinting": "Web App Fraud Analytics",
-  "mobile-fingerprinting": "Mobile App Fraud Analytics"
+  "mobile-fingerprinting": "Mobile App Fraud Analytics",
+  "server-setup": "Server-Side Setup",
+  "events": "Event Types",
+  "risk-signals": "Risk Signal Reference"
 }

@@ -1,0 +1,42 @@
+import { Callout } from 'nextra-theme-docs';
+
+# Fraud Analytics Server-Side Setup
+
+As noted in the Web and Mobile app fraud analytics documentation, once you trigger an event that you'd like evaluated for its risk, the Keyri API will return an encrypted object that your application should submit to your server alongside its regular event payload. For example, for a login event, your application should submit the credentials it already does (username/password for example) and add to the payload the encrypted risk object that the Keyri API returns to you.
+
+Once at your server, decrypt the object to parse the event risk before processing the event as you would normally do.
+
+## Node.js Example
+
+To decrypt the object, you'll need to run ECDH for key agreement, HKDF for key derivation, and finally AES-GCM for decryption. In a Node.js environment, you can use our "EZCrypto" library available from npm to make the process as simple as possible:
+
+```bash
+$ npm install @justinwwolcott/ez-web-crypto
+```
+
+If your backend uses a different framework, feel free to reach out to support@keyri.com for specific code and guidance.
+
+```typescript
+import EZCrypto from '@justinwwolcott/ez-web-crypto';
+
+const { username, password, encryptedRiskObject } = req.body;
+const ezCrypto = new EZCrypto();
+
+const privateKey = 'your_ECDH_private_key';
+
+let decryptedRiskObject = await ezCrypto.HKDFDecrypt(
+  privateKey,
+  encryptedRiskObject.keyriEncryptionPublicKey,
+  encryptedRiskObject.salt,
+  encryptedRiskObject.iv,
+  encryptedRiskObject.encryptedPayload
+);
+
+decryptedRiskObject = new TextDecoder().decode(decryptedRiskObject);
+decryptedRiskObject = JSON.parse(decryptedLoginEvent).fingerprintEvent;
+
+// You can now parse through the `fingerprintEvent` object to read and
+// act on parts of the risk assessment you care about
+
+// ...proceed with your login function accordingly
+```

@@ -4,17 +4,8 @@ description: Keyri provides powerful fingerprinting for mobile and web applicati
 
 # Fraud Analytics
 
-Keyri provides powerful tools for analyzing your users' devices at critical moments in their journey. The Keyri [mobile SDKs](/mobile-sdks) provide useful methods for permanently associating users with their devices, and our [JavaScript fingerprinting agent](https://www.npmjs.com/package/keyri-fingerprint) can be used to fingerprint your users' browsers, whether they're on incognito/private browsing or not. These utilities interface with our fraud analytics API to protect your protected resources from bad actors in real time.
+Keyri's fraud prevention platform provides a way for companies to monitor user events across devices and sessions and provides associated risk signals to prevent fraud in real time. The basis for Keyri's solution falls into three categories: data ingestion, risk analyzation, and event determination.
 
-## Use Cases
-
-1.  **Avoid accidental multiple account creation:** during your registration flow, detect in the background even in an unauthenticated state, whether the user has used an account for your service in the past regardless of what credentials they are using to register the new account. While the user goes through your registration flow, you can call methods in the [Keyri mobile SDK](/mobile-sdks) (on mobile) or our [JavaScript fingerprinting agent](https://www.npmjs.com/package/keyri-fingerprint), and if they return an account or list of accounts that have been used on that device before, you can suggest or force the user to log into one of those existing accounts, even if they used a different email address or phone number to attempt registering the new account.
-
-2.  **Avoid fraudulent multiple account creation:** using the same existing-account-detection functionality outlined above, you can stop users from creating multiple accounts to exploit your app, such as signup bonus abuse and free trial abuse
-
-3.  **Permaban bad actors:** while you can easily ban individual bad actor accounts by changing their account profiles / access rights, those same individuals can simply create new accounts and sockpuppets. Keyri fingerprinting utilities can help you ensure that, for this group of users, creating a new account is more difficult than simply providing new credentials, such as a different email address, phone number, or a fresh re-installation of your app. Regardless of what new credentials or account identifiers these bad actors input while registering a new account, Keyri utilities will inform you that they have already created at least one account before.
-
-Read on for details on implementing:
-
-1. [Mobile app fingerprinting](/device-fingerprinting/mobile-fingerprinting)
-2. [Web fingerprinting](/device-fingerprinting/web-fingerprinting)
+- **Data Ingestion**: Keyri's SDKs and JavaScript libraries ingest two categories of data, device-based data and contextual IP/location-based data. On the device-based data front, Keyri provides powerful tools that prevent bad actors from analyzing your users' devices at critical moments in their journey. The Keyri mobile SDKs provide useful methods for permanently associating users with their devices, and our JavaScript fingerprinting agent can be used to fingerprint your users' browsers, whether they're on incognito/private browsing or not. On the location-based data front, Keyri ingests and generates intelligence on IP, location, and country of access to block known attacker IPs and flag suspect networks.
+- **Risk Analysis**: Keyri's system ingests data and associates it with events [link to events page], such as registration, login, access, or transaction verification. Data from each event is then analyzed and run through both pre-configured and customized risk signals [link to risk signals page], including device, account, and IP-based signals, to determine the relative risk of each event.
+- **Event Determination**: Keyri's system then provides full customizability to allow, warn, or deny users in real-time based on predetermined risk signal settings. Self-service customers can configure their settings on the risk management page in the Keyri dashboard or use recommending settings provided by Keyri. Keyri works directly with enterprise customers to determine optimal risk outcomes for custom signals.
