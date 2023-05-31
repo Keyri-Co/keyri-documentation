@@ -1,0 +1,69 @@
+# Keyri Authentication
+
+Keyri enables your users to instantly log into your application with just their phone biometrics. If they'd like to log into your web or smart TV app, they can simply scan a QR code on that "larger screen app" using your mobile app.
+
+Keyri integration into your system is comprised of three parts:
+
+1.  Web frontend (wherever the QR code is shown, for example, desktop or smart TV login page)
+
+2.  Mobile app
+
+3.  Backend (optional: only required if going through the server-side authentication route - see below)
+
+## Process Overview
+
+The Keyri flow proceeds as follows, taking QR login as an example:
+
+1.  User navigates to web login page
+
+    1.  Keyri Widget loaded
+
+        1.  Creates a session-specific P-256 keypair
+
+        2.  Establishes a WebSocket connection with Keyri API
+
+        3.  Receives sessionId from Keyri API
+
+        4.  Renders QR code with sessionId
+
+2.  User scans QR code with mobile phone containing your app
+
+3.  Your app extracts the session ID from the QR code and hands it to the Keyri SDK
+
+4.  SDK returns a session object and presents relevant security information to the user for their confirmation
+
+5.  User confirms
+
+6.  Application gives SDK a payload
+
+    1.  In the case of client-side authorization, payload is the session token currently active in the app
+
+    2.  In the case of server-side authentication, payload is an ECDSA-signed authentication request
+
+7.  SDK encrypts payload using browser's public key
+
+8.  Keyri API recieves encrypted payload and passes it back to Keyri Widget on the browser to be decrypted
+
+For a more visual representation of this flow and some more details into its inner workings, see the diagrams below, each of which represent two distinct ways to implement QR login with Keyri. The vast majority of the steps you see here are automated by the Keyri Widget and mobile SDKs.
+
+### Client-Side Session Extension
+
+Client-side session extension is essentially taking the relevant session token already present in your user's logged-in mobile app and loading it into the Keyri SDK as the payload. The session token is encrypted en-route to your user's web client, and once decrypted on the web client, can be saved in the browser as a cookie, into localStorage, or into sessionStorage.
+
+The primary advantage of this system is that it requires no backend modification whatsoever - all changes are minimal and contained to your client apps. The lack of backend modification makes this flow ideal if you currently use a third-party authentication system like Auth0 or AWS Cognito.
+
+See more details about session extension here: https://docs.keyri.com/authentication/qr-authentication/client-session-extension
+
+### Server-Side Authentication
+
+The Keyri server-side authentication flow is similar to WebAuthn - the user supplies your client app with their cryptographic signature, which you then validate against their public key which you have on file from their registration phase. Server-side setup is required if you want to use passwordless authentication in your mobile app. This entails:
+
+- One additional field in your user database to hold the user's public key
+
+- One additional API route to receive the user's public key from your mobile app
+
+- One new backend auth case for signature verification
+
+The primary benefit of this route is that it allows you to ensure that all of a given user's client devices are associated with different session tokens, which allows you to deauthorize individual devices. Additionally, the involvement of device-generated ECDSA signatures allows you to leverage mobile device fingerprinting and automatic, continuous authentication in the background without any user involvement.
+
+See more details about server-side authentication here: https://docs.keyri.com/authentication/qr-authentication/server-side-authentication
