@@ -35,7 +35,7 @@ let decryptedRiskObject = await ezCrypto.HKDFDecrypt(
 decryptedRiskObject = new TextDecoder().decode(decryptedRiskObject);
 decryptedRiskObject = JSON.parse(decryptedLoginEvent).fingerprintEvent;
 
-// You can now parse through the `fingerprintEvent` object to read and
+// You can now parse through the `encryptedRiskObject` to read and
 // act on parts of the risk assessment you care about
 
 // ...proceed with your login function accordingly
