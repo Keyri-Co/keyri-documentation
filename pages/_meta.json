@@ -1,7 +1,7 @@
 {
   "index": "Introduction",
   "authentication": "Authentication",
-  "device-fingerprinting": "Fraud analytics",
+  "fraud-prevention": "Fraud Prevention",
   "mobile-sdks": "Mobile SDK Reference",
   "mobile-security-features": "Mobile Security Features",
   "integrations": "Auth Integrations",
