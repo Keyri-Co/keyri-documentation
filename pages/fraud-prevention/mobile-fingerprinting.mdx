@@ -57,7 +57,7 @@ The SDK will:
 
 The following example protects your registration/signup flow. Regardless of the credentials that the user inputs when trying to create a new account (like a new username), the Keyri methods included here will detect whether that device has already registered an account, and if so, suggest to the user to log in with that existing account rather than create a new one. Of course, you can implement other logic like allowing up to two accounts, blocking certain accounts altogether, etc. All you're getting when running `listUniqueAccounts()` is a useful, reliable array of accounts associated with that device, and you can parse and act upon it however you'd like.
 
-<Tabs items={['Swift', 'Kotlin', 'Dart/Flutter', 'React Native']}>
+<Tabs items={['Swift', 'Kotlin', 'Java', 'Dart/Flutter', 'React Native']}>
 <Tab>
 ```swift copy
 func registerUser(username: String) throws {
@@ -78,7 +78,7 @@ func registerUser(username: String) throws {
 <Tab>
 ```kotlin copy
 fun registerUser(username: String, password: String) {
-    val keyri = Keyri(this@MainActivity)
+    val keyri = Keyri(this@MainActivity, appKey)
     val keys = keyri.listAssociationKey()
 
     if (keys.isNotEmpty()) {
@@ -93,6 +93,43 @@ fun registerUser(username: String, password: String) {
 
 }
 
+````
+</Tab>
+<Tab>
+```java copy
+void registerUser(String username, String password) {
+    KeyriSdk keyri = new KeyriSdk(this, appKey);
+
+    keyri.listAssociationKey(new KeyriCallback<>() {
+        @Override
+        public void onComplete(Map<String, String> result) {
+            if (result.isEmpty()) {
+                keyri.generateAssociationKey(username, new KeyriCallback<>() {
+                    @Override
+                    public void onComplete(String result) {
+                        String key = result;
+                        // Then run your regular registration process
+                        // Optionally, do something else with the key that just got generated.
+                        // Keyri Handles saving the key in the Secure Enclave for you
+                        // For example, you can later use this key pair to passwordlessly authenticate the user
+                    }
+
+                    @Override
+                    public void onError(@Nullable Throwable throwable) {
+                        // Process error
+                    }
+                });
+            } else {
+                // Alert user that there is an existing user, and encourage them to sign in here
+            }
+        }
+
+        @Override
+        public void onError(@Nullable Throwable throwable) {
+            // Process error
+        }
+    });
+}
 ````
 </Tab>
 <Tab>
@@ -138,7 +175,7 @@ const key = Keyri.generateAssociationKey(username);
 </Tabs>
 
 ### Example: Full Serverside Fingerprinting
-<Tabs items={['Swift', 'Kotlin']}>
+<Tabs items={['Swift', 'Kotlin', 'Java']}>
 <Tab>
 ```swift copy
 func createUser(username: String) -> P256.Signing.PublicKey? {
@@ -168,7 +205,7 @@ fun createUser(username: String): String? {
 
         // Optionally sign custom data with the key at this stage
         // remember, the key can always be retrieved with getAssociationKey
-        keyri.sendEvent(eventType: EventType.Login, success: true)
+        keyri.sendEvent(publicUserId: username, eventType: EventType.Login, eventResult: FingerprintLogResult.Success)
 
         key
     } else {
@@ -178,6 +215,53 @@ fun createUser(username: String): String? {
 
 }
 
+````
+</Tab>
+<Tab>
+```java copy
+void createUser(String username) {
+    KeyriSdk keyri = new KeyriSdk(this, appKey);
+
+    keyri.listAssociationKey(new KeyriCallback<>() {
+        @Override
+        public void onComplete(Map<String, String> result) {
+            if (result.size() < MAX_ACCOUNT_LIMIT) {
+                keyri.generateAssociationKey(username, new KeyriCallback<>() {
+                    @Override
+                    public void onComplete(String result) {
+                        String key = result;
+
+                        // Optionally sign custom data with the key at this stage
+                        // remember, the key can always be retrieved with getAssociationKey
+                        keyri.sendEvent(username, EventType.Login, FingerprintLogResult.Success, new KeyriCallback<FingerprintEventResponse>() {
+                            @Override
+                            public void onComplete(FingerprintEventResponse result) {
+                                // Process result
+                            }
+
+                            @Override
+                            public void onError(@Nullable Throwable throwable) {
+                                // Process error
+                            }
+                        })
+                    }
+
+                    @Override
+                    public void onError(@Nullable Throwable throwable) {
+                        // Process error
+                    }
+                });
+            } else {
+                // Alert user that they're exceeding the limit here
+            }
+        }
+
+        @Override
+        public void onError(@Nullable Throwable throwable) {
+            // Process error
+        }
+    });
+}
 ````
 </Tab>
 </Tabs>
