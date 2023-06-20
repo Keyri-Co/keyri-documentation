@@ -1,6 +1,8 @@
 ---
-description: Keyri’s Android SDK handles secure cryptographic key generation, key storage, encryption, API communications, and all other functions for authentication and fraud prevention.
+description: Keyri's Android SDK handles secure cryptographic key generation, key storage, encryption, API communications, and all other functions for authentication and fraud prevention.
 ---
+
+import { Tab, Tabs } from 'nextra-theme-docs';
 
 # Keyri Android SDK
 
@@ -18,7 +20,7 @@ Note: Your app does not have to be written in Kotlin to integrate this SDK, but 
 
 ## Integration
 
-Add SDK dependency to your module `build.gradle` file and sync project:
+Add the Keyri SDK dependency to your module `build.gradle` file and sync project:
 
 ```kotlin copy
 dependencies {
@@ -27,7 +29,7 @@ dependencies {
 }
 ```
 
-If you are using Java you also need to add next dependency to your module:
+If you are using Java, you also need to add the following dependency to your module:
 
 ```kotlin copy
 dependencies {
@@ -86,8 +88,8 @@ private fun processLink(data: Uri?) {
             easyKeyriAuth(
                 this,
                 easyKeyriAuthLauncher,
-                "[Your appKey]", // Get this value from the Keyri Developer Portal
-                "[Your publicApiKey]", // Get this optional value from the Keyri Dashboard for Fraud analytics
+                "[Your appKey]", // Get this value from the Keyri Dashboard
+                "[Your publicApiKey]", // Get this optional value from the Keyri Dashboard for Fraud Prevention
                 "Custom payload here",
                 "public-User-Id", // publicUserId is optional
             )
@@ -98,8 +100,8 @@ private fun processLink(data: Uri?) {
             easyKeyriAuth(
                 this,
                 REQUEST_CODE,
-                "[Your appKey]", // Get this value from the Keyri Developer Portal
-                "[Your publicApiKey]", // Get this optional value from the Keyri Dashboard for Fraud analytics
+                "[Your appKey]", // Get this value from the Keyri Dashboard
+                "[Your publicApiKey]", // Get this optional value from the Keyri Dashboard for Fraud Prevention
                 "Custom payload here",
                 "public-User-Id", // publicUserId is optional
             )
@@ -131,8 +133,8 @@ private void processLink(@Nullable Uri data) {
         EasyKeyriAuth.easyKeyriAuth(
             this,
             easyKeyriAuthLauncher,
-            "[Your appKey]", // Get this value from the Keyri Developer Portal
-            "[Your publicApiKey]", // Get this optional value from the Keyri Dashboard for Fraud analytics
+            "[Your appKey]", // Get this value from the Keyri Dashboard
+            "[Your publicApiKey]", // Get this optional value from the Keyri Dashboard for Fraud Prevention
             "Custom payload here",
             "public-User-Id" // publicUserId is optional
         );
@@ -140,8 +142,8 @@ private void processLink(@Nullable Uri data) {
         EasyKeyriAuth.easyKeyriAuth(
             this,
             REQUEST_CODE,
-            "[Your appKey]", // Get this value from the Keyri Developer Portal
-            "[Your publicApiKey]", // Get this optional value from the Keyri Dashboard for Fraud analytics
+            "[Your appKey]", // Get this value from the Keyri Dashboard
+            "[Your publicApiKey]", // Get this optional value from the Keyri Dashboard for Fraud Prevention
             "Custom payload here",
             "public-User-Id" // publicUserId is optional
         );
@@ -174,9 +176,9 @@ private fun process(uri: Uri?) {
     uri?.getQueryParameters("sessionId")?.firstOrNull()?.let { sessionId ->
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val appKey = "[Your appKey]" // Get this value from the Keyri Developer Portal
+                val appKey = "[Your appKey]" // Get this value from the Keyri Dashboard
                 val publicApiKey =
-                    "[Your publicApiKey]" // Get this optional value from the Keyri Developer Portal for fingerprint
+                    "[Your publicApiKey]" // Get this optional value from the Keyri Dashboard for Fraud Prevention
                 val publicUserId = "public-User-Id" // publicUserId is optional
                 val payload = "Custom payload here"
 
@@ -224,8 +226,8 @@ private void processLink(@Nullable Uri data) {
 
     if (sessionId != null) {
         try {
-            String appKey = "[Your appKey]"; // Get this value from the Keyri Developer Portal
-            String publicApiKey = "[Your publicApiKey]"; // Get this optional value from the Keyri Developer Portal for fingerprint
+            String appKey = "[Your appKey]"; // Get this value from the Keyri Dashboard
+            String publicApiKey = "[Your publicApiKey]"; // Get this optional value from the Keyri Dashboard for Fraud Prevention
             String publicUserId = "public-User-Id"; // publicUserId is optional
             String payload = "Custom payload here";
 
@@ -315,8 +317,8 @@ override fun onCreate(savedInstanceState: Bundle?) {
         easyKeyriAuth(
             this,
             easyKeyriAuthLauncher,
-            "[Your appKey]", // Get this value from the Keyri Developer Portal
-            "[Your publicApiKey]", // Get this value from the Keyri Developer Portal, optional
+            "[Your appKey]", // Get this value from the Keyri Dashboard
+            "[Your publicApiKey]", // Get this value from the Keyri Dashboard, optional
             "Custom payload here",
             "public-User-Id", // publicUserId is optional
         )
@@ -329,8 +331,8 @@ override fun onCreate(savedInstanceState: Bundle?) {
         easyKeyriAuth(
             this,
             REQUEST_CODE,
-            "[Your appKey]", // Get this value from the Keyri Developer Portal
-            "[Your publicApiKey]", // Get this value from the Keyri Developer Portal, optional
+            "[Your appKey]", // Get this value from the Keyri Dashboard
+            "[Your publicApiKey]", // Get this value from the Keyri Dashboard, optional
             "Custom payload here",
             "public-User-Id", // publicUserId is optional
         )
@@ -356,8 +358,8 @@ protected void onCreate(@Nullable Bundle savedInstanceState) {
         EasyKeyriAuth.easyKeyriAuth(
             this,
             easyKeyriAuthLauncher,
-            "[Your appKey]", // Get this value from the Keyri Developer Portal
-            "[Your publicApiKey]", // Get this value from the Keyri Developer Portal, optional
+            "[Your appKey]", // Get this value from the Keyri Dashboard
+            "[Your publicApiKey]", // Get this value from the Keyri Dashboard, optional
             "Custom payload here",
             "public-User-Id" // publicUserId is optional
         );
@@ -367,8 +369,8 @@ protected void onCreate(@Nullable Bundle savedInstanceState) {
         EasyKeyriAuth.easyKeyriAuth(
             this,
             REQUEST_CODE,
-            "[Your appKey]", // Get this value from the Keyri Developer Portal
-            "[Your publicApiKey]", // Get this value from the Keyri Developer Portal, optional
+            "[Your appKey]", // Get this value from the Keyri Dashboard
+            "[Your publicApiKey]", // Get this value from the Keyri Dashboard, optional
             "Custom payload here",
             "public-User-Id" // publicUserId is optional
         );
@@ -378,13 +380,13 @@ protected void onCreate(@Nullable Bundle savedInstanceState) {
 </Tab>
 </Tabs>
 
-Or define custom scanner UI/UX. You can use Firebase ML Kit, ZXing, your own scanner, or any other equivalent. All you need to do is convert to URI, and then you're free to process the response the same way we did above (notice the `process(uri)` function is exactly the same in both cases)
+Or define a custom scanner UI/UX. You can use Firebase ML Kit, ZXing, your own scanner, or any other equivalent. All you need to do is convert to URI, and then you're free to process the response the same way we did above (notice the `process(uri)` function is exactly the same in both cases)
 
 <Tabs items={['Kotlin', 'Java']}>
 <Tab>
 ```kotlin copy
 private fun scanQr() {
-    // Your scanner realization
+    // Your scanner implementation
     // Get link from QR and process it:
     process(uri)
 }
@@ -393,9 +395,9 @@ private fun process(uri: Uri?) {
     uri?.getQueryParameters("sessionId")?.firstOrNull()?.let { sessionId ->
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val appKey = "[Your appKey]" // Get this value from the Keyri Developer Portal
+                val appKey = "[Your appKey]" // Get this value from the Keyri Dashboard
                 val publicApiKey =
-                    "[Your publicApiKey]" // Get this optional value from the Keyri Developer Portal for fingerprint
+                    "[Your publicApiKey]" // Get this optional value from the Keyri Dashboard for Fraud Prevention
                 val publicUserId = "public-User-Id" // publicUserId is optional
                 val payload = "Custom payload here"
 
@@ -425,7 +427,7 @@ private fun process(uri: Uri?) {
 <Tab>
 ```java copy
 private void scanQr() {
-    // Your scanner realization
+    // Your scanner implementation
     // Get link from QR and process it:
     processLink(uri);
 }
@@ -435,8 +437,8 @@ private void processLink(@Nullable Uri data) {
 
     if (sessionId != null) {
         try {
-            String appKey = "[Your appKey]"; // Get this value from the Keyri Developer Portal
-            String publicApiKey = "[Your publicApiKey]"; // Get this optional value from the Keyri Developer Portal for fingerprint
+            String appKey = "[Your appKey]"; // Get this value from the Keyri Dashboard
+            String publicApiKey = "[Your publicApiKey]"; // Get this optional value from the Keyri Dashboard for Fraud Prevention
             String publicUserId = "public-User-Id"; // publicUserId is optional
             String payload = "Custom payload here";
 
@@ -554,6 +556,8 @@ EasyKeyriAuth(
 
 The following methods are available to interact with the Keyri SDK API, which can be used to craft your own custom flows and leverage the SDK in different ways:
 
+### Kotlin
+
 - `suspend fun Keyri.initializeQrSession(sessionId: String, publicUserId: String?): Result<Session>`: call it after obtaining the sessionId from QR code or deep link. Returns result of Session object with Risk attributes (needed to show confirmation screen) or Throwable error
 
 - `suspend fun Keyri.initializeDefaultConfirmationScreen(fm: FragmentManager, session: Session, payload: String, publicUserId: String?): Result<String>`: to show Confirmation with default UI. Returns Boolean result or Throwable error. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
@@ -590,7 +594,9 @@ The following methods are available to interact with the Keyri SDK API, which ca
 
 Payload can be anything (session token or a stringified JSON containing multiple items. Can include things like publicUserId, timestamp, customSignedData and ECDSA signature)
 
-Java analogs:
+
+### Java
+
 - `void Keyri.initializeQrSession(String sessionId, String publicUserId, KeyriCallback<KeyriSession> callback)`: call it after obtaining the sessionId from QR code or deep link. Returns result of Session object with Risk attributes (needed to show confirmation screen) or Throwable error
 
 - `void Keyri.initializeDefaultConfirmationScreen(FragmentManager fm, KeyriSession session, String payload, String publicUserId, KeyriCallback<String> callback)`: to show Confirmation with default UI. Returns Boolean result or Throwable error. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
@@ -623,7 +629,7 @@ Java analogs:
 
 The session object is returned on successful `initializeQrSession` calls, and is used to handle presenting the situation to the end user and getting their confirmation to complete authentication. Below are some of the key properties and methods that can be triggered. If you are utilizing the built-in views, you are only responsible for calling the confirm/deny methods above
 
-- iPAddressMobile/Widget - The IP Address of both mobile device and web browser&#x20;
+- iPAddressMobile/Widget - The IP Address of both mobile device and web browser
 
 - riskAnalytics - if applicable
 
