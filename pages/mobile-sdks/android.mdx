@@ -3,29 +3,28 @@ description: Keyri's Android SDK handles secure cryptographic key generation, ke
 ---
 
 import { Tab, Tabs } from 'nextra-theme-docs';
+import { AndroidSDKVersion } from 'components/AndroidSDKVersion';
 
-# Keyri Android SDK
+## Keyri Android SDK
 
 The latest source code of the Keyri Android SDK can be found here: https://github.com/Keyri-Co/keyri-android-whitelabel-sdk/releases
 
 ## System Requirements
 
 - Android API level 23 or higher
-
 - AndroidX compatibility
-
 - Kotlin's coroutines compatibility
 
 Note: Your app does not have to be written in Kotlin to integrate this SDK, but it must be able to depend on Kotlin functionality.
 
 ## Integration
 
-Add the Keyri SDK dependency to your module `build.gradle` file and sync project:
+Add the Keyri SDK dependency to your module `build.gradle` file and sync project, replacing `VERSION_NUMBER` with the latest version number, currently **<AndroidSDKVersion />**:
 
 ```kotlin copy
 dependencies {
     // ...
-    implementation("com.keyri:keyrisdk:$latestKeyriVersion")
+    implementation("com.keyri:keyrisdk:VERSION_NUMBER")
 }
 ```
 
@@ -34,8 +33,8 @@ If you are using Java, you also need to add the following dependency to your mod
 ```kotlin copy
 dependencies {
     // ...
-    implementation("com.keyri:keyrisdk:$latestKeyriVersion")
-    implementation("com.keyri:keyrisdk-java:$latestKeyriVersion")
+    implementation("com.keyri:keyrisdk:VERSION_NUMBER")
+    implementation("com.keyri:keyrisdk-java:VERSION_NUMBER")
 }
 ```
 
