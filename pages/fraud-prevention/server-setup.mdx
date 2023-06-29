@@ -4,7 +4,7 @@ import { Callout } from 'nextra-theme-docs';
 
 As noted in the Web and Mobile app fraud analytics documentation, once you trigger an event that you'd like evaluated for its risk, the Keyri API will return an encrypted object that your application should submit to your server alongside its regular event payload. For example, for a login event, your application should submit the credentials it already does (username/password for example) and add to the payload the encrypted risk object that the Keyri API returns to you.
 
-Once at your server, decrypt the object to parse the event risk before processing the event as you would normally do.
+Once at your server, decrypt the object to parse the event risk before processing the event as you would normally do. To decrypt it, you will need the private key corresponding to the public key you used in your client application, which you received in Setup & Credentials in the Keyri dashboard.
 
 ## Node.js Example
 

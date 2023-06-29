@@ -4,12 +4,12 @@ description: Permanently associate your users with their devices to improve UX a
 
 # Web App Fraud Analytics
 
-Keyri provides a JavaScript agent for fraud analytics that produces durable device ID fingerprints that persist across sessions and provides risk analytics data to your client and server. Trigger the fraud analytics agent at each event that you want to assess the risk of; the Keyri API will provide a summary of the risk level and details about the event's risk signals as well as details about the user such as location. The JavaScript agent is lightweight and can be deployed in a few minutes.
+Keyri provides a JavaScript agent for fraud analytics that produces durable device ID fingerprints that persist across sessions. It provides risk analytics data to your client and server for events you want analyzed. Trigger the fraud analytics agent at each event that you want to assess the risk of; the Keyri API will provide a summary of the risk level and details about the event's risk signals as well as details about the user such as location. The JavaScript agent is lightweight and can be deployed in a few minutes.
 
 ## Features
 
 - Retrieve device data for logging and analytics
-- Create identifier based on device data
+- Create device identifier based on device data
 
 ## Installing
 
@@ -18,16 +18,16 @@ Keyri provides a JavaScript agent for fraud analytics that produces durable devi
 Using npm:
 
 ```bash
-$ npm install keyri-browser-analytics
+$ npm install keyri-xray
 ```
 
 Once the package is installed, you can import the library using `import` or `require`:
 
 ```typescript
-import keyriEvent from 'keyri-browser-analytics';
+import { X-Ray } from 'keyri-xray';
 ```
 
-You can get the constants you need (your `apiKey` and `serviceEncryptionKey`(pair) from the Keyri Dashboard under Setup & Credentials)
+You can get the constants you need (your `serviceEncryptionKey`(pair)) from the Keyri Dashboard under Setup & Credentials
 
 ## Example
 
@@ -36,19 +36,14 @@ You can get the constants you need (your `apiKey` and `serviceEncryptionKey`(pai
 ### Browser
 
 ```typescript
-import keyriEvent from 'keyri-browser-analytics';
+import { XRay } from 'keyri-xray';
 
-const keyriApiKey = 'your_api_key';
 const serviceEncryptionKey = 'your_ECDH_public_key';
 
 async function login(userId, password) {
+  const xray = new XRay();
   // Call the Keyri fraud analytics function and await its response
-  const encryptedRiskObject = await keyriEvent(
-    userId,
-    'login',
-    serviceEncryptionKey,
-    apiKey
-  );
+  const encryptedRiskObject = await xray.scan('login', userId, serviceEncryptionKey);
   // Send the Keyri response object
   // as part of your API call to retrieve protected resources
   const loginResponse = await fetch('/api/login', {
