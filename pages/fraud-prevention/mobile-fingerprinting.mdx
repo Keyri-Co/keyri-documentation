@@ -137,6 +137,8 @@ void registerUser(String username, String password) {
 void registerUser(String username, String password) {
     Keyri keyri = Keyri()
 
+    await keyri.initialize(appKey, null, null, true);
+
     keyri.listAssociationKey()
         .then((keys) => {
             if (keys.isNotEmpty()) {
@@ -156,6 +158,8 @@ void registerUser(String username, String password) {
 <Tab>
 ```javascript copy
 function registerUser(username: string, password: string) {
+    await Keyri.initKeyri(appKey);
+
     const keys = Keyri.listAssociationKey();
 
     if (keys?.length > 0) {
@@ -198,14 +202,14 @@ func createUser(username: String) -> P256.Signing.PublicKey? {
 <Tab>
 ```kotlin copy
 fun createUser(username: String): String? {
-    val keyri = Keyri(this@MainActivity, appKey) 
+    val keyri = Keyri(this@MainActivity, appKey, publicApiKey, serviceEncryptionKey)
     
     return if (keyri.listAssociationKey().size < MAX_ACCOUNT_LIMIT) {
         val key = keyri.generateAssociationKey(username)
 
         // Optionally sign custom data with the key at this stage
         // remember, the key can always be retrieved with getAssociationKey
-        keyri.sendEvent(publicUserId: username, eventType: EventType.Login, eventResult: FingerprintLogResult.Success)
+        keyri.sendEvent(publicUserId: username, eventType: EventType.Login, success: true)
 
         key
     } else {
@@ -220,7 +224,7 @@ fun createUser(username: String): String? {
 <Tab>
 ```java copy
 void createUser(String username) {
-    KeyriSdk keyri = new KeyriSdk(this, appKey);
+    KeyriSdk keyri = new KeyriSdk(this, appKey, publicApiKey, serviceEncryptionKey);
 
     keyri.listAssociationKey(new KeyriCallback<>() {
         @Override
@@ -233,7 +237,7 @@ void createUser(String username) {
 
                         // Optionally sign custom data with the key at this stage
                         // remember, the key can always be retrieved with getAssociationKey
-                        keyri.sendEvent(username, EventType.Login, FingerprintLogResult.Success, new KeyriCallback<FingerprintEventResponse>() {
+                        keyri.sendEvent(username, EventType.Login, true, new KeyriCallback<FingerprintEventResponse>() {
                             @Override
                             public void onComplete(FingerprintEventResponse result) {
                                 // Process result
