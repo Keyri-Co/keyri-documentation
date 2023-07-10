@@ -18,16 +18,31 @@ Keyri provides a JavaScript agent for fraud analytics that produces durable devi
 Using npm:
 
 ```bash
-$ npm install keyri-xray
+$ npm i @keyri/xray
 ```
 
 Once the package is installed, you can import the library using `import` or `require`:
 
 ```typescript
-import { X-Ray } from 'keyri-xray';
+import { XRAY } from "@keyri/xray";
+
+const xray = new XRAY();
+
+const info = await xray.scan(
+  data.eventType, // The type of event: Login, Signup, Visits, Access
+  data.userId, // The id of the user in your system
+  data.yourPublicEcdhKey, // This comes from our dashboard and is used
+                          // -- to identify you and as an encryption key
+  5000,  // Optional Timeout. 
+         // -- If nothing happens before this, an error is returned 
+  "safe"  // Optional Commit-Mode. When used, the API does not
+          // -- automatically update information about the device or user.
+          // -- The Relying-Party (you) must make an additional API
+          // -- call to make this happen. 
+);
 ```
 
-You can get the constants you need (your `serviceEncryptionKey`(pair)) from the Keyri Dashboard under Setup & Credentials
+You can get the constant you need (your `serviceEncryptionKey`(pair)) from the Keyri Dashboard under Setup & Credentials
 
 ## Example
 
@@ -36,14 +51,14 @@ You can get the constants you need (your `serviceEncryptionKey`(pair)) from the 
 ### Browser
 
 ```typescript
-import { XRay } from 'keyri-xray';
+import { XRAY } from "@keyri/xray";
 
 const serviceEncryptionKey = 'your_ECDH_public_key';
 
 async function login(userId, password) {
-  const xray = new XRay();
+  const xray = new XRAY();
   // Call the Keyri fraud analytics function and await its response
-  const encryptedRiskObject = await xray.scan('login', userId, serviceEncryptionKey);
+  const encryptedRiskObject = await xray.scan('login', userId, serviceEncryptionKey, 5000);
   // Send the Keyri response object
   // as part of your API call to retrieve protected resources
   const loginResponse = await fetch('/api/login', {
