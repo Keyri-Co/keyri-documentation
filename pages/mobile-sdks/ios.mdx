@@ -141,6 +141,17 @@ The following methods are available to interact with the Keyri SDK API, which ca
 
 - `func sendEvent(publicUserId: String, eventType: EventType, success: Bool): FingerprintResponse` - Sends an event to our dashboard containing a device snapshot to our dashboard. The response you recieve will be sent, as is, to your own backend, where you can utilize our scripts to help you decrypt. See the code sample below and https://docs.keyri.com/fraud-prevention for more
 
+- `func initializeQrSession(sessionId: String): Result<Session, Error>` - call after obtaining the sessionId from QR-code or deep link. Returns Session object with Risk attributes (needed to show confirmation screen) or Exception
+
+- `func initializeDefaultConfirmationScreen(session: Session, payload: String): Boolean` - to show Confirmation with default UI. Alternatively, you can implement a custom Confirmation Screen. The Default screen is built using SwiftUI, however the session object is designed to work seamlessly with UIKit as well should you prefer that route
+
+- `func Session.confirm(publicUserId: String?, payload: String):Result<Bool, Error>` - call this function if user confirms the dialog. Returns authentication result
+
+- `func Session.deny(publicUserId: String?, payload: String): Result<Bool, Error> ` - call if the user denies the dialog. Returns authentication result
+
+- `func processLink(url: URL, publicUserId: String, appKey: String, payload: String): Result<Bool, Error> ` - Handles entire QR flow just like easyKeyriAuth below, but from after the QR code is scanned. Useful if you'd like to use a custom QR scanner rather than the one we provide. Simply have the user scan the code, and pass us the URL. Everything else is taken care of
+
+
 ```
 keyri.sendEvent(publicUserId: username, eventType: eventType, success: true) { fingerprintResponse in
 	let dict = [
@@ -169,23 +180,21 @@ func stringifyFingerprintResponse(_ fingerprintResponse: FingerprintResponse) ->
 }
 ```
 
-- `func easyKeyriAuth(userId: String, payload: String): Result<Bool, Error>`- call to have Keyri drive you through the entire process - we display the scanner, scan the QR code, handle user confirmation and fire off the result to the browser - all with one line of code in your app 😀
-
-- `func initializeQrSession(sessionId: String): Result<Session, Error>` - call after obtaining the sessionId from QR-code or deep link. Returns Session object with Risk attributes (needed to show confirmation screen) or Exception
-
-- `func confirmationScreen(session: Session): Boolean` - to show Confirmation with default UI. Alternatively, you can implement a custom Confirmation Screen. The Default screen is built using SwiftUI, however the session object is designed to work seamlessly with UIKit as well should you prefer that route
-
-- `func Session.confirm(publicUserId: String?, payload: String):Result<Bool, Error>` - call this function if user confirms the dialog. Returns authentication result
-
-- `func Session.deny(publicUserId: String?, payload: String): Result<Bool, Error> ` - call if the user denies the dialog. Returns authentication result
-
 - `func generateAssociationKey(publicUserId: String): P256.Signing.PublicKey` - creates a persistent ECDSA keypair for the given public user ID (example: email address) and return public key
 
-- `func getUserSignature(publicUserId: String, data: Data): P256.Signing.ECDSASignature` - returns an ECDSA signature of the timestamp and optional customSignedData with the publicUserId's privateKey (or, if not provided, anonymous privateKey), data can be anything
+- `func generateUserSignature(publicUserId: String, data: Data): P256.Signing.ECDSASignature` - returns an ECDSA signature of the timestamp and optional customSignedData with the publicUserId's privateKey (or, if not provided, anonymous privateKey), data can be anything
+
+- `func easyKeyriAuth(publicUserId: String, payload: String): Result<Bool, Error>`- call to have Keyri drive you through the entire process - we display the scanner, scan the QR code, handle user confirmation and fire off the result to the browser - all with one line of code in your app 😀
+
 
 - `func getAssociationKey(publicUserId: String): P256.Signing.PublicKey` - returns Base64 public key for the specified publicUserId
 
-`payload` can be anything (session token or a stringified JSON containing multiple items. Can include things like publicUserId, timestamp, customSignedData and ECDSA signature)
+- `func removeAssociationKey(publicUserId: String)` - Removes key associated with the user id provided. Throws error if the given user id does not have an association key saved
+
+- `func listAssociationKeys(): [String: String]` - Lists all saved associationKeys as a map, with the key being the userId and value being public key
+
+- `func listUniqueAccounts(): [String]` - Lists all saved userIds with a valid associationKey saved
+
 
 ### Session Object
 
