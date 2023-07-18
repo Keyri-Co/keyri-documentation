@@ -28,7 +28,7 @@ Keyri risk signals fall into three categories: device-based signals, account-bas
 | Signal            | Description                                                                                                                                                                                                                          |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | New Device        | The account has not previously seen an event with this device.                                                                                                                                                                       |
-| Improbable Travel | The account has enacted an event from an IP address that is too far away from a previous event IP address in the allotted time period (e.g., a user logging in from San Francisco and then logging in from New York one hour later). |
+| Improbable Travel | The account has enacted an event from an IP address that is too far away from a previous event IP address in the allotted time period (e.g., a user logging in from San Francisco and then logging in from New York one hour later). Note: This signal will not be displayed if one of the events comes from a VPN, Proxy, or TOR. |
 | New IP Country       | The account has not previously seen an event with an IP address in a given country.                                                                                                                                                  |
 
 ### IP-Based Signals
