@@ -5,6 +5,13 @@
   "mobile-sdks": "Mobile SDK Reference",
   "mobile-security-features": "Mobile Security Features",
   "integrations": "Auth Integrations",
+  "---": {
+    "type": "separator"
+  },
+  "echoguard": "EchoGuard",
+  "----": {
+    "type": "separator"
+  },
   "changelog": "Changelog",
   "dashboard": {
     "title": "Keyri Dashboard ↗",
