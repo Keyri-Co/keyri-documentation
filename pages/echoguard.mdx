@@ -1,0 +1,275 @@
+---
+description: Simple, inexpensive phone number and email verification
+---
+
+import { Tab, Tabs } from 'nextra-theme-docs';
+
+# EchoGuard Phone Number Acquisition and Verification
+
+Keyri's EchoGuard is a simple, secure, and inexpensive alternative to SMS OTPs for verifying ownership of a user's phone number. Rather than sending a code to the user's phone number, EchoGuard guides your user to send a secret validation string to Keyri in just two taps. Once we receive the code, we inform you via webhook that the phone number has been validated.
+
+## Phone Number Acquisition
+
+With EchoGuard, you can simultaneously acquire and validate a user's phone number without them having to type it in. This is done by having the user send a text message to a contact that we provide. The user's phone number is then sent to you via webhook.
+
+### Set up your Callback URL
+
+First, create an endpoint on your backend that accepts a POST request. We will send a webhook to this endpoint when the user sends a text message to the contact we provide. The request body will contain the user's phone number and any metadata you provided when you made the API call, as follows:
+
+```json filename="Webhook"
+{
+  "confirmationId": [CONFIRMATION-ID],
+  "phoneNumber": [USER'S-PHONE-NUMBER],
+  "carrier": [USER'S-CARRIER],
+  "validationStatus": "valid",
+  "metadata": {
+    [KEY-1]: [VALUE-1]
+  },
+  "timestamp": [TIME-OF-VERIFICATION]
+}
+```
+
+It will additionally contain an `x-signature` header that is a SHA-256 ECDSA signature of the request body. You can, optionally, use this signature to verify that the request came from us. To do so, you will need to use our public key, located here: [LINK](https://static.keyri.com/keyri-echo-guard-public-key). Example verification code as follows:
+
+<Tabs items={['Node.js', 'Django']}>
+<Tab>
+```javascript filename="Express Middleware" copy
+const crypto = require('crypto');
+const axios = require('axios');
+
+const fetchPublicKey = async () => {
+const response = await axios.get('https://static.keyri.com/keyri-echo-guard-public-key');
+return response.data;
+};
+
+function signatureVerificationMiddleware(req, res, next) {
+const verifyDataWithECDSA = async (data, signature, publicKey) => {
+const verify = crypto.createVerify('SHA256');
+verify.update(data);
+    return verify.verify(
+    {
+      key: publicKey,
+    },
+    signature,
+    'base64'
+    );
+};
+
+(async () => {
+try {
+const receivedData = JSON.stringify(req.body);
+const receivedSignature = req.headers['x-signature'];
+    const publicKey = await fetchPublicKey();
+    const isValidSignature = await verifyDataWithECDSA(receivedData, receivedSignature, publicKey);
+
+    if (isValidSignature) {
+      next(); // Proceed to the next middleware or route handler
+    } else {
+      res.status(403).send('Invalid Signature');
+    }
+    } catch (error) {
+      console.error("Error verifying signature:", error);
+      res.status(500).send('Internal Server Error');
+    }
+})();
+}
+
+```
+</Tab>
+<Tab>
+```python filename="Utility Function" copy
+import requests
+import hashlib
+from Crypto.Signature import DSS
+from Crypto.Hash import SHA256
+from Crypto.PublicKey import ECC
+
+def fetch_public_key():
+  response = requests.get('https://static.keyri.com/keyri-echo-guard-public-key')
+  return ECC.import_key(response.text)
+
+def verify_data_with_ecdsa(data, signature, public_key):
+  h = SHA256.new(data.encode())
+  verifier = DSS.new(public_key, 'fips-186-3')
+  try:
+      verifier.verify(h, bytes.fromhex(signature))
+      return True
+  except ValueError:
+      return False
+```
+
+```python filename="Django Middleware" copy
+from django.http import JsonResponse
+
+class SignatureVerificationMiddleware:
+  def __init__(self, get_response):
+      self.get_response = get_response
+
+  def __call__(self, request):
+      body = request.body.decode('utf-8')
+      signature = request.headers.get('X-Signature')
+
+      public_key = fetch_public_key()
+
+      if not verify_data_with_ecdsa(body, signature, public_key):
+          return JsonResponse({"error": "Invalid Signature"}, status=403)
+
+      response = self.get_response(request)
+      return response
+```
+</Tab>
+</Tabs>
+
+### API Call
+
+Now that you've set up your callback URL, you can make a request to our API to acquire a user's phone number. You can also, **optionally**, provide `metadata` that will be included in the webhook so that you can more easily track the status of the phone number acquisition "session" once we send the webhook.
+
+```shell filename="Request" copy
+curl --request POST \
+     --url https://api.echoguard.keyri.com/acquire-phone-number \
+     --header 'Content-Type: application/json' \
+     --header 'x-api-key: [YOUR-API-KEY]' \
+     --data-raw '
+  {
+    "callbackUrl": [YOUR-CALLBACK-URL],
+    "metadata": {
+        [KEY-1]: [VALUE-1],
+        ...
+    }
+  }
+'
+```
+
+In response, you will receive the following JSON object:
+
+```json filename="Response"
+{
+  "confirmationId": [CONFIRMATION-ID],
+  "confirmationMessage": [CONFIRMATION-MESSAGE],
+  "confirmationUri": {
+    "qr": "smsto:[RECIPIENT-NUMBER]:[CONFIRMATION-MESSAGE]",
+    "ios": "sms:[RECIPIENT-NUMBER]&body=[CONFIRMATION-MESSAGE]",
+    "android": "smsto:[RECIPIENT-NUMBER]:[CONFIRMATION-MESSAGE]"
+  },
+  "sendTo": [RECIPIENT-NUMBER],
+  "expiresAt": "2023-08-30T19:12:19.293Z"
+}
+```
+
+The user will need to send the `confirmationMessage` string to the `sendTo` recipient address as a text message.
+
+### Client-Side Presentation
+
+You can now present the confirmation details to the user. Take care to not force the user to manually type in the `confirmationMessage` or the `sendTo` contact. The strings in the `confirmationUri` object are URI strings that you can use to automatically compose a text message on the user's device so that they can simply tap "Send" to send the message. Note, however, that different platforms require different URI strings, as follows:
+
+| Platform / View      | URI       | Implementation                                                                                             |
+| -------------------- | --------- | ---------------------------------------------------------------------------------------------------------- |
+| Desktop Web          | `qr`      | Generate a QR code with a JS library                                                                       |
+| Mobile Web - iOS     | `ios`     | Represent the URI as a button                                                                              |
+| Mobile Web - Android | `android` | Represent the URI as a button                                                                              |
+| iOS Native App       | N/A       | `MFMessageComposeViewController`. See [iOS](#ios) section below                                            |
+| Android Native App   | `android` | Represent the URI as a button. Optionally, see [Android](#android) section below for automatic SMS sending |
+
+#### Web
+
+For acquiring or confirming users' phone numbers in your web app, you will need to handle three scenarios: desktop web, mobile web on iOS, and mobile web on Android.
+
+On desktop web, simply present the `qr` URI as a QR code. You can use a JS library to generate the QR code client-side. When the user scans the QR code with their phone's camera app, the phone will automatically compose a text message with the `confirmationMessage` and `sendTo` contact. The same `qr` URI works on both iOS and Android devices. You can also make the QR code itself a clickable link so that if the user has text messaging integrated into their desktop environment, they can simply click the QR code to send the message.
+
+On mobile web, you will need to handle iOS and Android separately, as they use different URI schemes. Both operating systems will direct the user to the native messaging app, and they will need to return to your web app once they have tapped "Send".
+
+For example, here is a simple React component that handles all three scenarios, taking the `confirmationUri` object from our API response as a prop:
+
+```jsx filename="React component" copy
+import QRCode from 'qrcode.react';
+
+export default function PhoneNumberConfirmationBox({ confirmationUri }) {
+  function isMobile() {
+    return /Mobi|Android/i.test(navigator.userAgent);
+  }
+
+  function isIOS() {
+      return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  }
+
+  if (!isMobile()) {
+    return (
+      <a href={confirmationUri.qr}>
+          <QRCode value={confirmationUri.qr} />
+      </a>
+    );
+  } else if (isIOS()) {
+      return <a href={confirmationUri.ios}><button>Confirm Phone Number</button></a>;
+  } else {
+      return <a href={confirmationUri.android}><button>Confirm Phone Number</button></a>;
+  }
+}
+```
+
+#### iOS
+
+iOS features `MFMessageComposeViewController`, which is a native view controller that allows the user to compose and send text messages in a modal without leaving your application. You can pre-compose the message and recipient for the user so that they only need to tap "Send". See [Apple's documentation](https://developer.apple.com/documentation/messageui/mfmessagecomposeviewcontroller) for full details.
+
+```swift filename="iOS" copy
+let composeConfirmationSMS = MFMessageComposeViewController()
+composeConfirmationSMS.messageComposeDelegate = self
+
+composeConfirmationSMS.recipients = [RECIPIENT-NUMBER]
+composeConfirmationSMS.body = [CONFIRMATION-MESSAGE]
+
+self.presentViewController(composeConfirmationSMS, animated: true, completion: nil)
+```
+
+#### Android
+
+Android lacks a default modal like `MFMessageComposeViewController`, so by default, when the user taps the `android` URI, the system will direct them to their text messaging application, and they will need to return to your app. However, if you ask the user for permission to send text messages on their behalf, you can use the `SmsManager` class to send the message programmatically. See [Android's documentation](https://developer.android.com/reference/android/telephony/SmsManager) for full details.
+
+## Phone Number Confirmation
+
+Use phone number confirmation when you already know the user's phone number but need to verify their ownership of it in login or multi-factor authentication flows. This is again done by having the user send a text message to a recipient that we provide. Once we receive the code, we inform you via webhook that the phone number has been confirmed.
+
+The structure of your callback URL and the webhook we send to it will be the same as in the [Phone Number Acquisition](#set-up-your-callback-url) section. Likewise, the client presentation of the pre-composed text message will be the same as in the [Phone Number Acquisition](#client-side-presentation) section. The only difference is that your API call will be slightly different.
+
+### API Call
+
+For a phone number confirmation flow, your API call will target our `/make-confirmation` endpoint, and the body must also include the user's phone number.
+
+```shell filename="Request" copy
+curl --request POST \
+     --url https://api.echoguard.keyri.com/make-confirmation \
+     --header 'Content-Type: application/json' \
+     --header 'x-api-key: [YOUR-API-KEY]' \
+     --data-raw '
+  {
+    "phoneNumber": [USERS-PHONE-NUMBER],
+    "callbackUrl": [YOUR-CALLBACK-URL],
+    "metadata": {
+        [KEY-1]: [VALUE-1]
+    }
+  }
+'
+```
+
+```json filename="Response" copy
+{
+  "confirmationId": [CONFIRMATION-ID],
+  "confirmationMessage": [CONFIRMATION-MESSAGE],
+  "confirmationUri": {
+    "qr": "smsto:[RECIPIENT-NUMBER]:[CONFIRMATION-MESSAGE]",
+    "ios": "sms:[RECIPIENT-NUMBER]&body=[CONFIRMATION-MESSAGE]",
+    "android": "smsto:[RECIPIENT-NUMBER]:[CONFIRMATION-MESSAGE]"
+  },
+  "sendTo": "[RECIPIENT-NUMBER]",
+  "expiresAt": "2023-08-30T19:12:19.293Z"
+}
+```
+
+## Notifying the Client of Verification Status
+
+We will only send the webhook if the user's verification was successful. Each phone number acquisition or confirmation session is valid for 5 minutes as indicated by the `expiresAt` field we send when you initiate the flow, so be sure to implement a timeout/refresh strategy. If the user does not send the confirmation message within that period, the session will expire, and we will not send the webhook.
+
+Since we notify you of verification via webhook, the flow is asynchronous and out-of-band from the client application's perspective, which means that you will need to notify the client of the verification status on your server's initiative. You can do this in at least three ways:
+1. Having the client poll an endpoint on your backend that checks the status of the verification session
+2. Using a WebSocket connection to push the status to the client
+3. Using a server-side event subscription to push the status to the client
+3. In native mobile apps, using a push notification to push the status to the client
