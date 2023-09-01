@@ -126,7 +126,7 @@ Now that you've set up your callback URL, you can make a request to our API to a
 
 ```shell filename="Request" copy
 curl --request POST \
-     --url https://echoguard.keyri.com/acquire-phone-number \
+     --url https://api.echoguard.keyri.com/acquire-phone-number \
      --header 'Content-Type: application/json' \
      --header 'x-api-key: [YOUR-API-KEY]' \
      --data-raw '
@@ -236,7 +236,7 @@ For a phone number confirmation flow, your API call will target our `/make-confi
 
 ```shell filename="Request" copy
 curl --request POST \
-     --url https://echoguard.keyri.com/make-confirmation \
+     --url https://api.echoguard.keyri.com/make-confirmation \
      --header 'Content-Type: application/json' \
      --header 'x-api-key: [YOUR-API-KEY]' \
      --data-raw '
