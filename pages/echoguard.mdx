@@ -6,15 +6,15 @@ import { Tab, Tabs } from 'nextra-theme-docs';
 
 # EchoGuard Phone Number Acquisition and Verification
 
-Keyri's EchoGuard is a simple, secure, and inexpensive alternative to SMS OTPs for verifying ownership of a user's phone number. Rather than sending a code to the user's phone number, EchoGuard guides your user to send a code to us in just two taps. Once we receive the code, we inform you via webhook that the phone number has been verified.
+Keyri's EchoGuard is a simple, secure, and inexpensive alternative to SMS OTPs for verifying ownership of a user's phone number. Rather than sending a code to the user's phone number, EchoGuard guides your user to send a secret validation string to Keyri in just two taps. Once we receive the code, we inform you via webhook that the phone number has been validated.
 
 ## Phone Number Acquisition
 
-With EchoGuard, you can simultaneously acquire and validate a user's phone number without them having to type it in. This is done by having the user send a text message to a number that we provide. The user's phone number is then sent to you via webhook.
+With EchoGuard, you can simultaneously acquire and validate a user's phone number without them having to type it in. This is done by having the user send a text message to a contact that we provide. The user's phone number is then sent to you via webhook.
 
 ### Set up your Callback URL
 
-First, create an endpoint on your backend that accepts a POST request. We will send a webhook to this endpoint when the user sends a text message to the number we provide. The request body will contain the user's phone number and any metadata you provided when you made the API call, as follows:
+First, create an endpoint on your backend that accepts a POST request. We will send a webhook to this endpoint when the user sends a text message to the contact we provide. The request body will contain the user's phone number and any metadata you provided when you made the API call, as follows:
 
 ```json filename="Webhook"
 {
@@ -156,11 +156,11 @@ In response, you will receive the following JSON object:
 }
 ```
 
-The user will have to send the `confirmationMessage` string to the `sendTo` recipient address as a text message.
+The user will need to send the `confirmationMessage` string to the `sendTo` recipient address as a text message.
 
 ### Client-Side Presentation
 
-You can now present the confirmation details to the user. Take care to not force the user to manually type in the `confirmationMessage` or the `sendTo` number. The strings in the `confirmationUri` object are URI strings that you can use to automatically compose a text message on the user's device so that they can simply tap "Send" to send the message. Note, however, that different platforms require different URI strings, as follows:
+You can now present the confirmation details to the user. Take care to not force the user to manually type in the `confirmationMessage` or the `sendTo` contact. The strings in the `confirmationUri` object are URI strings that you can use to automatically compose a text message on the user's device so that they can simply tap "Send" to send the message. Note, however, that different platforms require different URI strings, as follows:
 
 | Platform / View      | URI       | Implementation                                                                                             |
 | -------------------- | --------- | ---------------------------------------------------------------------------------------------------------- |
@@ -174,9 +174,9 @@ You can now present the confirmation details to the user. Take care to not force
 
 For acquiring or confirming users' phone numbers in your web app, you will need to handle three scenarios: desktop web, mobile web on iOS, and mobile web on Android.
 
-On desktop web, simply present the `qr` URI as a QR code. You can use a JS library to generate the QR code client-side. When the user scans the QR code with their phone's camera app, the phone will automatically compose a text message with the `confirmationMessage` and `sendTo` number. The same `qr` URI works on both iOS and Android devices. You can also make the QR code itself a clickable link so that if the user has text messaging integrated into their desktop environment, they can simply click the QR code to send the message.
+On desktop web, simply present the `qr` URI as a QR code. You can use a JS library to generate the QR code client-side. When the user scans the QR code with their phone's camera app, the phone will automatically compose a text message with the `confirmationMessage` and `sendTo` contact. The same `qr` URI works on both iOS and Android devices. You can also make the QR code itself a clickable link so that if the user has text messaging integrated into their desktop environment, they can simply click the QR code to send the message.
 
-On mobile web, you will need to handle iOS and Android separately, as they use different URI schemes. Both operating systems will direct the user to the native messaging app, and they will have to return to your web app once they have tapped "Send".
+On mobile web, you will need to handle iOS and Android separately, as they use different URI schemes. Both operating systems will direct the user to the native messaging app, and they will need to return to your web app once they have tapped "Send".
 
 For example, here is a simple React component that handles all three scenarios, taking the `confirmationUri` object from our API response as a prop:
 
@@ -208,7 +208,7 @@ export default function PhoneNumberConfirmationBox({ confirmationUri }) {
 
 #### iOS
 
-iOS features `MFMessageComposeViewController`, which is a native view controller that allows the user to compose and send text messages in a modal without leaving your application. You can pre-compose the message and recipient for the user so that they only have to tap "Send". See [Apple's documentation](https://developer.apple.com/documentation/messageui/mfmessagecomposeviewcontroller) for full details.
+iOS features `MFMessageComposeViewController`, which is a native view controller that allows the user to compose and send text messages in a modal without leaving your application. You can pre-compose the message and recipient for the user so that they only need to tap "Send". See [Apple's documentation](https://developer.apple.com/documentation/messageui/mfmessagecomposeviewcontroller) for full details.
 
 ```swift filename="iOS" copy
 let composeConfirmationSMS = MFMessageComposeViewController()
@@ -222,7 +222,7 @@ self.presentViewController(composeConfirmationSMS, animated: true, completion: n
 
 #### Android
 
-Android lacks a default modal like `MFMessageComposeViewController`, so by default, when the user taps the `android` URI, the system will direct them to their text messaging application, and they will have to return to your app. However, if you ask the user for permission to send text messages on their behalf, you can use the `SmsManager` class to send the message programmatically. See [Android's documentation](https://developer.android.com/reference/android/telephony/SmsManager) for full details.
+Android lacks a default modal like `MFMessageComposeViewController`, so by default, when the user taps the `android` URI, the system will direct them to their text messaging application, and they will need to return to your app. However, if you ask the user for permission to send text messages on their behalf, you can use the `SmsManager` class to send the message programmatically. See [Android's documentation](https://developer.android.com/reference/android/telephony/SmsManager) for full details.
 
 ## Phone Number Confirmation
 
@@ -273,26 +273,3 @@ Since we notify you of verification via webhook, the flow is asynchronous and ou
 2. Using a WebSocket connection to push the status to the client
 3. Using a server-side event subscription to push the status to the client
 3. In native mobile apps, using a push notification to push the status to the client
-
-## Sequence Overview
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant Client App
-    participant Server
-    participant EchoGuard
-    User -->> Client App: Initiate
-    Client App ->> Server: 
-    Server ->> Server: Make record of validation request
-    Server ->> EchoGuard: 
-    EchoGuard ->> Server: SMS body and recipient
-    Server ->> Server: Update request record
-    Server ->> Client App: 
-    Client App ->> User: SMS button or QR code
-    User -->> EchoGuard: Send SMS
-    EchoGuard ->> EchoGuard: Validate message
-    EchoGuard ->> Server: {phoneNumber, valid}
-    Server ->> Server: Update request record
-    Server ->> Client App: Notify
-```
