@@ -589,76 +589,76 @@ The following methods are available to interact with the Keyri SDK API, which ca
 
 ### Kotlin
 
-- `suspend fun Keyri.initiateQrSession(sessionId: String, publicUserId: String?): Result<Session>`: call it after obtaining the sessionId from QR code or deep link. Returns result of Session object with Risk attributes (needed to show confirmation screen) or Throwable error.
+- `suspend fun Keyri.initiateQrSession(sessionId: String, publicUserId: String?): Result<Session>` - call it after obtaining the sessionId from QR code or deep link. Returns result of Session object with Risk attributes (needed to show confirmation screen) or Throwable error
 
-- `suspend fun Keyri.initializeDefaultConfirmationScreen(fragmentManager: FragmentManager, session: Session, payload: String): Result<Unit>`: to show Confirmation with default UI. Returns result or Throwable error. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt.
+- `suspend fun Keyri.initializeDefaultConfirmationScreen(fragmentManager: FragmentManager, session: Session, payload: String): Result<Unit>` - to show Confirmation with default UI. Returns result or Throwable error. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
 
-- `suspend fun Session.confirm(payload: String, context: Context, trustNewBrowser: Boolean = false): Result<Unit>`: call this function if user confirmed the dialog. Returns authentication result or Throwable error.
+- `suspend fun Session.confirm(payload: String, context: Context, trustNewBrowser: Boolean = false): Result<Unit>` - call this function if user confirmed the dialog. Returns authentication result or Throwable error
 
-- `suspend fun Session.deny(payload: String, context: Context): Result<Unit>`: call if the user denied the dialog. Returns denial result or Throwable error.
+- `suspend fun Session.deny(payload: String, context: Context): Result<Unit>` - call if the user denied the dialog. Returns denial result or Throwable error
 
-- `suspend fun Keyri.processLink(fragmentManager: FragmentManager, url: Uri, payload: String, publicUserId: String?): Result<Unit>`: process flow with passed uri with showing default confirmation screen. Easiest way to process session from deeplink. Returns result of authentication or Throwable error.
+- `suspend fun Keyri.processLink(fragmentManager: FragmentManager, url: Uri, payload: String, publicUserId: String?): Result<Unit>` - process flow with passed uri with showing default confirmation screen. Easiest way to process session from deeplink. Returns result of authentication or Throwable error
 
-- `suspend fun Keyri.sendEvent(publicUserId: String = ANON_USER, eventType: EventType, success: Boolean): Result<FingerprintEventResponse>`: send fingerprint event and event result for specified publicUserId's.
+- `suspend fun Keyri.sendEvent(publicUserId: String = ANON_USER, eventType: EventType, success: Boolean): Result<FingerprintEventResponse>` - sends fingerprint event and event result for specified publicUserId's
 
-- `suspend fun Keyri.generateAssociationKey(publicUserId: String = "ANON"): Result<String>`: creates a persistent ECDSA keypair for the given publicUserId (example: email address) or default without arguments and return Base64 string public key.
+- `suspend fun Keyri.generateAssociationKey(publicUserId: String = "ANON"): Result<String>` - creates a persistent ECDSA keypair for the given publicUserId (example: email address) or default without arguments and return Base64 string public key
 
-- `suspend fun Keyri.generateUserSignature(publicUserId: String = "ANON", data: String): Result<String>`: returns an ECDSA signature of custom data for sign with the custom publicUserId's privateKey (or, if not provided, anonymous privateKey), customSignedData can be anything.
+- `suspend fun Keyri.generateUserSignature(publicUserId: String = "ANON", data: String): Result<String>` - returns an ECDSA signature of custom data for sign with the custom publicUserId's privateKey (or, if not provided, anonymous privateKey), customSignedData can be anything
 
-- `suspend fun Keyri.listAssociationKeys(): Result<Map<String, String>>`: returns a map of "association keys" and ECDSA Base64 public keys.
+- `suspend fun Keyri.listAssociationKeys(): Result<Map<String, String>>` - returns a map of "association keys" and ECDSA Base64 public keys
 
-- `suspend fun Keyri.listUniqueAccounts(): Result<Map<String, String>>`: returns a map of unique "association keys" and ECDSA Base64 public keys.
+- `suspend fun Keyri.listUniqueAccounts(): Result<Map<String, String>>` - returns a map of unique "association keys" and ECDSA Base64 public keys
 
-- `suspend fun Keyri.getAssociationKey(publicUserId: String = "ANON"): Result<String?>`: returns association Base64 public key for the specified publicUserId (or, if not provided, for anonymous). Returns null if not generated yet.
+- `suspend fun Keyri.getAssociationKey(publicUserId: String = "ANON"): Result<String?>` - returns association Base64 public key for the specified publicUserId (or, if not provided, for anonymous). Returns null if not generated yet
 
-- `suspend fun Keyri.removeAssociationKey(publicUserId: String): Result<Unit>`: removes association public key for the specified publicUserId.
+- `suspend fun Keyri.removeAssociationKey(publicUserId: String): Result<Unit>` - removes association public key for the specified publicUserId
 
-- `fun easyKeyriAuth(content: Context, easyKeyriAuthLauncher: ActivityResultLauncher<Intent>, appKey: String, publicApiKey: String?, serviceEncryptionKey: String?, blockEmulatorDetection: Boolean = true, payload: String, publicUserId: String?)`: launches scanner activity with default confirmation screen for ActivityResultLauncher.
+- `fun easyKeyriAuth(content: Context, easyKeyriAuthLauncher: ActivityResultLauncher<Intent>, appKey: String, publicApiKey: String?, serviceEncryptionKey: String?, blockEmulatorDetection: Boolean = true, payload: String, publicUserId: String?)` - launches scanner activity with default confirmation screen for ActivityResultLauncher
 
-- `fun easyKeyriAuth(activity: Activity, requestCode: Int, appKey: String, publicApiKey: String?, serviceEncryptionKey: String?, blockEmulatorDetection: Boolean = true, payload: String, publicUserId: String?)`: launches scanner activity for result with default confirmation screen for onActivityResult.
+- `fun easyKeyriAuth(activity: Activity, requestCode: Int, appKey: String, publicApiKey: String?, serviceEncryptionKey: String?, blockEmulatorDetection: Boolean = true, payload: String, publicUserId: String?)` - launches scanner activity for result with default confirmation screen for onActivityResult
 
-- `@Composable fun EasyKeyriAuth(sheetState: ModalBottomSheetState, coroutineScope: CoroutineScope, keyri: Keyri, sessionId: String, payload: String, publicUserId: String?, result: (Result<Unit>) -> Unit)`: handle process flow with passed scanned url and showing default confirmation screen. Easiest way to process session from deeplink.
+- `@Composable fun EasyKeyriAuth(sheetState: ModalBottomSheetState, coroutineScope: CoroutineScope, keyri: Keyri, sessionId: String, payload: String, publicUserId: String?, result: (Result<Unit>) -> Unit)` - handle process flow with passed scanned url and showing default confirmation screen. Easiest way to process session from deeplink
 
-- `@Composable fun ConfirmationModalBottomSheet(modalBottomSheetState: ModalBottomSheetState, coroutineScope: CoroutineScope, session: Session? = null, payload: String, onResult: (Result<Unit>) -> Unit, typography: androidx.compose.material3.Typography = defaultTypography)`: to show Confirmation with default UI. Returns result or Throwable error.
+- `@Composable fun ConfirmationModalBottomSheet(modalBottomSheetState: ModalBottomSheetState, coroutineScope: CoroutineScope, session: Session? = null, payload: String, onResult: (Result<Unit>) -> Unit, typography: androidx.compose.material3.Typography = defaultTypography)` - to show Confirmation with default UI. Returns result or Throwable error
 
-- `@Composable fun ScannerPreview(modifier: Modifier = Modifier, onScanResult: (Result<String>) -> Unit = {}, onClose: () -> Unit = {}, isLoading: Boolean = false, typography: androidx.compose.material3.Typography = defaultTypography)`: default QR scanner implementation based on ML Kit. Returns result of scanning (string sessionId or error).
+- `@Composable fun ScannerPreview(modifier: Modifier = Modifier, onScanResult: (Result<String>) -> Unit = {}, onClose: () -> Unit = {}, isLoading: Boolean = false, typography: androidx.compose.material3.Typography = defaultTypography)` - default QR scanner implementation based on ML Kit. Returns result of scanning (string sessionId or error)
 
 Payload can be anything (session token or a stringified JSON containing multiple items. Can include things like publicUserId, timestamp, customSignedData and ECDSA signature)
 
 
 ### Java
 
-- `void KeyriSdk.initiateQrSession(String sessionId, String publicUserId, KeyriCallback<KeyriSession> callback)`: call it after obtaining the sessionId from QR code or deep link. Returns result of Session object with Risk attributes (needed to show confirmation screen) or Throwable error.
+- `void KeyriSdk.initiateQrSession(String sessionId, String publicUserId, KeyriCallback<KeyriSession> callback)` - call it after obtaining the sessionId from QR code or deep link. Returns result of Session object with Risk attributes (needed to show confirmation screen) or Throwable error
 
-- `void KeyriSdk.initializeDefaultConfirmationScreen(FragmentManager fragmentManager, KeyriSession session, String payload, KeyriCallback<Unit> callback)`: to show Confirmation with default UI. Returns result or Throwable error. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt.
+- `void KeyriSdk.initializeDefaultConfirmationScreen(FragmentManager fragmentManager, KeyriSession session, String payload, KeyriCallback<Unit> callback)` - to show Confirmation with default UI. Returns result or Throwable error. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
 
-- `void KeyriSession.confirm(String payload, Context context, boolean trustNewBrowser, KeyriCallback<Unit> callback)`: call this function if user confirmed the dialog. Returns authentication result or Throwable error.
+- `void KeyriSession.confirm(String payload, Context context, boolean trustNewBrowser, KeyriCallback<Unit> callback)` - call this function if user confirmed the dialog. Returns authentication result or Throwable error
 
-- `void KeyriSession.deny(String payload, Context context, KeyriCallback<Unit> callback)`: call if the user denied the dialog. Returns denial result or Throwable error.
+- `void KeyriSession.deny(String payload, Context context, KeyriCallback<Unit> callback)` - call if the user denied the dialog. Returns denial result or Throwable error
 
-- `void KeyriSdk.processLink(FragmentManager fragmentManager, Uri url, String payload, String publicUserId, KeyriCallback<Unit> callback)`: process flow with passed uri with showing default confirmation screen. Easiest way to process session from deeplink. Returns result of authentication or Throwable error.
+- `void KeyriSdk.processLink(FragmentManager fragmentManager, Uri url, String payload, String publicUserId, KeyriCallback<Unit> callback)` - process flow with passed uri with showing default confirmation screen. Easiest way to process session from deeplink. Returns result of authentication or Throwable error
 
-- `void KeyriSdk.sendEvent(String publicUserId, EventType eventType, boolean success, KeyriCallback<FingerprintEventResponse> callback)`: send fingerprint event and event result for specified publicUserId's.
+- `void KeyriSdk.sendEvent(String publicUserId, EventType eventType, boolean success, KeyriCallback<FingerprintEventResponse> callback)` - send fingerprint event and event result for specified publicUserId's
 
-- `void KeyriSdk.generateAssociationKey(String publicUserId, KeyriCallback<String> callback)`: creates a persistent ECDSA keypair for the given publicUserId (example: email address) or default without arguments and return Base64 string public key.
+- `void KeyriSdk.generateAssociationKey(String publicUserId, KeyriCallback<String> callback)` - creates a persistent ECDSA keypair for the given publicUserId (example: email address) or default without arguments and return Base64 string public key
 
-- `void KeyriSdk.generateUserSignature(String publicUserId, String data, KeyriCallback<String> callback)`: returns an ECDSA signature of custom data for sign with the custom publicUserId's privateKey (or, if not provided, anonymous privateKey), data can be anything.
+- `void KeyriSdk.generateUserSignature(String publicUserId, String data, KeyriCallback<String> callback)` - returns an ECDSA signature of custom data for sign with the custom publicUserId's privateKey (or, if not provided, anonymous privateKey), data can be anything
 
-- `void KeyriSdk.listAssociationKeys(KeyriCallback<Map<String, String>> callback)`: returns a map of "association keys" and ECDSA Base64 public keys.
+- `void KeyriSdk.listAssociationKeys(KeyriCallback<Map<String, String>> callback)` - returns a map of "association keys" and ECDSA Base64 public keys
 
-- `void KeyriSdk.listUniqueAccounts(KeyriCallback<Map<String, String>> callback)`: returns a map of unique "association keys" and ECDSA Base64 public keys.
+- `void KeyriSdk.listUniqueAccounts(KeyriCallback<Map<String, String>> callback)` - returns a map of unique "association keys" and ECDSA Base64 public keys
 
-- `void KeyriSdk.getAssociationKey(String publicUserId, KeyriCallback<String> callback)`: returns association Base64 public key for the specified publicUserId (or, if not provided, for anonymous). Returns null if not generated yet.
+- `void KeyriSdk.getAssociationKey(String publicUserId, KeyriCallback<String> callback)` - returns association Base64 public key for the specified publicUserId (or, if not provided, for anonymous). Returns null if not generated yet
 
-- `void KeyriSdk.removeAssociationKey(String publicUserId, KeyriCallback<Unit> callback)`: removes association public key for the specified publicUserId.
+- `void KeyriSdk.removeAssociationKey(String publicUserId, KeyriCallback<Unit> callback)` - removes association public key for the specified publicUserId
 
-- `void EasyKeyriAuth.easyKeyriAuth(Context content, ActivityResultLauncher<Intent> easyKeyriAuthLauncher, String appKey, @Nullable String publicApiKey, @Nullable String serviceEncryptionKey, String payload, boolean blockEmulatorDetection, String payload, @Nullable String publicUserId)`: launches scanner activity with default confirmation screen for ActivityResultLauncher.
+- `void EasyKeyriAuth.easyKeyriAuth(Context content, ActivityResultLauncher<Intent> easyKeyriAuthLauncher, String appKey, @Nullable String publicApiKey, @Nullable String serviceEncryptionKey, String payload, boolean blockEmulatorDetection, String payload, @Nullable String publicUserId)` - launches scanner activity with default confirmation screen for ActivityResultLauncher
 
-- `void EasyKeyriAuth.easyKeyriAuth(Activity activity, int requestCode, String appKey, @Nullable String publicApiKey, @Nullable String serviceEncryptionKey, String payload, boolean blockEmulatorDetection, String payload, @Nullable String publicUserId)`: launches scanner activity for result with default confirmation screen for onActivityResult.
+- `void EasyKeyriAuth.easyKeyriAuth(Activity activity, int requestCode, String appKey, @Nullable String publicApiKey, @Nullable String serviceEncryptionKey, String payload, boolean blockEmulatorDetection, String payload, @Nullable String publicUserId)` - launches scanner activity for result with default confirmation screen for onActivityResult
 
 ### Session Object
 
-The session object is returned on successful `initializeQrSession` calls, and is used to handle presenting the situation to the end user and getting their confirmation to complete authentication. Below are some of the key properties and methods that can be triggered. If you are utilizing the built-in views, you are only responsible for calling the confirm/deny methods above
+The session object is returned on successful `initiateQrSession` calls, and is used to handle presenting the situation to the end user and getting their confirmation to complete authentication. Below are some of the key properties and methods that can be triggered. If you are utilizing the built-in views, you are only responsible for calling the confirm/deny methods above
 
 - iPAddressMobile/Widget - The IP Address of both mobile device and web browser
 

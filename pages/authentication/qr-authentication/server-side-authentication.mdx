@@ -163,7 +163,7 @@ Please use the following methods of the mobile SDK to complete the registration 
 
 ### Login
 
-Login refers to the stage at which a user who is logged into your app on their mobile device scans a Keyri QR code to log in on the device on which the QR code is displayed. You can use methods like `easyKeyriAuth()`, `initializeQrSession()`, or `processLink()` to complete the login process. Note that the four data items listed in the backend login endpoint above (and reproduced below) are strictly necessary to include in the `payload`.&#x20;
+Login refers to the stage at which a user who is logged into your app on their mobile device scans a Keyri QR code to log in on the device on which the QR code is displayed. You can use methods like `easyKeyriAuth()`, `initiateQrSession()`, or `processLink()` to complete the login process. Note that the four data items listed in the backend login endpoint above (and reproduced below) are strictly necessary to include in the `payload`.&#x20;
 
 1.  `pubKey`: Retrieve this using `getAssociationKey(publicUserId: String)`
 

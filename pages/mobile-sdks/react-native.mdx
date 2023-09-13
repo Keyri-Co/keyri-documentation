@@ -196,11 +196,11 @@ const PopupModal: React.FC<IPopupModalProps> = ({
 
 The following methods are available to interact with the Keyri SDK API, which can be used to craft your own custom flows and leverage the SDK in different ways:
 
-- `initialize: (options: InitializeKeyriOptions)`- call it before all Keyri operations
+- `initialize: (options: InitializeKeyriOptions)` - call it before all Keyri operations
 
-- `initiateQrSession: (options: InitiateQrSessionOptions)`- call it after obtaining the sessionId from QR code or deep link. Returns Session object with Risk attributes (needed to show confirmation screen) or Exception
+- `initiateQrSession: (options: InitiateQrSessionOptions)` - call it after obtaining the sessionId from QR code or deep link. Returns Session object with Risk attributes (needed to show confirmation screen) or Exception
 
-- `initializeDefaultScreen: (sessionId: string, payload: string) `- to show Confirmation with default UI. Returns Boolean result. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
+- `initializeDefaultScreen: (sessionId: string, payload: string) ` - to show Confirmation with default UI. Returns Boolean result. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
 
 - `confirmSession: (payload: string, trustNewBrowser?: boolean)` - call this function if user confirmed the dialog, trustNewBrowser is false by default. Returns Boolean authentication result
 

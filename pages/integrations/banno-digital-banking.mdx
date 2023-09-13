@@ -62,7 +62,7 @@ window.addEventListener('message', (evt) => {
 
 ## Mobile
 
-Mobile integration entails loading the `ConsumerJwt` as the payload when you call the `initializeQrSession()` Keyri method. Below is an example in Swift that uses a QR scanner included in the Keyri mobile SDK. Note that `initializeQrSession` can be triggered either through the scanner provided by the Keyri SDK, your own scanner, and/or through a deep link (user scanning the Keyri QR code from their phone's camera app). All options for triggering the QR login process can be found in [Mobile SDK documentation](/mobile-sdks)
+Mobile integration entails loading the `ConsumerJwt` as the payload when you call the `initiateQrSession()` Keyri method. Below is an example in Swift that uses a QR scanner included in the Keyri mobile SDK. Note that `initiateQrSession` can be triggered either through the scanner provided by the Keyri SDK, your own scanner, and/or through a deep link (user scanning the Keyri QR code from their phone's camera app). All options for triggering the QR login process can be found in [Mobile SDK documentation](/mobile-sdks)
 
 ```swift copy
 func handleDisplayingScanner() {
@@ -83,7 +83,7 @@ func process(url: URL) {
 
     let keyri = KeyriInterface(appKey: appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey) // Be sure to import the SDK at the top of the file
 
-    keyri.initializeQrSession(sessionId: sessionId, publicUserId: "TestUser") { res in
+    keyri.initiateQrSession(sessionId: sessionId, publicUserId: "TestUser") { res in
         switch res {
         case .success(var session):
             // You can optionally create a custom screen and pass the session ID there. We recommend this approach for large enterprises
