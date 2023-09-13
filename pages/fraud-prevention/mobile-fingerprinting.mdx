@@ -47,11 +47,11 @@ The SDK will:
 
 ### Methods
 
-- `generateAssociationKey(username: String) -> p256Key`: Create a persistent (even on app deletion) record of a user
-- `getAssociationKey(username: String) -> p256Key?`: Retrieve key for a given user, if the user has been created
+- `generateAssociationKey(publicUserId: String) -> P256.Signing.PublicKey`: Create a persistent (even on app deletion) record of a user
+- `getAssociationKey(publicUserId: String) -> P256.Signing.PublicKey?`: Retrieve key for a given user, if the user has been created
 - `listAssociationKeys() -> [String: p256Key]`: List the accounts that have been created
-- `sign(data: Data for username: String) -> Signature`: Sign a piece of data with the user's key
-- `sendEvent(publicUserId: String?, eventType: String?, success: Bool?)`: Send Keyri a fingerprint of the device
+- `generateUserSignature(publicUserId: String, data: Data) -> P256.Signing.ECDSASignature`: Sign a piece of data with the user's key
+- `sendEvent(publicUserId: String, eventType: EventType, success: Bool) -> FingerprintResponse`: Send Keyri a fingerprint of the device
 
 ### Example: Protecting Registration/Signup
 
@@ -61,12 +61,14 @@ The following example protects your registration/signup flow. Regardless of the 
 <Tab>
 ```swift copy
 func registerUser(username: String) throws {
-    if let list = Keyri().listAssociationKey() {
+    let keyri = KeyriInterface(appKey: appKey)
+
+    if let list = keyri.listAssociationKeys() {
         if let existingUsername = list.keys.first {
             // Alert user that there is an existing user, and encourage them to sign in here
         }
     } else {
-       let key = try Keyri().generateAssociationKey(username: username)
+       let key = try keyri.generateAssociationKey(publicUserId: username)
        // Then run your regular registration process
        // Optionally, do something else with the key that just got generated.
        // Keyri Handles saving the key in the Secure Enclave for you
@@ -79,7 +81,7 @@ func registerUser(username: String) throws {
 ```kotlin copy
 fun registerUser(username: String, password: String) {
     val keyri = Keyri(this@MainActivity, appKey)
-    val keys = keyri.listAssociationKey()
+    val keys = keyri.listAssociationKeys()
 
     if (keys.isNotEmpty()) {
         // Alert user that there is an existing user, and encourage them to sign in here
@@ -90,9 +92,7 @@ fun registerUser(username: String, password: String) {
         // Keyri Handles saving the key in the Secure Enclave for you
         // For example, you can later use this key pair to passwordlessly authenticate the user
     }
-
 }
-
 ````
 </Tab>
 <Tab>
@@ -100,7 +100,7 @@ fun registerUser(username: String, password: String) {
 void registerUser(String username, String password) {
     KeyriSdk keyri = new KeyriSdk(this, appKey);
 
-    keyri.listAssociationKey(new KeyriCallback<>() {
+    keyri.listAssociationKeys(new KeyriCallback<>() {
         @Override
         public void onComplete(Map<String, String> result) {
             if (result.isEmpty()) {
@@ -135,11 +135,9 @@ void registerUser(String username, String password) {
 <Tab>
 ```dart copy
 void registerUser(String username, String password) {
-    Keyri keyri = Keyri()
+    Keyri keyri = Keyri(appKey, null, null, true)
 
-    await keyri.initialize(appKey, null, null, true);
-
-    keyri.listAssociationKey()
+    keyri.listAssociationKeys()
         .then((keys) => {
             if (keys.isNotEmpty()) {
                 // Alert user that there is an existing user, and encourage them to sign in here
@@ -158,53 +156,52 @@ void registerUser(String username, String password) {
 <Tab>
 ```javascript copy
 function registerUser(username: string, password: string) {
-    await Keyri.initKeyri(appKey);
+    await Keyri.initialize({ appKey : appKey });
 
-    const keys = Keyri.listAssociationKey();
+    const keys = Keyri.listAssociationKeys();
 
     if (keys?.length > 0) {
-
-// Alert user that there is an existing user, and encourage them to sign in here
-} else {
-const key = Keyri.generateAssociationKey(username);
-// Then run your regular registration process
-// Optionally, do something else with the key that just got generated.
-// Keyri Handles saving the key in the Secure Enclave for you
-// For example, you can later use this key pair to passwordlessly authenticate the user
+        // Alert user that there is an existing user, and encourage them to sign in here
+    } else {
+        const key = Keyri.generateAssociationKey(username);
+        // Then run your regular registration process
+        // Optionally, do something else with the key that just got generated.
+        // Keyri Handles saving the key in the Secure Enclave for you
+        // For example, you can later use this key pair to passwordlessly authenticate the user
+    }
 }
-}
-
 ````
 </Tab>
 </Tabs>
 
 ### Example: Full Serverside Fingerprinting
+
 <Tabs items={['Swift', 'Kotlin', 'Java']}>
 <Tab>
 ```swift copy
 func createUser(username: String) -> P256.Signing.PublicKey? {
-	If Keyri().listAssociationKeys().count < MAX_ACCOUNT_LIMIT {
+    let keyri = KeyriInterface(appKey: appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey)
 
-	let key = Keyri().generateAssociationKey(username: username)
+	if keyri.listAssociationKeys().count < MAX_ACCOUNT_LIMIT {
+	    let key = keyri.generateAssociationKey(username: username)
 
-	// Optionally sign custom data with the key at this stage
+	    // Optionally sign custom data with the key at this stage
 		// remember, the key can always be retrieved with getAssociationKey
-		Keyri().sendEvent(eventType: .login, success: true)
-		Return key
+        keyri.sendEvent(publicUserId: username, eventType: EventType.login, success: true)
+		return key
 	} else {
 		// Alert user that they’re exceeding the limit here
 		return nil
 	}
 }
 ````
-
 </Tab>
 <Tab>
 ```kotlin copy
 fun createUser(username: String): String? {
     val keyri = Keyri(this@MainActivity, appKey, publicApiKey, serviceEncryptionKey)
-    
-    return if (keyri.listAssociationKey().size < MAX_ACCOUNT_LIMIT) {
+
+    return if (keyri.listAssociationKeys().size < MAX_ACCOUNT_LIMIT) {
         val key = keyri.generateAssociationKey(username)
 
         // Optionally sign custom data with the key at this stage
@@ -216,9 +213,7 @@ fun createUser(username: String): String? {
         // Alert user that they're exceeding the limit here
         null
     }
-
 }
-
 ````
 </Tab>
 <Tab>
@@ -226,7 +221,7 @@ fun createUser(username: String): String? {
 void createUser(String username) {
     KeyriSdk keyri = new KeyriSdk(this, appKey, publicApiKey, serviceEncryptionKey);
 
-    keyri.listAssociationKey(new KeyriCallback<>() {
+    keyri.listAssociationKeys(new KeyriCallback<>() {
         @Override
         public void onComplete(Map<String, String> result) {
             if (result.size() < MAX_ACCOUNT_LIMIT) {

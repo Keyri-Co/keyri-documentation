@@ -19,13 +19,13 @@ Note that the following documentation is focused specifically on Keyri's QR auth
 To integrate the Keyri Dart Package, run this command in terminal in root of the project directory:
 
 ```shell copy
-$ flutter pub add flutter_keyri
+$ flutter pub add keyri_v3
 ```
 
 The SDK can then be imported into any dart file as follows:
 
 ```dart copy
-import 'package:flutter_keyri/keyri.dart';
+import 'package:keyri_v3/keyri.dart';
 ```
 
 ## API
@@ -45,7 +45,7 @@ Below is an example code block which utilizes the Keyri library in 2 common ways
 
 This function allows Keyri to handle everything for you - simply pass in the User Id, App Key, and Payload and Keyri will handle displaying a built-in QR scanner, get the session information, present a Confirmation Dialogue to the user, and finalize the details with the API.
 
-### `initiateQRSession()`
+### `initiateQrSession()`
 
 This function can be used if you'd like to present your own custom Scanner and/or Confirmation dialogue to the user. This also works for Universal Links/App Links (see below) Calling this function returns a Session object, which can be handled by:
 
@@ -57,7 +57,7 @@ This function can be used if you'd like to present your own custom Scanner and/o
 
 ```dart copy
 import 'package:flutter/material.dart';
-import 'package:keyri/keyri.dart';
+import 'package:keyri_v3/keyri.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 void main() {
@@ -66,6 +66,7 @@ void main() {
 
 const String appKey = '[Your App Key]';
 const String publicApiKey = '[Your Fingerprint Api Key]';
+const String serviceEncryptionKey = '[Your Service Encryption Key]';
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -89,7 +90,7 @@ class KeyriHomePage extends StatefulWidget {
 }
 
 class _KeyriHomePageState extends State<KeyriHomePage> {
-  Keyri keyri = Keyri();
+  Keyri keyri = Keyri(appKey, publicApiKey, serviceEncryptionKey, true);
 
   @override
   Widget build(BuildContext context) {
@@ -108,10 +109,8 @@ class _KeyriHomePageState extends State<KeyriHomePage> {
   }
 
   void _easyKeyriAuth() async {
-    avait keyri.initialize(appKey, publicApiKey);
-
     await keyri
-        .easyKeyriAuth(appKey, publicApiKey, 'Some payload', 'Public user ID')
+        .easyKeyriAuth('Some payload', 'Public user ID')
         .then((authResult) => _onAuthResult(authResult == true ? true : false))
         .catchError((error, stackTrace) => _onError(error));
   }
@@ -157,7 +156,7 @@ class KeyriScannerAuthPage extends StatefulWidget {
 class _KeyriScannerAuthPageState extends State<KeyriScannerAuthPage> {
   bool _isLoading = false;
 
-  Keyri keyri = Keyri();
+  Keyri keyri = Keyri(appKey, publicApiKey, serviceEncryptionKey, true);
 
   void onMobileScannerDetect(Barcode barcode, MobileScannerArguments? args) {
     if (barcode.rawValue == null) {
@@ -201,12 +200,10 @@ class _KeyriScannerAuthPageState extends State<KeyriScannerAuthPage> {
   }
 
   Future<void> _onReadSessionId(String sessionId) async {
-    avait keyri.initialize(appKey, publicApiKey);
-
     await keyri
         .initiateQrSession(sessionId, 'Public user ID')
         .then((session) => keyri
-            .initializeDefaultScreen(sessionId, 'Some payload')
+            .initializeDefaultConfirmationScreen('Some payload')
             .then((authResult) => _onAuthResult(authResult))
             .catchError((error, stackTrace) => _onError(error.toString())))
         .catchError((error, stackTrace) => _onError(error.toString()));
@@ -270,8 +267,8 @@ func application(_ application: UIApplication, continue userActivity: NSUserActi
     else {
         return false
     }
-    let keyri = Keyri()
-    keyri.processLink(url: incomingURL)
+    let keyri = KeyriInterface(appKey: appKey)
+    keyri.processLink(url: incomingURL, payload: 'Custom', publicUserId: 'username')
 
     return true
 }
@@ -315,19 +312,24 @@ override fun onNewIntent(intent: Intent) {
     process(intent.data)
 }
 
+override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    super.onActivityResult(requestCode, resultCode, data)
+    // Process result of easyKeyriAuth here
+}
+
 private fun processLink(data: Uri?) {
     data?.getQueryParameters("sessionId")?.firstOrNull()?.let { sessionId ->
         lifecycleScope.launch(Dispatchers.IO) {
             easyKeyriAuth(
-                supportFragmentManager,
-                sessionId,
+                this@MainActivity,
+                123, // Request code (or you can use ActivityResult API)
                 "[Your appKey]", // Get this value from the Keyri dashboard
-                "[Your publicApiKey]", // Get this value from the Keyri dashboard, optional
+                "[Your publicApiKey]", // Get this value from the Keyri dashboard, optional,
+                "[Your serviceEncryptionKey]", // Get this value from the Keyri dashboard, optional
+                true, // blockEmulatorDetection
+                "Custom payload here",
                 "public-User-ID", // publicUserId is optional
-                "Custom payload here"
             )
-
-            // Process result
         }
     } ?: Log.e("Keyri", "Failed to process link")
 }

@@ -115,10 +115,10 @@ const InitialScreen: React.FC<InitialScreenProps> = ({ route }) => {
     const sessionId: string = params?.sessionId ?? '';
     const options = {
       sessionId: sessionId,
-      publicUserId: '',
+      publicUserId: ''
     };
     await Keyri.initiateQrSession(options);
-    await Keyri.initializeDefaultScreen(sessionId, 'payload');
+    await Keyri.initializeDefaultScreen('payload');
   };
 
   //add your code for scanning QR code and on success scan call onReadSuccess method
@@ -139,7 +139,7 @@ const InitialScreen: React.FC<InitialScreenProps> = ({ route }) => {
         const params: ISearchParam = parseUrlParams(scan.data);
         const options = {
             sessionId: params?.sessionId,
-            publicUserId: '',
+            publicUserId: ''
         };
 
         const activeSession = await Keyri.initiateQrSession(options);
@@ -178,14 +178,12 @@ const PopupModal: React.FC<IPopupModalProps> = ({
              <View style={styles.customPopupButtonView}>
                 <TouchableOpacity
                     style={[styles.noBtn, styles.btn]}
-                    onPress={() => { Keyri.denySession(sessionId, 'custom_payload'); }
-                >
+                    onPress={() => { Keyri.denySession('custom_payload'); }>
                     <Text style={[styles.touchableText]}>Deny</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.yesBtn, styles.btn]}
-                    onPress={() => { Keyri.confirmSession(sessionId, 'custom_payload'); }
-                >
+                    onPress={() => { Keyri.confirmSession('custom_payload'); }>
                     <Text style={[styles.touchableText, styles.white]}>Confirm</Text>
                 </TouchableOpacity>
           </View>
@@ -198,27 +196,27 @@ const PopupModal: React.FC<IPopupModalProps> = ({
 
 The following methods are available to interact with the Keyri SDK API, which can be used to craft your own custom flows and leverage the SDK in different ways:
 
-- `initializeKeyri: (options: InitializeKeyriOptions)`- call it before all Keyri operations
+- `initialize: (options: InitializeKeyriOptions)`- call it before all Keyri operations
 
 - `initiateQrSession: (options: InitiateQrSessionOptions)`- call it after obtaining the sessionId from QR code or deep link. Returns Session object with Risk attributes (needed to show confirmation screen) or Exception
 
 - `initializeDefaultScreen: (sessionId: string, payload: string) `- to show Confirmation with default UI. Returns Boolean result. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
 
-- `confirmSession: (sessionId: string, payload: string)` - call this function if user confirmed the dialog. Returns Boolean authentication result
+- `confirmSession: (payload: string, trustNewBrowser?: boolean)` - call this function if user confirmed the dialog, trustNewBrowser is false by default. Returns Boolean authentication result
 
-- `denySession: (sessionId: string, payload: string)` - call if the user denied the dialog. Returns Boolean authentication result
+- `denySession: (payload: string)` - call if the user denied the dialog. Returns Boolean authentication result
 
-- `generateAssociationKey: (publicUserId: string)` - creates a persistent ECDSA keypair for the given public user ID (example: email address) and returns public key
+- `generateAssociationKey: (publicUserId?: string)` - creates a persistent ECDSA keypair for the given public user ID (example: email address) and returns public key
 
-- `getUserSignature: (publicUserId?: string, customSignedData?: string)` - returns an ECDSA signature of the timestamp and optional customSignedData with the publicUserId's privateKey (or, if not provided, anonymous privateKey), customSignedData can be anything
+- `getUserSignature: (publicUserId?: string, data?: string)` - returns an ECDSA signature of the timestamp and optional data with the publicUserId's privateKey (or, if not provided, anonymous privateKey), data can be anything
 
-- `listAssociationKey: ()` - returns a list of names (publicUserIds) of "association keys" (public keys)
+- `listAssociationKeys: ()` - returns a list of names (publicUserIds) of "association keys" (public keys)
 
 - `listUniqueAccounts: ()` - returns a list of association keys except key for Anon user
 
 - `getAssociationKey: (publicUserId?: string)` - returns Base64 public key for the specified publicUserId
 
-- `removeAssociationKey: (publicUserId?: string)` - removes public key for the specified publicUserId
+- `removeAssociationKey: (publicUserId: string)` - removes public key for the specified publicUserId
 
 - `sendEvent: (data: SendEventOptions)` - sends fingerprint event with specified event type and result. Returns the event risk response object from the Keyri API
 
