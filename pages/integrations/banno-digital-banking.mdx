@@ -87,11 +87,9 @@ func process(url: URL) {
         switch res {
         case .success(var session):
             // You can optionally create a custom screen and pass the session ID there. We recommend this approach for large enterprises
-            session.payload = payload
-
             // In a real world example you’d wait for user confirmation first
             do {
-                try session.confirm() // or session.deny()
+                try session.confirm(payload: payload, trustNewBrowser: true) // or session.deny()
             } catch {
                 print(error)
             }
