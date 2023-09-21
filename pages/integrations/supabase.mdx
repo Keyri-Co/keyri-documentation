@@ -132,10 +132,9 @@ if (response.error != null) {
     // One can also use the initiateQRSession method to use the Keyri Scanner with a custom Confirmation screen
     // Or the ProcessLink method if you have your own scanner or are using deep linking
     await keyri
-        .easyKeyriAuth([App Key],
-            '{"refreshToken":"$refreshToken"}', [email])
+        .easyKeyriAuth(appKey, publicApiKey, serviceEncryptionKey, blockEmulatorDetection,
+            '{"refreshToken":"$refreshToken"}', email)
         .then((authResult) => _onAuthResult(authResult))
         .catchError((error, stackTrace) => _onError(error));
-
 }
 ```

@@ -8,7 +8,7 @@ Keyri enables true passwordless authentication in mobile apps using cryptographi
 
 ## How it Works: User + Mobile Device Signatures
 
-Keyri's mobile SDKs inlcude [ECDSA](https://cryptobook.nakov.com/digital-signatures/ecdsa-sign-verify-messages) methods that allow you to tie an individual account to a specific device. These methods associate a signing key pair to an account, and the private key is persistent on and non-extractable from the device on which it was generated. The private key is used to generate cryptographic signatures for a given account that can then be validated by your backend application using the key pair's public key, which is extractable from the device and can be passed to your backend applications.
+Keyri's mobile SDKs include [ECDSA](https://cryptobook.nakov.com/digital-signatures/ecdsa-sign-verify-messages) methods that allow you to tie an individual account to a specific device. These methods associate a signing key pair to an account, and the private key is persistent on and non-extractable from the device on which it was generated. The private key is used to generate cryptographic signatures for a given account that can then be validated by your backend application using the key pair's public key, which is extractable from the device and can be passed to your backend applications.
 
 ## Practical Example - iOS
 
@@ -16,8 +16,8 @@ Let's say you have a user with a username of "Jane" registering or logging into 
 
 To generate a persistent key pair for Jane when she logs in, run `func generateAssociationKey(publicUserId: "Jane").` This will create a private key that will be stored in the phone's Secure Enclave, and return its associated public key. You can pass this public key to your user database and associate it with Jane's account, similar to how you would treat a hashed password.
 
-To authenticate Jane, run `func getUserSignature(publicUserId: "Jane", customSignedData: "I'm trying to log in")`, with a biometrics (FaceID or TouchID) check optionally preceding it. This will return a signature of the `customSignedData` from Jane's private key. Pass this `signature` and `customSignedData` to your backend, and validate that signature on your backend with ECDSA. If validated, then you can trust that Jane is using that specific device on that specific session. You can opt to call this Keyri method without biometrics at any time and thereby continuously authenticate Jane in the background as well.
+To authenticate Jane, run `func generateUserSignature(publicUserId: "Jane", data: "I'm trying to log in")`, with a biometrics (FaceID or TouchID) check optionally preceding it. This will return a signature of the `data` from Jane's private key. Pass this `signature` and `data` to your backend, and validate that signature on your backend with ECDSA. If validated, then you can trust that Jane is using that specific device on that specific session. You can opt to call this Keyri method without biometrics at any time and thereby continuously authenticate Jane in the background as well.
 
 ## Backend Setup
 
-Configure an API endpoint to receive the `signature` and `customSignedData` from your app, and validate the signature using the public key associated with the user's account. The backend setup for passwordless authentication in your mobile app is the same as that for server-side QR login: see [documentation here](/authentication/qr-authentication/server-side-authentication#backend) for a Node.js example.
+Configure an API endpoint to receive the `signature` and `data` from your app, and validate the signature using the public key associated with the user's account. The backend setup for passwordless authentication in your mobile app is the same as that for server-side QR login: see [documentation here](/authentication/qr-authentication/server-side-authentication#backend) for a Node.js example.

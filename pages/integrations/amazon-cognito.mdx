@@ -107,11 +107,12 @@ do {
     if let awsCredentialsProvider = session as? AuthAWSCredentialsProvider {
         let credentials = try awsCredentialsProvider.getAWSCredentials().get()
         // Do something with the credentials
-        Keyri().easyKeyriAuth(username: [username], appKey: [AppKeyFromDevPortal], payload: credentials.secretKey)
+        let keyri = KeyriInterface(appKey: appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey)
+
+        keyri.easyKeyriAuth(payload: credentials.secretKey, publicUserId: username)
     }
 
     // Get cognito user pool token
-
 } catch let error as AuthError {
     print("Fetch auth session failed with error - \(error)")
 } catch {

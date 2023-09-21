@@ -59,15 +59,14 @@ interface AuthService {
     ): Flow<Result<UserResponse>>
 
     // ...
-
 }
 
 // Step 1: create user
 val request = CreateUserBody(
-email = "\(username)@example.com",
-name = Name(given = "[first name]", family = "[last name]"),
-population = Population(id = "[found in Ping developer portal]"),
-username = "[username]"
+    email = "\(username)@example.com",
+    name = Name(given = "[first name]", family = "[last name]"),
+    population = Population(id = "[found in Ping developer portal]"),
+    username = "[username]"
 )
 
 val service = retrofit.create(AuthService::class.java)
@@ -202,10 +201,10 @@ static func generatePayload(for user: String) -> String {
 
         let JSONRepresentation = "username: \(user), timestamp_nonce: \(timeStr), signature: \(signature.derRepresentation.base64EncodedString())"
         return JSONRepresentation
-        } catch {
-            return ""
-        }
+    } catch {
+        return ""
     }
+}
 ```
 
 </Tab>
@@ -224,10 +223,7 @@ fun generatePayload(user: String): String {
         put("userSignature", signature)
         put("associationKey ", associationKey)
     }.toString()
-
 }
-
 ```
 </Tab>
 </Tabs>
-

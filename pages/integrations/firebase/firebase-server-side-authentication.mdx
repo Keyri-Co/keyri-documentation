@@ -394,7 +394,7 @@ Import the following Cocoapods (also available via SPM)
 
 To set up Firebase, follow their setup guide on their developer portal, then download the generated GoogleService-Info.plist file and place it at the root of your project (details on how to get this in the "Get Firebase Client Credentials" section above).
 
-Then, simply import Keyri and Firebase in the files you intend to use them
+Then, simply import KeyriInterface and Firebase in the files you intend to use them
 
 ### Register a Passwordless User
 
@@ -406,7 +406,9 @@ To register a user, one first must set up a keypair with the Keyri SDK and send 
 
 ```swift copy
     static func register(username: String) {
-        let key = try! Keyri().generateAssociationKey(username: username).derRepresentation.base64EncodedString
+        let keyri = KeyriInterface(appKey: appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey)
+
+        let key = try! keyri.generateAssociationKey(publicUserId: username).derRepresentation.base64EncodedString
 
         let body = "{\"email\": \"\(username)\",\"publicKey\": \"\(String(describing: key))\"}"
 
@@ -441,9 +443,9 @@ One can use the Keyri SDK to generate this payload, first by looking up the user
 
 ```swift copy
     static func signIn(username: String) {
-        let keyri = Keyri()
+        let keyri = KeyriInterface(appKey: appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey)
 
-        if let key = try! keyri.getAssociationKey(username: username) {
+        if let key = try! keyri.getAssociationKey(publicUserId: username) {
             let data =  String(Date.now()) + "_" + String(RandomNumberGenerator().random(100000))
             let signature = try! keyri.generateUserSignature(data: data)
             let payload = "{\"username\": \(username),\"data\": \(data),\"signature\": \"\(signature)\"}"
@@ -458,5 +460,7 @@ This payload can then be sent to the custom API, which will respond with a Custo
 Alternatively, one can send the same payload to a browser session via Keyri's QR Auth functionality, using the easyKeyriAuth function. This will log the user in on the web app as detailed at the top of this guide:
 
 ```swift
-Keyri().easyKeyriAuth(username: username, appKey: appKey, payload: payload)
+let keyri = KeyriInterface(appKey: appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey)
+
+keyri.easyKeyriAuth(username: username, appKey: appKey, payload: payload)
 ```
