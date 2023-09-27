@@ -1,0 +1,194 @@
+---
+description: Keyri’s Cordova SDK handles secure cryptographic key generation, key storage, encryption, API communications, and other functions for authentication and fraud prevention.
+---
+
+# Keyri Cordova SDK
+
+## System Requirements
+
+* iOS 14+, Swift 5.3
+* Android API level 23 or higher, target sdk 33 or higher AndroidX, Kotlin coroutines compatability
+
+## Integration
+
+[Cordova CLI](https://cordova.apache.org/docs/en/latest/guide/cli/installation.html) can be used to incorporate the Keyri SDK into your Cordova project.
+To install Keyri plugin, run this command in terminal in root of the project directory:
+
+```shell copy
+cordova plugin add @keyri/cordova-keyri
+```
+
+The plugin then can be imported into any js or ts files as follows:
+
+```javascript copy
+let Keyri = window.plugins.CordovaKeyri;
+```
+
+## Interacting with the Plugin
+
+Please see the examples below as well as a full set of method examples
+here: https://github.com/Keyri-Co/sample-cordova-app/blob/main/keyriSample/www/js/index.js
+
+### Initialize Keyri
+
+To initialize the Keyri object, simply call the initialize method, and pass in your app key and api key, generated in
+the Keyri dashboard
+
+```javascript copy
+Keyri.initialize({
+    appKey: appKey,
+    publicApiKey: publicApiKey,
+    serviceEncryptionKey: serviceEncryptionKey,
+    blockEmulatorDetection: true
+})
+    .then((message) => {
+        console.log('CordovaKeyri.initialize', message);
+        isInitialized();
+    })
+    .catch((e) => {
+        console.log('CordovaKeyri.initialize', e);
+    });
+```
+
+### Generate and retrieve association key
+
+The association key is the cryptographic identity we use to identify users. It sits in the Trusted Development
+Environment, a hardware separated chip shielded from attacks to the main perating system. The key functions as a P256
+Curve signing key. To generate:
+
+```javascript copy
+Keyri.generateAssociationKey('kuliahin.andrew@gmail.com')
+    .then((key) => {
+        console.log('CordovaKeyri.generateAssociationKey', key);
+        alert('Key generated: ' + key)
+    })
+    .catch((e) => {
+        console.log('CordovaKeyri.generateAssociationKey', e);
+    });
+```
+
+To look up an existing user's key:
+
+```javascript copy
+Keyri.getAssociationKey('kuliahin.andrew@gmail.com')
+    .then((key) => {
+        console.log('CordovaKeyri.getAssociationKey', key);
+        alert('Association key: ' + key);
+    })
+    .catch((e) => {
+        console.log('CordovaKeyri.getAssociationKey', e);
+    });
+```
+
+### Enable QR Auth
+
+QR Auth can be enabled with a single function call. This process handles scanning the code, generating the session info,
+displaying a confirmation screen to the user, and, if the user confirms, sending the encrypted payload you provide to
+the Keyri widget in your browser.
+
+```javascript copy
+Keyri.easyKeyriAuth('Payload', 'kulagin.andrew38@gmail.com')
+    .then(() => {
+        console.log('CordovaKeyri.easyKeyriAuth', 'ok');
+        alert('Authorized');
+    })
+    .catch((e) => {
+        console.log('CordovaKeyri.easyKeyriAuth', e);
+    });
+```
+
+### User Signatures
+
+The association keys can be used to sign data to send to a remote server. If the server has the user's public key (see
+above), it can then verify the identity of the user as a security measure. Below is an example of how to create a
+signature of some data, passed in as a string
+
+```javascript copy
+Keyri.generateUserSignature('kuliahin.andrew@gmail.com', 'Custom data')
+    .then((signature) => {
+        console.log('CordovaKeyri.generateUserSignature', signature);
+        alert('Signature generated: ' + signature)
+    })
+    .catch((e) => {
+        console.log('CordovaKeyri.generateUserSignature', e);
+    });
+```
+
+### Fingerprint Events
+
+You can send an event containing a device snapshot to our dashboard. The response you receive will be sent, as
+is, to your own backend, where you can utilize our scripts to help you decrypt. See the code sample below
+and https://docs.keyri.com/fraud-prevention for more
+
+```javascript copy
+Keyri.sendEvent({publicUserId: 'kuliahin.andrew@gmail.com', eventType: 'visits', success: true})
+    .then(() => {
+        console.log('CordovaKeyri.sendEvent', 'ok');
+        alert('Event sent!');
+    })
+    .catch((e) => {
+        console.log('CordovaKeyri.sendEvent', e);
+    });
+```
+
+## Interacting with the API
+
+The following methods are available to interact with the Keyri SDK API, which can be used to craft your own custom flows and leverage the SDK in different ways:
+
+- `initialize: (options: InitializeKeyriOptions)` - call it before all Keyri operations
+
+- `easyKeyriAuth: (publicUserId: string, payload: string)` - handle process flow with passed scanned url and showing default confirmation screen. Easiest way to process session from deeplink
+
+- `initiateQrSession: (options: InitiateQrSessionOptions)` - call it after obtaining the sessionId from QR code or deep link. Returns Session object with Risk attributes (needed to show confirmation screen) or Exception
+
+- `initializeDefaultConfirmationScreen: (sessionId: string, payload: string) ` - to show Confirmation with default UI. Returns Boolean result. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
+
+- `confirmSession: (payload: string, trustNewBrowser?: boolean)` - call this function if user confirmed the dialog, trustNewBrowser is false by default. Returns Boolean authentication result
+
+- `denySession: (payload: string)` - call if the user denied the dialog. Returns Boolean authentication result
+
+- `generateAssociationKey: (publicUserId?: string)` - creates a persistent ECDSA keypair for the given public user ID (example: email address) and returns public key
+
+- `generateUserSignature: (publicUserId?: string, data?: string)` - returns an ECDSA signature of the timestamp and optional data with the publicUserId's privateKey (or, if not provided, anonymous privateKey), data can be anything
+
+- `listAssociationKeys: ()` - returns a list of names (publicUserIds) of "association keys" (public keys)
+
+- `listUniqueAccounts: ()` - returns a list of association keys except key for Anon user
+
+- `getAssociationKey: (publicUserId?: string)` - returns Base64 public key for the specified publicUserId
+
+- `removeAssociationKey: (publicUserId: string)` - removes public key for the specified publicUserId
+
+- `sendEvent: (data: SendEventOptions)` - sends fingerprint event with specified event type and result. Returns the event risk response object from the Keyri API
+
+## Session Object
+
+The session object is returned on successful `initiateQrSession` calls, and is used to handle presenting the situation to the end user and getting their confirmation to complete authentication. Below are some of the key properties and methods that can be triggered. If you are utilizing the built-in views, you are only responsible for calling the confirm/deny methods above
+
+- IPAddressMobile/Widget - The IP Address of both mobile device and web browser
+
+- RiskAnalytics - if applicable
+
+- RiskStatus - clear, warn or deny
+
+- RiskFlagString - if RiskStatus is warn or deny, this string alerts the user to what is triggering the risk situation
+
+- GeoData - Location data for both mobile and widget
+
+- Mobile
+
+- city
+
+- country_code
+
+- Browser
+
+- city
+
+- country_code
+
+- `confirmSession()` and `denySession()` - see descriptions in **Interacting with the API**.
+
+# Disclaimer
+
+We care deeply about the quality of our product and rigorously test every piece of functionality we offer. That said, every integration is different. Every app on the App Store has a different permutation of build settings, compiler flags, processor requirements, compatibility issues etc and it's impossible for us to cover all of those bases, so we strongly recommend thorough testing of your integration before shipping to production. Please feel free to email us at support@keyri.com to submit a bug report or feature request.

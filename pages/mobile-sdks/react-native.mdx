@@ -198,9 +198,11 @@ The following methods are available to interact with the Keyri SDK API, which ca
 
 - `initialize: (options: InitializeKeyriOptions)` - call it before all Keyri operations
 
+- `easyKeyriAuth: (publicUserId: string, payload: string)` - handle process flow with passed scanned url and showing default confirmation screen. Easiest way to process session from deeplink
+
 - `initiateQrSession: (options: InitiateQrSessionOptions)` - call it after obtaining the sessionId from QR code or deep link. Returns Session object with Risk attributes (needed to show confirmation screen) or Exception
 
-- `initializeDefaultScreen: (sessionId: string, payload: string) ` - to show Confirmation with default UI. Returns Boolean result. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
+- `initializeDefaultConfirmationScreen: (sessionId: string, payload: string) ` - to show Confirmation with default UI. Returns Boolean result. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
 
 - `confirmSession: (payload: string, trustNewBrowser?: boolean)` - call this function if user confirmed the dialog, trustNewBrowser is false by default. Returns Boolean authentication result
 
@@ -208,7 +210,7 @@ The following methods are available to interact with the Keyri SDK API, which ca
 
 - `generateAssociationKey: (publicUserId?: string)` - creates a persistent ECDSA keypair for the given public user ID (example: email address) and returns public key
 
-- `getUserSignature: (publicUserId?: string, data?: string)` - returns an ECDSA signature of the timestamp and optional data with the publicUserId's privateKey (or, if not provided, anonymous privateKey), data can be anything
+- `generateUserSignature: (publicUserId?: string, data?: string)` - returns an ECDSA signature of the timestamp and optional data with the publicUserId's privateKey (or, if not provided, anonymous privateKey), data can be anything
 
 - `listAssociationKeys: ()` - returns a list of names (publicUserIds) of "association keys" (public keys)
 

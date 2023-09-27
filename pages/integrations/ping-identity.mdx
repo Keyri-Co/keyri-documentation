@@ -49,29 +49,34 @@ First, create a user in Ping's system if one does not exist already. This is a s
 <Tabs items={['Swift', 'Kotlin']}>
     <Tab>
 ```swift copy
-interface AuthService {
-    @Headers("Content-Type: application/vnd.pingidentity.user.import+json")
-    @POST
-    fun createUser(
-        @Url url: String = "https://api.pingone.com/v1/environments/[ENV ID HERE]/users"
-        @Header("Authorization") bearerToken: String,
-        @Body request: CreateUserBody
-    ): Flow<Result<UserResponse>>
+let jsonObject: [String: Any] = [
+    "email": "\(username)@example.com",
+    "name": [
+        "given": "a",
+        "family": ".\(username)"
+    ],
+    "population": [
+        "id": "0774f1a6-aea0-4c09-a6d1-82b9e8b2b047"
+    ],
+    "username": username,
+    "department": "engineering",
+]
 
-    // ...
+var request = URLRequest(url: URL(string: "https://api.pingone.com/v1/environments/0930f393-9d60-4e3a-a4e1-4394197537d2/users")!,timeoutInterval: Double.infinity)
+request.addValue("application/json", forHTTPHeaderField: "content-type")
+request.addValue("Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQifQ.eyJjbGllbnRfaWQiOiI2YjliYTRmMS1lZWNjLTQwNGEtODRlZC1lMDA2Mjg1NWJiNTIiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vMDkzMGYzOTMtOWQ2MC00ZTNhLWE0ZTEtNDM5NDE5NzUzN2QyL2FzIiwiaWF0IjoxNjU2MzQwODAwLCJleHAiOjE2NTYzNDQ0MDAsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiIwOTMwZjM5My05ZDYwLTRlM2EtYTRlMS00Mzk0MTk3NTM3ZDIiLCJvcmciOiIwYTAwZGUzOC00Mzk0LTRiYmQtODYxZS04ZTM3MDgyN2VhODgifQ.iOW5Wjk0jRwPiJsa7uWP6gc1qY4OPk9dHYv-O9TzjtbwfzmfQSu329-joBQBG9NmJKzorMHeUJCCQhu2ko7j3Ji3wN_zcmghUOnG8qQW7lxjq4snbOsy-ak0pCIvKakub8-oPmoX_YtsXJLoGNNUR2R9-_dxr7GpRgW4EsdTZlUirM2dP5ErzeZHQMg_RzR4h52H2CgdQklae_XtNwUZnNol5uJ5qJl52Y8yTjAUa2l3uPLKlg_jceTmIT1uR0kC8ZrBiuiNAK-WHbe875prYcrcoKhPsGQ0wWkEhNuJzDNp_45HeFL018d16uXrVe4M0J9Az0b6x92xPCBJhGt-GA", forHTTPHeaderField: "Authorization")
+
+request.httpMethod = "POST"
+
+let task = URLSession.shared.dataTask(with: request) { data, response, error in
+    guard let data = data else {
+        print(String(describing: error))
+        return
+    }
+    print(String(data: data, encoding: .utf8)!)
 }
 
-// Step 1: create user
-val request = CreateUserBody(
-    email = "\(username)@example.com",
-    name = Name(given = "[first name]", family = "[last name]"),
-    population = Population(id = "[found in Ping developer portal]"),
-    username = "[username]"
-)
-
-val service = retrofit.create(AuthService::class.java)
-
-val userResponseResult = service.createUser(bearerToken = "[Your bearer here]", request = request)
+task.resume()
 
 ````
 </Tab>
@@ -100,8 +105,8 @@ val request = CreateUserBody(
 val service = retrofit.create(AuthService::class.java)
 
 val userResponseResult = service.createUser(bearerToken = "[Your bearer here]", request = request)
-````
 
+````
 </Tab>
 </Tabs>
 
@@ -138,31 +143,38 @@ task.resume()
 </Tab>
 <Tab>
 ```kotlin copy
-//Step 2 - Patch the nickname
+interface AuthService {
+    @Headers("Content-Type: application/json")
+    @PATCH("v1/environments/{environmentId}/users/{userId}/")
+    fun saveSignaturePublicKey(
+        @Header("Authorization") bearerToken: String,
+        @Path("environmentId") environmentId: String,
+        @Path("userId") userId: String,
+        @Body request: SaveSignaturePublicKeyBody
+    ): Flow<Result<SaveSignaturePublicKeyBody>>
 
-let key = try keyri.generateAssociationKey(username: username)
-
-let parameters = "{\n \"nickname\": \"\(key.rawRepresentation.base64EncodedString())\"\n}"
-let postData = parameters.data(using: .utf8)
-
-var request = URLRequest(url: URL(string: "https://api.pingone.com/v1/environments/[ENV ID HERE]/users/[USER ID HERE]")!,timeoutInterval: Double.infinity)
-request.addValue("application/json", forHTTPHeaderField: "content-type")
-request.addValue([Bearer token here], forHTTPHeaderField: "Authorization")
-
-request.httpMethod = "PATCH"
-request.httpBody = postData
-
-let task = URLSession.shared.dataTask(with: request) { data, response, error in
-    guard let data = data else {
-        print(String(describing: error))
-        return
-    }
-    print(String(data: data, encoding: .utf8)!)
+    // ...
 }
 
-task.resume()
-````
+//Step 2 - Patch the nickname
 
+val associationKey = keyri.getAssociationKey(user.email)
+
+data class SaveSignaturePublicKeyBody(
+    @SerializedName("nickname")
+    val nickname: String
+)
+
+val service = retrofit.create(AuthService::class.java)
+
+service.saveSignaturePublicKey(
+    bearerToken,
+    environmentId,
+    userId,
+    SaveSignaturePublicKeyBody(publicKey)
+)
+
+````
 </Tab>
 </Tabs>
 
@@ -184,10 +196,10 @@ Below is an example of how to generate the signature. Notice that you can take a
 
 <Tabs items={['Swift', 'Kotlin']}>
     <Tab>
-
 ```swift
 static func generatePayload(for user: String) -> String {
-    let keyri = Keyri()
+    let keyri = KeyriInterface(appKey: appKey)
+
     do {
         let date = Date()
         let time = date.timeIntervalSince1970.description
@@ -197,7 +209,7 @@ static func generatePayload(for user: String) -> String {
 
         let timeStrData = timeStr.data(using: .utf8)!
 
-        let signature = try keyri.generateUserSignature(for: user, data: timeStrData)
+        let signature = keyri.generateUserSignature(publicUserId: user, data: timeStrData)
 
         let JSONRepresentation = "username: \(user), timestamp_nonce: \(timeStr), signature: \(signature.derRepresentation.base64EncodedString())"
         return JSONRepresentation
@@ -205,25 +217,24 @@ static func generatePayload(for user: String) -> String {
         return ""
     }
 }
-```
 
+```
 </Tab>
 <Tab>
 ```kotlin
 fun generatePayload(user: String): String {
-    val keyri = Keyri()
+    val keyri = Keyri(appKey)
 
-    val associationKey  = keyri.getAssociationKey(email)
     val timestampNonce = "${System.currentTimeMillis()}_${Random.nextInt()}"
-    val signature = keyri.generateUserSignature(email, timestampNonce)
+    val signature = keyri.generateUserSignature(user, timestampNonce)
 
     return JSONObject().apply {
         put("username", user.username)
         put("timestamp_nonce", timestampNonce)
-        put("userSignature", signature)
-        put("associationKey ", associationKey)
+        put("signature", signature)
     }.toString()
 }
+
 ```
 </Tab>
 </Tabs>
