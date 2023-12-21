@@ -118,11 +118,12 @@ const InitialScreen: React.FC<InitialScreenProps> = ({ route }) => {
       publicUserId: ''
     };
     await Keyri.initiateQrSession(options);
-    await Keyri.initializeDefaultScreen('payload');
+    await Keyri.initializeDefaultConfirmationScreen('payload');
   };
 
   //add your code for scanning QR code and on success scan call onReadSuccess method
 };
+
 ```
 
 Or define your own custom scanner UI/UX. You can use Firebase ML Kit, ZXing, your own scanner, or any other equivalent. All you need to do is convert the code you just scanned to a URI, and then you're free to process the response the same way we did above (notice the `process(uri)` function is exactly the same in both cases)
@@ -183,44 +184,51 @@ const PopupModal: React.FC<IPopupModalProps> = ({
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.yesBtn, styles.btn]}
-                    onPress={() => { Keyri.confirmSession('custom_payload'); }>
+                    onPress={() => { Keyri.confirmSession('custom_payload', true); }>
                     <Text style={[styles.touchableText, styles.white]}>Confirm</Text>
                 </TouchableOpacity>
           </View>
         </Modal>
-    )
+    );
 }
+
 ```
 
 ## Interacting with the API
 
 The following methods are available to interact with the Keyri SDK API, which can be used to craft your own custom flows and leverage the SDK in different ways:
 
-- `initialize: (options: InitializeKeyriOptions)` - call it before all Keyri operations
+- `initialize: (options: InitializeKeyriOptions) => Promise<boolean>` - call it before all Keyri operations
 
-- `easyKeyriAuth: (publicUserId: string, payload: string)` - handle process flow with passed scanned url and showing default confirmation screen. Easiest way to process session from deeplink
+- `easyKeyriAuth: (publicUserId: string, payload: string) => Promise<boolean>` - handle process flow with passed scanned url and showing default confirmation screen. Easiest way to process session from deeplink
 
-- `initiateQrSession: (options: InitiateQrSessionOptions)` - call it after obtaining the sessionId from QR code or deep link. Returns Session object with Risk attributes (needed to show confirmation screen) or Exception
+- `login: (publicUserId?: string) => Promise<LoginObject>` - call this method to generate object for login which includes timestampNonce, signature, publicKey and userId
 
-- `initializeDefaultConfirmationScreen: (sessionId: string, payload: string) ` - to show Confirmation with default UI. Returns Boolean result. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
+- `register: (publicUserId?: string) => Promise<RegisterObject>` - call this method to generate object for register which includes publicKey and userId
 
-- `confirmSession: (payload: string, trustNewBrowser?: boolean)` - call this function if user confirmed the dialog, trustNewBrowser is false by default. Returns Boolean authentication result
+- `processLink: (options: ProcessLinkOptions) => Promise<boolean>` - process flow with passed uri with showing default confirmation screen. Easiest way to process session from deeplink. Returns result of authentication or error
 
-- `denySession: (payload: string)` - call if the user denied the dialog. Returns Boolean authentication result
+- `initiateQrSession: (sessionId: string, publicUserId?: string) => Promise<KeyriSession>` - call it after obtaining the sessionId from QR code or deep link. Returns Session object with Risk attributes (needed to show confirmation screen) or Exception
 
-- `generateAssociationKey: (publicUserId?: string)` - creates a persistent ECDSA keypair for the given public user ID (example: email address) and returns public key
+- `initializeDefaultConfirmationScreen: (payload: string) => Promise<boolean>` - to show Confirmation with default UI. Returns Boolean result. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
 
-- `generateUserSignature: (publicUserId?: string, data?: string)` - returns an ECDSA signature of the timestamp and optional data with the publicUserId's privateKey (or, if not provided, anonymous privateKey), data can be anything
+- `confirmSession: (payload: string, trustNewBrowser?: boolean) => Promise<boolean>` - call this function if user confirmed the dialog, trustNewBrowser is false by default. Returns Boolean authentication result
 
-- `listAssociationKeys: ()` - returns a list of names (publicUserIds) of "association keys" (public keys)
+- `denySession: (payload: string) => Promise<boolean>` - call if the user denied the dialog. Returns Boolean authentication result
 
-- `listUniqueAccounts: ()` - returns a list of association keys except key for Anon user
+- `generateAssociationKey: (publicUserId?: string) => Promise<string>` - creates a persistent ECDSA keypair for the given public user ID (example: email address) and returns public key
 
-- `getAssociationKey: (publicUserId?: string)` - returns Base64 public key for the specified publicUserId
+- `generateUserSignature: (data: string, publicUserId?: string) => Promise<string>` - returns an ECDSA signature of the timestamp and optional data with the publicUserId's privateKey (or, if not provided, anonymous privateKey), data can be anything
 
-- `removeAssociationKey: (publicUserId: string)` - removes public key for the specified publicUserId
+- `listAssociationKeys: () => Promise<string[]>` - returns a list of names (publicUserIds) of "association keys" (public keys)
 
-- `sendEvent: (data: SendEventOptions)` - sends fingerprint event with specified event type and result. Returns the event risk response object from the Keyri API
+- `listUniqueAccounts: () => Promise<string[]>` - returns a list of association keys except key for Anon user
+
+- `getAssociationKey: (publicUserId?: string) => Promise<string>` - returns Base64 public key for the specified publicUserId
+
+- `removeAssociationKey: (publicUserId: string) => Promise<boolean>` - removes public key for the specified publicUserId
+
+- `sendEvent: (data: SendEventOptions) => Promise<KeyriFingerprintEventResponse>` - sends fingerprint event with specified event type and result. Returns the event risk response object from the Keyri API
 
 ### Session Object
 

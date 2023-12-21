@@ -53,7 +53,7 @@ This function can be used if you'd like to present your own custom Scanner and/o
 
 2.  Presenting your own custom confirmation screen to the user
 
-3.  Presenting the built-in Keyri confirmation screen \(`initializeDefaultScreen()`\) - this method is used below
+3.  Presenting the built-in Keyri confirmation screen \(`initializeDefaultConfirmationScreen()`\) - this method is used below
 
 ```dart copy
 import 'package:flutter/material.dart';
@@ -354,11 +354,17 @@ The following methods are available to interact with the Keyri SDK API, which ca
 
 - `Future<bool> easyKeyriAuth(String payload, {String? publicUserId})` - handle process flow with passed scanned url and showing default confirmation screen. Easiest way to process session from deeplink
 
-- `Future<bool> initializeDefaultConfirmationScreen(String payload) ` - to show Confirmation with default UI. Returns Boolean result. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
+- `Future<bool> initializeDefaultConfirmationScreen(String payload)` - to show Confirmation with default UI. Returns Boolean result. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
+
+- `Future<LoginObject> login({String? publicUserId})` - call this method to generate object for login which includes timestampNonce, signature, publicKey and userId
+
+- `Future<RegisterObject> register({String? publicUserId})` - call this method to generate object for register which includes publicKey and userId
 
 - `Future<bool> confirmSession(String payload, bool trustNewBrowser)` - call this function if user confirmed the dialog, trustNewBrowser is false by default. Returns Boolean authentication result
 
 - `Future<bool> denySession(String payload)` - call if the user denied the dialog. Returns Boolean authentication result
+
+- `Future<bool> processLink(String link, String payload, {String? publicUserId})` - process flow with passed uri with showing default confirmation screen. Easiest way to process session from deeplink. Returns result of authentication or error
 
 - `Future<String?> generateAssociationKey({String? publicUserId})` - creates a persistent ECDSA keypair for the given public user ID (example: email address) and returns public key
 

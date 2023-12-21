@@ -47,11 +47,12 @@ The SDK will:
 
 ### Methods
 
-- `generateAssociationKey(publicUserId: String) -> P256.Signing.PublicKey`: Create a persistent (even on app deletion) record of a user
-- `getAssociationKey(publicUserId: String) -> P256.Signing.PublicKey?`: Retrieve key for a given user, if the user has been created
-- `listAssociationKeys() -> [String: p256Key]`: List the accounts that have been created
-- `generateUserSignature(publicUserId: String, data: Data) -> P256.Signing.ECDSASignature`: Sign a piece of data with the user's key
-- `sendEvent(publicUserId: String, eventType: EventType, success: Bool) -> FingerprintResponse`: Send Keyri a fingerprint of the device
+- `generateAssociationKey(publicUserId: String, completion: (Result<P256.Signing.PublicKey, Error>) -> ())`: Create a persistent (even on app deletion) record of a user
+- `getAssociationKey(publicUserId: String, completion: (Result<P256.Signing.PublicKey?, Error>) -> ())`: Retrieve key for a given user, if the user has been created
+- `listAssociationKeys(completion: (Result<[String:String]?, Error>) -> ())`: List the accounts that have been created
+- `listUniqueAccounts(completion: (Result<[String:String]?, Error>) -> ())`: List the unique accounts
+- `generateUserSignature(publicUserId: String, data: Data, completion: (Result<P256.Signing.ECDSASignature, Error>) -> ())`: Sign a piece of data with the user's key
+- `sendEvent(publicUserId: String, eventType: EventType, success: Bool, completion: (Result<FingerprintResponse, Error>) -> ())`: Send Keyri a fingerprint of the device
 
 ### Example: Protecting Registration/Signup
 
@@ -75,6 +76,7 @@ func registerUser(username: String) throws {
        // For example, you can later use this key pair to passwordlessly authenticate the user
     }
 }
+
 ````
 </Tab>
 <Tab>
@@ -93,6 +95,7 @@ fun registerUser(username: String, password: String) {
         // For example, you can later use this key pair to passwordlessly authenticate the user
     }
 }
+
 ````
 </Tab>
 <Tab>
@@ -130,12 +133,13 @@ void registerUser(String username, String password) {
         }
     });
 }
+
 ````
 </Tab>
 <Tab>
 ```dart copy
 void registerUser(String username, String password) {
-    Keyri keyri = Keyri(appKey, null, null, true)
+    Keyri keyri = Keyri(appKey)
 
     keyri.listAssociationKeys()
         .then((keys) => {
@@ -150,6 +154,7 @@ void registerUser(String username, String password) {
             }
     });
 }
+
 ````
 
 </Tab>
@@ -170,6 +175,7 @@ function registerUser(username: string, password: string) {
         // For example, you can later use this key pair to passwordlessly authenticate the user
     }
 }
+
 ````
 </Tab>
 </Tabs>
@@ -194,6 +200,7 @@ func createUser(username: String) -> P256.Signing.PublicKey? {
 		return nil
 	}
 }
+
 ````
 </Tab>
 <Tab>
@@ -214,6 +221,7 @@ fun createUser(username: String): String? {
         null
     }
 }
+
 ````
 </Tab>
 <Tab>
@@ -261,6 +269,7 @@ void createUser(String username) {
         }
     });
 }
+
 ````
 </Tab>
 </Tabs>

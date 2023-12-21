@@ -17,12 +17,12 @@ Note: Your app does not have to be written in Kotlin to integrate this SDK, but 
 
 ## Integration
 
-Add the Keyri SDK dependency to your module `build.gradle` file and sync project, replacing `VERSION_NUMBER` with the latest version number, currently **<AndroidSDKVersion />**:
+Add the Keyri SDK dependency to your module `build.gradle` file and sync project:
 
 ```kotlin copy
 dependencies {
     // ...
-    implementation("com.keyri:keyrisdk:VERSION_NUMBER")
+    implementation("com.keyri:keyrisdk:${AndroidSDKVersion}")
 }
 ```
 
@@ -31,8 +31,8 @@ If you are using Java, you also need to add the following dependency to your mod
 ```kotlin copy
 dependencies {
     // ...
-    implementation("com.keyri:keyrisdk:VERSION_NUMBER")
-    implementation("com.keyri:keyrisdk-java:VERSION_NUMBER")
+    implementation("com.keyri:keyrisdk:${AndroidSDKVersion}")
+    implementation("com.keyri:keyrisdk-java:${AndroidSDKVersion}")
 }
 ```
 
@@ -305,8 +305,8 @@ Add Scanner dependency to your module **build.gradle** file and sync project:
 ```kotlin copy
 dependencies {
     // ...
-    implementation("com.keyri:keyrisdk:VERSION_NUMBER")
-    implementation("com.keyri:scanner:VERSION_NUMBER")
+    implementation("com.keyri:keyrisdk:${AndroidSDKVersion}")
+    implementation("com.keyri:scanner:${AndroidSDKVersion}")
 }
 ```
 
@@ -529,8 +529,8 @@ Add Keyri Compose dependency to your module `build.gradle` file and sync project
 ```kotlin copy
 dependencies {
     // ...
-    implementation("com.keyri:keyrisdk:VERSION_NUMBER")
-    implementation("com.keyri:compose:VERSION_NUMBER")
+    implementation("com.keyri:keyrisdk:${AndroidSDKVersion}")
+    implementation("com.keyri:compose:${AndroidSDKVersion}")
 }
 ```
 
@@ -581,6 +581,7 @@ EasyKeyriAuth(
 ) { result ->
     // Process result
 }
+
 ```
 
 ## Interacting with the API
@@ -592,6 +593,10 @@ The following methods are available to interact with the Keyri SDK API, which ca
 - `suspend fun Keyri.initiateQrSession(sessionId: String, publicUserId: String?): Result<Session>` - call it after obtaining the sessionId from QR code or deep link. Returns result of Session object with Risk attributes (needed to show confirmation screen) or Throwable error
 
 - `suspend fun Keyri.initializeDefaultConfirmationScreen(fragmentManager: FragmentManager, session: Session, payload: String): Result<Unit>` - to show Confirmation with default UI. Returns result or Throwable error. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
+
+- `suspend fun Keyri.login(publicUserId: String?): Result<LoginObject>` - call this method to generate object for login which includes timestampNonce, signature, publicKey and userId
+
+- `suspend fun Keyri.register(publicUserId: String?): Result<RegisterObject>` - call this method to generate object for register which includes publicKey and userId
 
 - `suspend fun Session.confirm(payload: String, context: Context, trustNewBrowser: Boolean = false): Result<Unit>` - call this function if user confirmed the dialog. Returns authentication result or Throwable error
 
@@ -628,15 +633,19 @@ Payload can be anything (session token or a stringified JSON containing multiple
 
 ### Java
 
-- `void KeyriSdk.initiateQrSession(String sessionId, String publicUserId, KeyriCallback<KeyriSession> callback)` - call it after obtaining the sessionId from QR code or deep link. Returns result of Session object with Risk attributes (needed to show confirmation screen) or Throwable error
+- `void KeyriSdk.initiateQrSession(String sessionId, @Nullable String publicUserId, KeyriCallback<KeyriSession> callback)` - call it after obtaining the sessionId from QR code or deep link. Returns result of Session object with Risk attributes (needed to show confirmation screen) or Throwable error
 
 - `void KeyriSdk.initializeDefaultConfirmationScreen(FragmentManager fragmentManager, KeyriSession session, String payload, KeyriCallback<Unit> callback)` - to show Confirmation with default UI. Returns result or Throwable error. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
+
+- `void KeyriSdk.login(@Nullable String publicUserId, KeyriCallback<LoginObject> callback)` - call this method to generate object for login which includes timestampNonce, signature, publicKey and userId
+
+- `void KeyriSdk.register(@Nullable String publicUserId, KeyriCallback<RegisterObject> callback)` - call this method to generate object for register which includes publicKey and userId
 
 - `void KeyriSession.confirm(String payload, Context context, boolean trustNewBrowser, KeyriCallback<Unit> callback)` - call this function if user confirmed the dialog. Returns authentication result or Throwable error
 
 - `void KeyriSession.deny(String payload, Context context, KeyriCallback<Unit> callback)` - call if the user denied the dialog. Returns denial result or Throwable error
 
-- `void KeyriSdk.processLink(FragmentManager fragmentManager, Uri url, String payload, String publicUserId, KeyriCallback<Unit> callback)` - process flow with passed uri with showing default confirmation screen. Easiest way to process session from deeplink. Returns result of authentication or Throwable error
+- `void KeyriSdk.processLink(FragmentManager fragmentManager, Uri url, String payload, @Nullable String publicUserId, KeyriCallback<Unit> callback)` - process flow with passed uri with showing default confirmation screen. Easiest way to process session from deeplink. Returns result of authentication or Throwable error
 
 - `void KeyriSdk.sendEvent(String publicUserId, EventType eventType, boolean success, KeyriCallback<FingerprintEventResponse> callback)` - send fingerprint event and event result for specified publicUserId's
 

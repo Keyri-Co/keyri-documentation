@@ -208,7 +208,6 @@ static func generatePayload(for user: String) -> String {
         let timeStr = time + "_" + randomInt.description
 
         let timeStrData = timeStr.data(using: .utf8)!
-
         let signature = keyri.generateUserSignature(publicUserId: user, data: timeStrData)
 
         let JSONRepresentation = "username: \(user), timestamp_nonce: \(timeStr), signature: \(signature.derRepresentation.base64EncodedString())"
@@ -223,7 +222,7 @@ static func generatePayload(for user: String) -> String {
 <Tab>
 ```kotlin
 fun generatePayload(user: String): String {
-    val keyri = Keyri(appKey)
+    val keyri = Keyri(this, appKey)
 
     val timestampNonce = "${System.currentTimeMillis()}_${Random.nextInt()}"
     val signature = keyri.generateUserSignature(user, timestampNonce)

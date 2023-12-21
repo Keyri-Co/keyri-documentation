@@ -169,20 +169,22 @@ Auth0
             // 2
             print(credentials.refreshToken)
 
-            let keyri = KeyriInterface(appKey: "BQzgy1MhPcLVCACpLX7wn25BIFv1nd2q", publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey)
+            let keyri = KeyriInterface(appKey: appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey)
             let payload = "{\"refreshToken\":\"\(credentials.refreshToken ?? "")\"}"
             print(payload)
 
             //3
-            keyri.easyKeyriAuth(payload: payload, publicUserId: username) {
-                //{"refreshToken": "[token]"}
-                reponse in
-                print(reponse)
+            keyri.easyKeyriAuth(payload: payload, publicUserId: username) { easyKeyriAuthRes in
+                switch easyKeyriAuthRes {
+                    case .success:
+                        print("Successfully authenticated")
+                    case .failure(let error):
+                        print("Failed with: \(error)")
+                }
             }
-        case .failure(let error):
-            print("Failed with: \(error)")
-        }
     }
+}
+
 ````
 </Tab>
 <Tab>
@@ -218,9 +220,10 @@ private fun getAuth0Profile(account: Auth0, credentials: Credentials) {
             easyKeyriAuth(
                 context = this@MainActivity,
                 easyKeyriAuthLauncher = easyKeyriAuthLauncher,
-                appKey = "BQzgy1MhPcLVCACpLX7wn25BIFv1nd2q",
+                appKey = appKey,
                 publicApiKey = null,
                 serviceEncryptionKey = null,
+                blockEmulatorDetection = true,
                 payload = payload,
                 publicUserId = email
             )
@@ -231,6 +234,7 @@ private fun getAuth0Profile(account: Auth0, credentials: Credentials) {
         .userInfo(credentials.accessToken)
         .start(profileCallback)
 }
+
 ````
 </Tab>
 </Tabs>

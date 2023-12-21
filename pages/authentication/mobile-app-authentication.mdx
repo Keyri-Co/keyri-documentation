@@ -16,7 +16,7 @@ Let's say you have a user with a username of "Jane" registering or logging into 
 
 To generate a persistent key pair for Jane when she logs in, run `func generateAssociationKey(publicUserId: "Jane").` This will create a private key that will be stored in the phone's Secure Enclave, and return its associated public key. You can pass this public key to your user database and associate it with Jane's account, similar to how you would treat a hashed password.
 
-To authenticate Jane, run `func generateUserSignature(publicUserId: "Jane", data: "I'm trying to log in")`, with a biometrics (FaceID or TouchID) check optionally preceding it. This will return a signature of the `data` from Jane's private key. Pass this `signature` and `data` to your backend, and validate that signature on your backend with ECDSA. If validated, then you can trust that Jane is using that specific device on that specific session. You can opt to call this Keyri method without biometrics at any time and thereby continuously authenticate Jane in the background as well.
+To authenticate Jane, run `func generateUserSignature(publicUserId: "Jane", data: Data("I'm trying to log in"))`, with a biometrics (FaceID or TouchID) check optionally preceding it. This will return a signature of the `data` from Jane's private key. Pass this `signature` and `data` to your backend, and validate that signature on your backend with ECDSA. If validated, then you can trust that Jane is using that specific device on that specific session. You can opt to call this Keyri method without biometrics at any time and thereby continuously authenticate Jane in the background as well.
 
 ## Backend Setup
 
