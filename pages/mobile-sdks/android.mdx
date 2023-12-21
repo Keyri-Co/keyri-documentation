@@ -17,12 +17,12 @@ Note: Your app does not have to be written in Kotlin to integrate this SDK, but 
 
 ## Integration
 
-Add the Keyri SDK dependency to your module `build.gradle` file and sync project:
+Add the Keyri SDK dependency to your module `build.gradle` file and sync project, replacing `VERSION_NUMBER` with the latest version number, currently **<AndroidSDKVersion />**:
 
-```kotlin copy enableInterpolation
+```kotlin copy
 dependencies {
     // ...
-    implementation("com.keyri:keyrisdk:{AndroidSDKVersion}")
+    implementation("com.keyri:keyrisdk:VERSION_NUMBER")
 }
 ```
 
@@ -31,8 +31,8 @@ If you are using Java, you also need to add the following dependency to your mod
 ```kotlin copy
 dependencies {
     // ...
-    implementation("com.keyri:keyrisdk:${AndroidSDKVersion}")
-    implementation("com.keyri:keyrisdk-java:${AndroidSDKVersion}")
+    implementation("com.keyri:keyrisdk:VERSION_NUMBER")
+    implementation("com.keyri:keyrisdk-java:VERSION_NUMBER")
 }
 ```
 
@@ -305,8 +305,8 @@ Add Scanner dependency to your module **build.gradle** file and sync project:
 ```kotlin copy
 dependencies {
     // ...
-    implementation("com.keyri:keyrisdk:${AndroidSDKVersion}")
-    implementation("com.keyri:scanner:${AndroidSDKVersion}")
+    implementation("com.keyri:keyrisdk:VERSION_NUMBER")
+    implementation("com.keyri:scanner:VERSION_NUMBER")
 }
 ```
 
@@ -529,8 +529,8 @@ Add Keyri Compose dependency to your module `build.gradle` file and sync project
 ```kotlin copy
 dependencies {
     // ...
-    implementation("com.keyri:keyrisdk:${AndroidSDKVersion}")
-    implementation("com.keyri:compose:${AndroidSDKVersion}")
+    implementation("com.keyri:keyrisdk:VERSION_NUMBER")
+    implementation("com.keyri:compose:VERSION_NUMBER")
 }
 ```
 
