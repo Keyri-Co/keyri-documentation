@@ -2,8 +2,8 @@
 
 The Keyri Low-Code Rule Builder enables you to quickly create custom rules of
 any complexity to suit your application by harnessing most of the data that
-Keyri collects and calculates. Rulesets are written as JSON objects using the
-MongoDB query syntax. Please reference
+Keyri collects and calculates. Rulesets are written as JSON objects using a
+syntax similar to MongoDB queries. Please reference
 [this page](/fraud-prevention/custom-rules) for a full list of available
 conditions that you can evaluate in your rules and our
 [cookbook](/fraud-prevention/custom-rules/custom-rules-cookbook) for examples of
@@ -66,7 +66,7 @@ Checks if the value is strictly less than the specified number.
 Checks if the value is equal to the specified value.
 
 - **Example**: `{"name": {"$eq": "John"}}` - true if `name` is "John".
-- **Example**: `{"active": {"$eq": true}}`
+- **Example**: `{"active": {"$eq": true}}` - true if `active` is `true`.
 
 ### `$ne` (Not Equal)
 
@@ -100,7 +100,7 @@ Applies a logical NOT to the specified condition.
 This feature allows using the values of the data object as keys in the logic
 object.
 
-Say you want the user's _CURRENT_ country to have been used at least 25% of the
+Say you want the user's _current_ country to have been used at least 25% of the
 time by the user. Since you can't know the user's country of origin at the first
 session, you can craft a rule like this:
 
@@ -108,7 +108,7 @@ session, you can craft a rule like this:
   ```json
   {
     "userModel.country_code.${ipGeoData.country_code}.percent": {
-      "$lt": 0.25
+      "$gte": 0.25
     }
   }
   ```
@@ -143,7 +143,7 @@ Calculates the sum of specified values in an array.
 ```
 
 Here, we're saying if the sum of money spent in the last 24 hours **and** the
-current transaction amount are Greater Than or Equal to; evaluate to true
+current transaction amount is Greater Than or Equal to $2,500, evaluate to true
 
 ### Other Arithmetic Operations
 
