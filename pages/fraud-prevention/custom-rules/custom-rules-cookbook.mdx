@@ -1,0 +1,183 @@
+# Keyri Rules-Engine Cookbook
+
+Here you'll find example solutions to common problems as copy-and-paste code
+snippets with explanations.
+
+## Recipes
+
+### Reduce False Positives
+
+Everyone hates captchas, especially when they're not doing anything suspicious
+on a site they visit frequently. You can enhance the user experience
+significantly by implementing this simple rule. It allows known good users
+(probably 98%) to bypass certain checks, reserving stricter measures for those
+you're less certain about.
+
+#### How it Works:
+
+If you've seen user `a@b.com` on device `abc123` 15 times in the last 3 months,
+you can be fairly certain they're not a bad actor, and they can supersede any
+other rules that might have been triggered.
+
+#### Code:
+
+```json
+{
+  "rule": "established_user_device_allow",
+  "strength": 2,
+  "conditions": {
+    "deviceModel.deviceAgeUser": { "$gte": 7 },
+    "deviceModel.daysUserSeenOnDeviceCount": { "$gte": 2 },
+    "deviceModel.lieProbability": { "$lte": 0.2 }
+  },
+  "outcome": "allow",
+  "signal": "established_user_device_allow"
+}
+```
+
+#### Explanation:
+
+- `rule`: The name of the rule, here it's "established_user_device_allow".
+- `outcome`: Set to "allow", so if the rule evaluates to true, the event is
+  allowed.
+- `strength`: A value of 2 means it will override other rules with a lower
+  strength.
+- `conditions`: Defines the criteria for the rule:
+  - `deviceModel.deviceAgeUser`: If the device and user combo is older than 6
+    days, it returns true.
+  - `deviceModel.daysUserSeenOnDeviceCount`: If the user has appeared on this
+    device on 2 or more distinct days, it returns true.
+  - `deviceModel.lieProbability`: The likelihood of device tampering should be
+    under 20% to return true.
+
+---
+
+### Automatically Block Users With Too Many Denials
+
+You don't want to give bad actors unlimited attempts to try logging into a
+user's account, right? The best policy is to lock the user's account.
+
+#### How It Works
+
+You're blocking User ID's with more than `count` denials in a given period.
+After too many denials occur for this account - it can't be used for 10 minutes,
+an hour, a day, or until the user provides some additional guidance and
+verification.
+
+#### Code:
+
+```json
+    {
+    "rule": "too_many_user_denials",
+    "conditions": {
+        "$or": [
+            {"historicalData.user._denials_10_min_": { "$gte": 3 }},
+            {"historicalData.user._denials_hour_": { "$gte": 5 }},
+        ],
+    },
+    "outcome": "deny",
+    "signal": "deny_user_id_list",
+    },
+```
+
+#### Explanation:
+
+- `rule`: The name of the rule, here it's "too_many_user_denials" (name it
+  whatever you want).
+- `outcome`: Set to "deny", so if the rule evaluates to true, the event is
+  denied.
+- `strength`: Doesn't have to be set. We're letting it default to 1.
+- `conditions`: Defines the criteria for the rule. In this case they're nested
+  in an "or" array so if any are true - the whole rule returns as true
+  - `historicalData.user._denials_10_min_`: If there are more than 2 denials in
+    10 minutes on this IP - block it for 10 minutes
+  - `historicalData.user._denials_hour_`: If there are more than 4 denials in 1
+    hour on this IP - block it for an hour
+
+---
+
+### Automatically Block Abusive IP Addresses
+
+If the IP Address you're evaluating is associated with 326 login denials in last
+24 hours, you probably don't want to let any one use it, right?
+
+#### How It Works
+
+You're blocking IP Addresses with more than `count` denials in a given period.
+After too many denials occur on the IP Address - nobody can use it for 10
+minutes, an hour, whatever
+
+#### Code:
+
+```json
+{
+  "rule": "too_many_ip_denials",
+  "eventType": "all",
+  "conditions": {
+    "$or": [
+      { "historicalData.ip._denials_10_min_": { "$gte": 3 } },
+      { "historicalData.ip._denials_hour_": { "$gte": 10 } }
+    ]
+  },
+  "outcome": "deny",
+  "signal": "deny_ip_list"
+}
+```
+
+#### Explanation:
+
+- `rule`: The name of the rule, here it's "too_many_ip_denials" (name it
+  whatever you want).
+- `outcome`: Set to "deny", so if the rule evaluates to true, the event is
+  denied.
+- `strength`: Doesn't have to be set. We're letting it default to 1.
+- `conditions`: Defines the criteria for the rule. In this case they're nested
+  in an "or" array so if any are true - the whole rule returns as true
+  - `historicalData.ip._denials_10_min_`: If there are more than 2 denials in 10
+    minutes on this IP - block it
+  - `historicalData.ip._denials_hour_`: If there are more than 9 denials in 1
+    hour on this IP - block it
+
+---
+
+### Too Many IP Changes
+
+If the user or device coming in has been on 10 or more IP addresses over the
+course of the day, you might want to engage in step-up-authentication, as this
+is pretty suspicious.
+
+#### How It Works
+
+If the user or device has been on 4 or more unique IP Addresses in 24 hours,
+we'll want to deny.
+
+#### Code:
+
+```json
+{
+  "rule": "too_many_ip_addresses",
+  "eventType": "all",
+  "conditions": {
+    "$or": [
+      { "historicalData.user.uniqueIp._totals_day_": { "$gte": 4 } },
+      { "historicalData.device.uniqueIp._totals_day_": { "$gte": 4 } }
+    ]
+  },
+  "outcome": "deny",
+  "signal": "deny_ip_list"
+}
+```
+
+#### Explanation:
+
+- `rule`: The name of the rule, here it's "too_many_ip_denials" (name it
+  whatever you want).
+- `outcome`: Set to "deny", so if the rule evaluates to true, the event is
+  denied.
+- `strength`: Doesn't have to be set. We're letting it default to 1.
+- `conditions`: Defines the criteria for the rule. In this case they're nested
+  in an "or" array so if any are true - the whole rule returns as true
+  - `historicalData.user.uniqueIp._totals_day_`: If there are more than 3 IP
+    Addresses for this user in 24 hours - block it
+  - `historicalData.device.uniqueIp._totals_day_`: If there are more than 3 IP
+    Addresses for this device in 24 hours - block it
