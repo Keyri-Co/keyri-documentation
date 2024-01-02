@@ -1,7 +1,8 @@
 {
   "use-cases": "Fraud Prevention Use Cases",
   "fraud-dashboard": "Getting Started: Fraud Dashboard",
-  "web-fingerprinting": "Web App Fraud Setup",
+  "custom-rules": "Custom Rules",
+  "web-fingerprinting": "Web App Setup",
   "mobile-fingerprinting": "Mobile App Setup",
   "server-setup": "Server-Side Setup",
   "events": "Event Types",

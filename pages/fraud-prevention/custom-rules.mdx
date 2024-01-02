@@ -1,0 +1,318 @@
+# Custom Rules Guide and Conditions Enumeration
+
+Keyri enables the creation of custom fraud prevention rules for customers on our
+Fraud Prevention Scaling and Enterprise plans. These rules can be created and
+edited in the Keyri dashboard using either our no-code rule builder or
+[low-code rule builder](/fraud-prevention/custom-rules/low-code-rule-builder).
+For examples of useful custom rules, please see our
+[cookbook](/fraud-prevention/custom-rules/custom-rules-cookbook).
+
+Rules are built using a combination of conditions, comparators, values, and
+outcomes. Conditions are the data points that are used to evaluate the rule — a
+combination of data points that Keyri collects from the user's device and
+calculates. Comparators are the operators that are used to compare the condition
+to the value. Values are the values that are used to compare the condition to.
+Outcomes are the recommendation of the rule that results from the evaluation of
+the rule. For example, you can use our standard "allow", "warn", and "deny"
+outcomes, or you can create your own custom outcomes in the low-code rule
+builder. Outcomes are the summary recommendation read by your server to
+determine the course of action to take for the user's request.
+
+A full list of conditions is as follows:
+
+## Available Conditions
+
+### Condition Categories
+
+The following are high-level categories of conditions that can be used to build
+rules. The next section details the specific conditions that are available
+within each category. When building a rule, you must use dot notation to specify
+the condition that you want to use. For example, if you want to use the user's
+user agent as a condition, you would use `deviceModel.userAgentParsed`.
+
+- `eventType`: Identifies the type of event being evaluated.
+- `eventMetadata`: An optional field for logging additional event details. This
+  is provided to Keyri from your application at the time that you trigger the
+  creation of an event.
+- `userId`: The provided ID of the user.
+- [`timeData`](#timedata): Breakdown of the current time (year, month, hour,
+  etc.) useful in setting rules based on usual operating hours.
+- [`ipData`](#ipdata): Contains the IP address and associated ISP data.
+- [`ipGeoData`](#ipgeodata): Geographical data derived from the IP address.
+- [`threat`](#threat): Data related to IP-based threats and other anomalies
+  (e.g., improbable travel speed, timezone mismatches).
+- `eventLimitCounter`: Count of the number of API requests in 10 seconds
+- [`deviceModel`](#devicemodel): Information about the device, including its
+  history and user associations.
+- [`historicalData`](#historicaldata): Offers insights into user, device, and
+  IP-based activities and trends.
+- `instanceDeltas`: If the current event has some attribute that's never been
+  seen before, it'll show up here. For example, the first time the user shows up
+  in a new country, or with a new operating system - it will be identified here.
+- [`changeHistory`](#changehistory): Tracks changes in user or device attributes
+  over specified time intervals.
+- `uuid`: The unique identifier for the event, useful for auditing and analysis.
+- `state`: The result of the rules evaluation (e.g., 'allow', 'warn', 'deny').
+- `signals`: Array populated with 'signals' whenever a rule is triggered.
+- [`userModel`](#usermodel): Aggregates data associated with the user over time.
+- `points`: (Currently unavailable) Assigned to rules and aggregated when
+  triggered.
+
+### Conditions
+
+#### `timeData`
+
+- **Purpose**: Facilitates rule creation based on current date and time, both
+  globally (UTC) and locally (IP-based timezone).
+
+- **Use Case**: Say you want to set a rule where nobody is allowed to access
+  your site between the hours of 1 and 5 in the morning, or make a transaction
+  on Saturday, their time. The following will allow you do create such rules.
+
+* `localYear`: Four digit year where the client is located.
+* `localMonth`: Two digit month where the client is located.
+* `localDayOfMonth`:Two digit day of the month where the client is located.
+* `localDayOfWeek`: Two digit day of the week where the client is located.
+  Sunday is 0, Saturday is 6.
+* `localHour`: Hour of the day where the client is located on a 24 hour clock.
+* `globalYear`: Four digit year UTC.
+* `globalMonth`: Two digit month UTC.
+* `globalDayOfMonth`: Two digit day of the month UTC.
+* `globalDayOfWeek`: Two digit day of week UTC.
+* `globalHour`: Current hour of the day, UTC.
+* `globalMinute`: Current minute of the day.
+* `globalSecond`: Current second of the day.
+
+#### `ipData`
+
+- **Purpose**: Provides basic IP information.
+
+- **Use Case**: Useful in identifying and acting on suspicious IP addresses or
+  ISPs.
+
+* `ip`: The IP Address of the Current Event
+* `asn_name`: Name of the ISP
+* `asn_route`: CIDR block and Subnet mask containing the user's IP Address.
+
+#### `ipGeoData`
+
+- **Purpose**: Details geographical data related to the user's IP.
+
+- **Use Case**: Enables location-based access control.
+
+* `city`: City of the IP Address
+* `continent_code`: Two letter continent code of the IP Address
+* `country_code`: Two digit country code of the IP Address
+* `ip_timezone_name`: IANA timezone database format ("America/Los_Angeles") of
+  the timezone of the IP Address
+* `latitude`: Latitude of the IP Address
+* `longitude`: Longitude of the IP Address
+* `region_code`: Two Character region / state code
+
+#### `threat`
+
+- **Purpose**: Lists potential threats and their statuses.
+
+- **Use Case**: Essential for blocking access based on various threat
+  indicators.
+
+* `is_tor`: is true if the IP address is associated with a node on the Tor
+  network
+* `is_vpn`: true for VPN IP addresses.
+* `is_icloud_relay`: true for IP addresses belonging to Apple's iCloud relay
+  service
+* `is_proxy`: is true if the IP address is a known proxy, includes
+  HTTP/HTTPS/SSL/SOCKS/CONNECT and transparent proxies
+* `is_datacenter`: true for any IP addresses that belong to a datacenter
+  including all cloud providers. Can be useful for detecting automated/bot
+  traffic.
+* `is_anonymous`: is set true if either one of is_tor or is_proxy is true
+* `is_known_attacker`: is true if an IP address is a known source of malicious
+  activity, i.e. attacks, malware, botnet activity etc
+* `is_known_abuser`: is true if the IP address is a known source of abuse, i.e.,
+  spam, harvesters, registration bots, and other nuisance bots, etc.
+* `is_threat`:is true if either one of is_known_abuser or is_known_attacker is
+  true
+* `is_bogon`: is true if the IP Address is a bogon (A bogon address refers to an
+  IP address that is not allocated for use on the public internet, either
+  because it is reserved for private networks, special purposes, or simply
+  unassigned. These addresses are commonly filtered in network security to
+  prevent malicious activities like spoofing, as they should not appear in
+  legitimate internet traffic.).
+* `ip_blocklists`: is true if the IP Address has been reported to one of several
+  "blacklisting" sites
+* `is_timezone_inconsistent`: true if the timezone provided by the browser is
+  different from the IP Address's timezone. Possible indicator of proxy usage.
+  Probable indicator that **something** is up.
+* `improbableTravel`: true if the user appears to have moved between two
+  locations faster than 1,600kmph (1,000mph) _without_ being related to VPN
+  toggling or other internet related artifacts
+
+#### `deviceModel`
+
+- **Purpose**: Collection of information about the device, users that have used
+  the device, etc...
+
+- **Use Case**: It contains a lot of information about the device, what IP
+  Addresses and users its been associated with, and what those relationships
+  look like. Super helpful in assessing the trustworthiness of a device.
+
+* `deviceId`: The unique id of the device
+* `deviceAgeLocal`: Number of days ago this deviceId was first seen by **YOUR**
+  application.
+* `deviceAgeGlobal`: Number of days ago this deviceId was first seen by **OUR**
+  application
+* `deviceAgeUser`: Number of days ago this userId _and_ deviceId were seen
+  together by your application
+* `daysDeviceSeenCount`: Number of **unique** days this deviceId was seen by
+  your application
+* `daysUserSeenOnDeviceCount`: Number of **unique** days this deviceId and
+  userId were seen together on your application
+* `wagId`: "Fuzzy-Id" that _can_ help identify when your application is being
+  accessed from different browsers on the same computer
+* `users`: A listing of all userId's that have successfully used the device, and
+  the number of times they used it
+* `events`: Listing of all events, users, counts ever created by this device.
+  For example:
+
+```javascript
+// `_usage_` represents the total event count, while `_unique_` indicates the count of unique user IDs
+
+"events": {
+            "login": {
+                "ivy-mike": 240,
+                "leo-tzillard": 1,
+                "enrico-fermi": 29,
+                "_usage_": 270,
+                "_unique_": 3
+            },
+        }
+```
+
+- `system`: If Available, the operating system of the device
+- `userAgentParsed`: If Available, the name of the user-agent _less_ versioning
+  information, etc...
+- `language`: Language settings provided by the device
+- `lieProbability`: The likelihood that the device has been tampered with to
+  look like a different device or have a different fingerprint
+- `time_zone_location`: If available, the timezone of the device - in the
+  following format: `America, Chicago`
+
+#### `historicalData`
+
+- **Purpose**: Listing by user, device, ip - how many requests, denials, and
+  what percentage of denials have occurred in the last 10 minutes, hour, day, or
+  ever.
+
+- **Use Case**: If a user has a denial percentage over 50% and has made 30
+  requests to login the last hour - this data lets you create a rule to deny
+  these transactions
+
+* `device`: Count of events, denials, and denial percentages incurred by _this_
+  device
+  - `_denials_10_min_`: Number of denials this device has hit in the last 10
+    minutes
+  - `_denials_hour_`: Number of denials this device has incurred in the last
+    hour
+  - `_denials_day_`: Number of denials this device has incurred in the last 24
+    hours
+  - `_denials_all_`: Number of denials this device has ever incurred
+  - `_totals_10_min_`: Number of events this device has created in the last 10
+    minutes
+  - `_totals_hour_`: Number of events this device has created in the last hour
+  - `_totals_day_`: Number of events associated with this device in the last 24
+    hours
+  - `_totals_all_` Number of events associated with this device for all time
+  - `_percent_denial_10_min_`: Percent of events denied on this device in the
+    last 10 minutes
+  - `_percent_denial_hour_`: Percent of events denied on this device in the last
+    60 minutes
+  - `_percent_denial_day_`: Percent of events denied on this device in the last
+    24 hours
+  - `_percent_denial_all_`: Percent of events denied on this device for all time
+  - `events`: Same information as above, but broken out by 'eventType'
+  - `uniqueUser`: Count of unique users using this device in the last 10
+    minutes, hour, day, or ever. For both totals and denials. E.G. how many
+    users have been denied on this device in the last 24 hours.
+  - `uniqueIp`: Count of unique IP Addresses used by this device in the last 10
+    minutes, hour, day, or ever. For both totals and denials. E.G. how many IP
+    Addresses were used by this device in the last 24 hours? How many were
+    denied?
+  - `uniqueDevice`: Count of unique Devices used by this device in the last 10
+    minutes, hour, day, or ever. For both totals and denials. This isn't
+    particularlay useful here since
+* `ip`: Count of events, denials, and denial percentages incurred by _this_ IP
+  Address - in the same structure and break out as 'device'. This is kind of
+  cool since it includes data by **ALL** devices and **ALL** users on _this_ ip
+  address.
+* `user`: Count of events, denials, and denial percentages incurred by _this_
+  user - in the same structure and break out as 'device'
+
+#### `changeHistory`
+
+- **Purpose**: Broken out by `user` and `device` - tells you how many times a
+  given attribute (city, state, user-agent, etc) has changed in the last 10
+  minutes, hour, 24 hours, and 7 days. **NOTE**: every change from the prior
+  instance is counted.
+
+- **Use Case**: If a deviceId changes IP Addresses 15 times in 10 minutes -
+  something might be up. You can block it here.
+
+* Attributes: `asn_name`,`city`,`continent_code`, `country_code`,`dayOfWeek`,
+  `dayPart`,`deviceId`,`eventType`,`ip`,`ip_timezone_name`, `is_anonymous`,
+  `is_datacenter`,`is_proxy`,`is_tor`,`is_vpn`,`language`,`lieProbability`,`longitude`,`latitude`,`region_code`,`state`,`system`,`time_zone_location`,`userAgentParsed`,`wagId`
+
+* Sub-Attributes: All of the attributes listed above have the following
+  properties: `changes_last_10_minutes`, `changes_last_hour`,
+  `changes_last_24_hours`, `changes_last_7_days`
+
+#### `userModel`
+
+- **Purpose**: Attributes associated with the user's prior sessions.
+
+- **Use Case**: Originally concieved as part of a Bayesian Framework, you can
+  gauge how "normal" a user's session is by looking at the frequency of use of
+  the current attribute against all attributes over time. e.g. The user's
+  current city is "Los Alamos" which was last seen over 80 days ago, and
+  represents 0.2% of the user's "City" usage.
+
+* Attributes: `asn_name`,`city`,`continent_code`, `country_code`,`dayOfWeek`,
+  `dayPart`,`deviceId`,`eventType`,`ip`,`ip_timezone_name`, `is_anonymous`,
+  `is_datacenter`,`is_proxy`,`is_tor`,`is_vpn`,`language`,`lieProbability`,`longitude`,`latitude`,`region_code`,`state`,`system`,`time_zone_location`,`userAgentParsed`,`wagId`
+
+* **Sub-Attributes**: Each attribute has a list of every value ever associated
+  with the user, detailed metrics therein, and the following:
+
+* `_count_` : Number of this this attribute has been seen
+* `_lastdate_`: The last date this attribute was seen
+* `_lastentry_`: The last value for this attribute provided by this user (e.g.
+  with `city` it might be "Paris")
+* `_maxentry_`: The _largest_ value ever associated with this user for this
+  attribute (e.g. for `city` it might be "Zurich")
+* `_unique_`: The number of unique entries for an attribute for this user (if
+  the user has logged events in 4 differennt cities - the number would be 4)
+* `_unique_10_min_`: The number of unique entries for an attribute for this user
+  in the last 10 minutes
+* `_unique_1_hr_`: The number of unique entries for an attribute for this user
+  in the last hour
+* `_unique_24_hr_`: The number of unique entries for an attribute for this user
+  in the last day
+* `_unique_1_month_`: The number of unique entries for an attribute for this
+  user in the last month
+
+* **Value-Attributes**: Each entry for an attribute (e.g. "Dallas" under the
+  attribute "city") has the following properties:
+
+* `age`: how many days ago was this value first seen for this user
+* `counter`: how many times has this value been seen for this user
+* `firstdate`: what was the first date this value was seen for this user
+* `last_10_minutes`: how many times was this value seen in the last 10 minutes
+* `last_hour`: how many times was this value seen for this user in the last hour
+* `last_24_hours`: how many times was this value seen for this user in the last
+  day
+* `last_month`: how many times was this value seen for this user in the last
+  month
+* `last_used`: how many days ago was this value used
+* `lastdate`: when was this value last seen for this user
+* `percent`: how many times has this value been used for this attribute for this
+  user (e.g. what percent of the time was the user's city "Fort Worth")
