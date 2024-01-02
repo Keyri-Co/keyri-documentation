@@ -35,28 +35,28 @@ user agent as a condition, you would use `deviceModel.userAgentParsed`.
   is provided to Keyri from your application at the time that you trigger the
   creation of an event.
 - `userId`: The provided ID of the user.
-- `timeData`: Breakdown of the current time (year, month, hour, etc.) useful in
-  setting rules based on usual operating hours.
-- `ipData`: Contains the IP address and associated ISP data.
-- `ipGeoLocation`: Geographical data derived from the IP address.
-- `threat`: Data related to IP-based threats and other anomalies (e.g.,
-  improbable travel speed, timezone mismatches).
+- [`timeData`](#timedata): Breakdown of the current time (year, month, hour,
+  etc.) useful in setting rules based on usual operating hours.
+- [`ipData`](#ipdata): Contains the IP address and associated ISP data.
+- [`ipGeoData`](#ipgeodata): Geographical data derived from the IP address.
+- [`threat`](#threat): Data related to IP-based threats and other anomalies
+  (e.g., improbable travel speed, timezone mismatches).
 - `eventLimitCounter`: Count of the number of API requests in 10 seconds
-- `deviceModel`: Information about the device, including its history and user
-  associations.
-- `historicalData`: Offers insights into user, device, and IP-based activities
-  and trends.
+- [`deviceModel`](#devicemodel): Information about the device, including its
+  history and user associations.
+- [`historicalData`](#historicaldata): Offers insights into user, device, and
+  IP-based activities and trends.
 - `instanceDeltas`: If the current event has some attribute that's never been
   seen before, it'll show up here. For example, the first time the user shows up
   in a new country, or with a new operating system - it will be identified here.
+- [`changeHistory`](#changehistory): Tracks changes in user or device attributes
+  over specified time intervals.
 - `uuid`: The unique identifier for the event, useful for auditing and analysis.
 - `state`: The result of the rules evaluation (e.g., 'allow', 'warn', 'deny').
 - `signals`: Array populated with 'signals' whenever a rule is triggered.
-- `userModel`: Aggregates data associated with the user over time.
+- [`userModel`](#usermodel): Aggregates data associated with the user over time.
 - `points`: (Currently unavailable) Assigned to rules and aggregated when
   triggered.
-- `changeHistory`: Tracks changes in user or device attributes over specified
-  time intervals.
 
 ### Conditions
 
@@ -109,7 +109,7 @@ user agent as a condition, you would use `deviceModel.userAgentParsed`.
 * `longitude`: Longitude of the IP Address
 * `region_code`: Two Character region / state code
 
-#### \`threat\`
+#### `threat`
 
 - **Purpose**: Lists potential threats and their statuses.
 
@@ -148,7 +148,7 @@ user agent as a condition, you would use `deviceModel.userAgentParsed`.
   locations faster than 1,600kmph (1,000mph) _without_ being related to VPN
   toggling or other internet related artifacts
 
-#### \`deviceModel\`
+#### `deviceModel`
 
 - **Purpose**: Collection of information about the device, users that have used
   the device, etc...
@@ -198,7 +198,7 @@ user agent as a condition, you would use `deviceModel.userAgentParsed`.
 - `time_zone_location`: If available, the timezone of the device - in the
   following format: `America, Chicago`
 
-#### \`historicalData\`
+#### `historicalData`
 
 - **Purpose**: Listing by user, device, ip - how many requests, denials, and
   what percentage of denials have occurred in the last 10 minutes, hour, day, or
@@ -248,7 +248,7 @@ user agent as a condition, you would use `deviceModel.userAgentParsed`.
 * `user`: Count of events, denials, and denial percentages incurred by _this_
   user - in the same structure and break out as 'device'
 
-#### \`changeHistory\`
+#### `changeHistory`
 
 - **Purpose**: Broken out by `user` and `device` - tells you how many times a
   given attribute (city, state, user-agent, etc) has changed in the last 10
@@ -266,7 +266,7 @@ user agent as a condition, you would use `deviceModel.userAgentParsed`.
   properties: `changes_last_10_minutes`, `changes_last_hour`,
   `changes_last_24_hours`, `changes_last_7_days`
 
-#### \`userModel\`
+#### `userModel`
 
 - **Purpose**: Attributes associated with the user's prior sessions.
 
