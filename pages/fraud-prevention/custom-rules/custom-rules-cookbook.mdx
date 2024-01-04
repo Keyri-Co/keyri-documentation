@@ -5,11 +5,9 @@ snippets with explanations. These can be used both with our no-code rule builder
 and
 [low-code rule builder](/fraud-prevention/custom-rules/low-code-rule-builder).
 
-## Recipes
+## General Rules
 
-### General Rules
-
-#### Reduce False Positives
+### Reduce False Positives
 
 Everyone hates captchas, especially when they're not doing anything suspicious
 on a site they visit frequently. You can enhance the user experience
@@ -17,13 +15,13 @@ significantly by implementing this simple rule. It allows known good users
 (probably 98%) to bypass certain checks, reserving stricter measures for those
 you're less certain about.
 
-##### How it Works
+#### How it Works
 
 If you've seen user `a@b.com` on device `abc123` 15 times in the last 3 months,
 you can be fairly certain they're not a bad actor, and they can supersede any
 other rules that might have been triggered.
 
-##### Code
+#### Code
 
 ```json copy
 {
@@ -40,7 +38,7 @@ other rules that might have been triggered.
 }
 ```
 
-##### Explanation
+#### Explanation
 
 - `rule`: The name of the rule, here it's "established_user_device_allow".
 - `outcome`: Set to "allow", so if the rule evaluates to true, the event is
@@ -57,19 +55,19 @@ other rules that might have been triggered.
 
 ---
 
-#### Automatically Block Users With Too Many Denials
+### Automatically Block Users With Too Many Denials
 
 You don't want to give bad actors unlimited attempts to try logging into a
 user's account, right? The best policy is to lock the user's account.
 
-##### How It Works
+#### How It Works
 
 You're blocking User ID's with more than `count` denials in a given period.
 After too many denials occur for this account - it can't be used for 10 minutes,
 an hour, a day, or until the user provides some additional guidance and
 verification.
 
-##### Code
+#### Code
 
 ```json copy
 {
@@ -86,7 +84,7 @@ verification.
 },
 ```
 
-##### Explanation
+#### Explanation
 
 - `rule`: The name of the rule, here it's "too_many_user_denials" (name it
   whatever you want).
@@ -102,18 +100,18 @@ verification.
 
 ---
 
-#### Automatically Block Abusive IP Addresses
+### Automatically Block Abusive IP Addresses
 
 If the IP Address you're evaluating is associated with 326 login denials in last
 24 hours, you probably don't want to let any one use it, right?
 
-##### How It Works
+#### How It Works
 
 You're blocking IP Addresses with more than `count` denials in a given period.
 After too many denials occur on the IP Address - nobody can use it for 10
 minutes, an hour, etc.
 
-##### Code
+#### Code
 
 ```json copy
 {
@@ -131,7 +129,7 @@ minutes, an hour, etc.
 }
 ```
 
-##### Explanation
+#### Explanation
 
 - `rule`: The name of the rule, here it's "too_many_ip_denials" (name it
   whatever you want).
@@ -147,18 +145,18 @@ minutes, an hour, etc.
 
 ---
 
-#### Too Many IP Changes
+### Too Many IP Changes
 
 If the user or device coming in has been on 10 or more IP addresses over the
 course of the day, you might want to engage in step-up-authentication, as this
 is pretty suspicious.
 
-##### How It Works
+#### How It Works
 
 If the user or device has been on 4 or more unique IP Addresses in 24 hours,
 we'll want to deny.
 
-##### Code
+#### Code
 
 ```json copy
 {
@@ -176,7 +174,7 @@ we'll want to deny.
 }
 ```
 
-##### Explanation
+#### Explanation
 
 - `rule`: The name of the rule, here it's "too_many_ip_denials" (name it
   whatever you want).
@@ -190,7 +188,7 @@ we'll want to deny.
   - `historicalData.device.uniqueIp._totals_day_`: If there are more than 3 IP
     Addresses for this device in 24 hours - block it
 
-#### Block Users on New Device and VPN
+### Block Users on New Device and VPN
 
 Leverage the `threat` object to determine whether the user is using a VPN and
 the `changed` boolean value under `deviceUsers` to determine whether that
@@ -219,7 +217,7 @@ user-device combination is new.
 }
 ```
 
-#### Only Allow Users from a Certain Country
+### Only Allow Users from a Certain Country
 
 The following rule will only allow users from the US to access your site. The
 user's country is denoted in the `ipGeoData.country_code` property.
@@ -239,7 +237,7 @@ user's country is denoted in the `ipGeoData.country_code` property.
   }
 ```
 
-#### Override Keyri's Risk Determination with your Own Risk Model
+### Override Keyri's Risk Determination with your Own Risk Model
 
 If you already have a risk model, you can use it in conjunction with Keyri
 rulesets or use its determination to simply override Keyri's determination. Pass
@@ -266,9 +264,9 @@ we're overriding Keyri if the risk score from your model is very low. It has a
 }
 ```
 
-### Financial Rules
+## Financial Rules
 
-#### Limit Transactions to a Certain Amount
+### Limit Transactions to a Certain Amount
 
 If you want to limit the amount of money that can be transferred in a single
 event, you can add metadata when triggering the event to indicate the amount. Be
@@ -293,7 +291,7 @@ named `amount`.
 }
 ```
 
-#### Limit Transaction Totals over a Period of Time
+### Limit Transaction Totals over a Period of Time
 
 You can use built-in math functionality to query and sum the total value of the
 amounts a given user has transacted over a period of time.
@@ -326,7 +324,7 @@ amounts a given user has transacted over a period of time.
 }
 ```
 
-#### Block High-Value Transactions from a New Country
+### Block High-Value Transactions from a New Country
 
 Use this rule to block a high-value transaction from a country that the user has
 never been in before.

@@ -1,0 +1,456 @@
+{
+  "changeHistory": {
+    "device": {
+      "asn_name": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 0,
+        "changes_last_7_days": 0,
+        "changes_last_hour": 0
+      },
+      "city": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 0,
+        "changes_last_7_days": 0,
+        "changes_last_hour": 0
+      },
+      "continent_code": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 0,
+        "changes_last_7_days": 0,
+        "changes_last_hour": 0
+      },
+      "country_code": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 0,
+        "changes_last_7_days": 0,
+        "changes_last_hour": 0
+      },
+      "dayOfWeek": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 1,
+        "changes_last_7_days": 1,
+        "changes_last_hour": 0
+      },
+      "dayPart": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 3,
+        "changes_last_7_days": 3,
+        "changes_last_hour": 0
+      },
+      "eventType": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 1,
+        "changes_last_7_days": 1,
+        "changes_last_hour": 0
+      },
+      "ip": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 0,
+        "changes_last_7_days": 0,
+        "changes_last_hour": 0
+      },
+      "ip_timezone_name": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 0,
+        "changes_last_7_days": 0,
+        "changes_last_hour": 0
+      },
+      "is_anonymous": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 0,
+        "changes_last_7_days": 0,
+        "changes_last_hour": 0
+      },
+      "is_datacenter": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 0,
+        "changes_last_7_days": 0,
+        "changes_last_hour": 0
+      },
+      "is_proxy": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 0,
+        "changes_last_7_days": 0,
+        "changes_last_hour": 0
+      },
+      "is_tor": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 0,
+        "changes_last_7_days": 0,
+        "changes_last_hour": 0
+      },
+      "is_vpn": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 0,
+        "changes_last_7_days": 0,
+        "changes_last_hour": 0
+      },
+      "language": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 0,
+        "changes_last_7_days": 0,
+        "changes_last_hour": 0
+      },
+      "latitude": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 0,
+        "changes_last_7_days": 0,
+        "changes_last_hour": 0
+      },
+      "lieProbability": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 0,
+        "changes_last_7_days": 0,
+        "changes_last_hour": 0
+      },
+      "longitude": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 0,
+        "changes_last_7_days": 0,
+        "changes_last_hour": 0
+      },
+      "region_code": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 0,
+        "changes_last_7_days": 0,
+        "changes_last_hour": 0
+      },
+      "state": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 1,
+        "changes_last_7_days": 1,
+        "changes_last_hour": 0
+      },
+      "system": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 0,
+        "changes_last_7_days": 0,
+        "changes_last_hour": 0
+      },
+      "time_zone_location": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 0,
+        "changes_last_7_days": 0,
+        "changes_last_hour": 0
+      },
+      "userAgentParsed": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 0,
+        "changes_last_7_days": 0,
+        "changes_last_hour": 0
+      },
+      "wagId": {
+        "changes_last_10_minutes": 0,
+        "changes_last_24_hours": 1,
+        "changes_last_7_days": 1,
+        "changes_last_hour": 0
+      }
+    },
+    "user": {}
+  },
+  "deviceModel": {
+    "daysDeviceSeen": [
+      "2023-12-13",
+      "2023-12-15",
+      "2023-12-16",
+      "2023-12-19",
+      "2023-12-27",
+      "2023-12-28",
+      "2024-01-02",
+      "2024-01-03",
+      "2024-01-04"
+    ],
+    "daysDeviceSeenCount": 9,
+    "daysUserSeenOnDevice": [],
+    "daysUserSeenOnDeviceCount": 0,
+    "deviceAgeGlobal": 184.7475096064815,
+    "deviceAgeLocal": 21.992936319444443,
+    "deviceId": "a8b9e690-53e6-82c9-8d23-742ed5a3aee0",
+    "events": {
+      "signup": {
+        "_unique_": 3,
+        "_usage_": 7,
+        "abx": 1,
+        "keyri": 2,
+        "zzz": 4
+      },
+      "visits": {
+        "_unique_": 1,
+        "_usage_": 11,
+        "a8b9e690-53e6-82c9-8d23-742ed5a3aee0": 11
+      }
+    },
+    "language": "en-US, en (en-US)",
+    "lieProbability": 0.3577142849802448,
+    "system": "Mac",
+    "time_zone_location": "America, New York",
+    "userAgentParsed": "Chrome",
+    "users": {
+      "_unique_": 3,
+      "_usage_": 7,
+      "abx": 1,
+      "keyri": 2,
+      "zzz": 4
+    },
+    "wagId": "hfuJ7UNkXwLEOtNNd89TtnDR5h9t8L6vydolaIpnj00="
+  },
+  "eventLimiterCount": 0,
+  "eventMetadata": {
+    "access": 10000,
+    "amount": 10000
+  },
+  "eventType": "access",
+  "historicalData": {
+    "device": {
+      "_denials_10_min_": 0,
+      "_denials_all_": 1,
+      "_denials_day_": 1,
+      "_denials_hour_": 0,
+      "_percent_denial_10_min_": 0,
+      "_percent_denial_all_": 0.125,
+      "_percent_denial_day_": 0.25,
+      "_percent_denial_hour_": 0,
+      "_totals_10_min_": 0,
+      "_totals_all_": 8,
+      "_totals_day_": 4,
+      "_totals_hour_": 0,
+      "events": {
+        "access": {
+          "_denials_10_min_": 0,
+          "_denials_all_": 1,
+          "_denials_day_": 1,
+          "_denials_hour_": 0,
+          "_percent_denial_10_min_": 0,
+          "_percent_denial_all_": 1,
+          "_percent_denial_day_": 1,
+          "_percent_denial_hour_": 0,
+          "_totals_10_min_": 0,
+          "_totals_all_": 1,
+          "_totals_day_": 1,
+          "_totals_hour_": 0
+        },
+        "signup": {
+          "_denials_10_min_": 0,
+          "_denials_all_": 0,
+          "_denials_day_": 0,
+          "_denials_hour_": 0,
+          "_percent_denial_10_min_": 0,
+          "_percent_denial_all_": 0,
+          "_percent_denial_day_": 0,
+          "_percent_denial_hour_": 0,
+          "_totals_10_min_": 0,
+          "_totals_all_": 7,
+          "_totals_day_": 3,
+          "_totals_hour_": 0
+        }
+      },
+      "uniqueDevice": {
+        "_denials_10_min_": 0,
+        "_denials_all_": 1,
+        "_denials_day_": 1,
+        "_denials_hour_": 0,
+        "_totals_10_min_": 0,
+        "_totals_all_": 1,
+        "_totals_day_": 1,
+        "_totals_hour_": 0
+      },
+      "uniqueIp": {
+        "_denials_10_min_": 0,
+        "_denials_all_": 1,
+        "_denials_day_": 1,
+        "_denials_hour_": 0,
+        "_totals_10_min_": 0,
+        "_totals_all_": 3,
+        "_totals_day_": 1,
+        "_totals_hour_": 0
+      },
+      "uniqueUser": {
+        "_denials_10_min_": 0,
+        "_denials_all_": 1,
+        "_denials_day_": 1,
+        "_denials_hour_": 0,
+        "_totals_10_min_": 0,
+        "_totals_all_": 3,
+        "_totals_day_": 2,
+        "_totals_hour_": 0
+      }
+    },
+    "ip": {
+      "_denials_10_min_": 0,
+      "_denials_all_": 1,
+      "_denials_day_": 1,
+      "_denials_hour_": 0,
+      "_percent_denial_10_min_": 0,
+      "_percent_denial_all_": 0.16666666666666666,
+      "_percent_denial_day_": 0.25,
+      "_percent_denial_hour_": 0,
+      "_totals_10_min_": 0,
+      "_totals_all_": 6,
+      "_totals_day_": 4,
+      "_totals_hour_": 0,
+      "events": {
+        "access": {
+          "_denials_10_min_": 0,
+          "_denials_all_": 1,
+          "_denials_day_": 1,
+          "_denials_hour_": 0,
+          "_percent_denial_10_min_": 0,
+          "_percent_denial_all_": 1,
+          "_percent_denial_day_": 1,
+          "_percent_denial_hour_": 0,
+          "_totals_10_min_": 0,
+          "_totals_all_": 1,
+          "_totals_day_": 1,
+          "_totals_hour_": 0
+        },
+        "signup": {
+          "_denials_10_min_": 0,
+          "_denials_all_": 0,
+          "_denials_day_": 0,
+          "_denials_hour_": 0,
+          "_percent_denial_10_min_": 0,
+          "_percent_denial_all_": 0,
+          "_percent_denial_day_": 0,
+          "_percent_denial_hour_": 0,
+          "_totals_10_min_": 0,
+          "_totals_all_": 5,
+          "_totals_day_": 3,
+          "_totals_hour_": 0
+        }
+      },
+      "uniqueDevice": {
+        "_denials_10_min_": 0,
+        "_denials_all_": 1,
+        "_denials_day_": 1,
+        "_denials_hour_": 0,
+        "_totals_10_min_": 0,
+        "_totals_all_": 1,
+        "_totals_day_": 1,
+        "_totals_hour_": 0
+      },
+      "uniqueIp": {
+        "_denials_10_min_": 0,
+        "_denials_all_": 1,
+        "_denials_day_": 1,
+        "_denials_hour_": 0,
+        "_totals_10_min_": 0,
+        "_totals_all_": 1,
+        "_totals_day_": 1,
+        "_totals_hour_": 0
+      },
+      "uniqueUser": {
+        "_denials_10_min_": 0,
+        "_denials_all_": 1,
+        "_denials_day_": 1,
+        "_denials_hour_": 0,
+        "_totals_10_min_": 0,
+        "_totals_all_": 2,
+        "_totals_day_": 2,
+        "_totals_hour_": 0
+      }
+    },
+    "user": {
+      "_denials_10_min_": 0,
+      "_denials_all_": 0,
+      "_denials_day_": 0,
+      "_denials_hour_": 0,
+      "_totals_10_min_": 0,
+      "_totals_all_": 0,
+      "_totals_day_": 0,
+      "_totals_hour_": 0,
+      "events": {},
+      "uniqueDevice": {
+        "_denials_10_min_": 0,
+        "_denials_all_": 0,
+        "_denials_day_": 0,
+        "_denials_hour_": 0,
+        "_totals_10_min_": 0,
+        "_totals_all_": 0,
+        "_totals_day_": 0,
+        "_totals_hour_": 0
+      },
+      "uniqueIp": {
+        "_denials_10_min_": 0,
+        "_denials_all_": 0,
+        "_denials_day_": 0,
+        "_denials_hour_": 0,
+        "_totals_10_min_": 0,
+        "_totals_all_": 0,
+        "_totals_day_": 0,
+        "_totals_hour_": 0
+      },
+      "uniqueUser": {
+        "_denials_10_min_": 0,
+        "_denials_all_": 0,
+        "_denials_day_": 0,
+        "_denials_hour_": 0,
+        "_totals_10_min_": 0,
+        "_totals_all_": 0,
+        "_totals_day_": 0,
+        "_totals_hour_": 0
+      }
+    }
+  },
+  "instanceDeltas": {
+    "access": {
+      "changed": true,
+      "to": "Keyri"
+    },
+    "deviceUsers": {
+      "changed": true,
+      "to": "Keyri"
+    }
+  },
+  "ipData": {
+    "asn_name": "Charter Communications Inc",
+    "asn_route": "107.13.128.0/17",
+    "ip": "107.13.132.135"
+  },
+  "ipGeoData": {
+    "city": "Durham",
+    "continent_code": "NA",
+    "country_code": "US",
+    "ip_timezone_name": "America/New_York",
+    "latitude": 35.9940299987793,
+    "longitude": -78.89862060546875,
+    "region_code": "NC"
+  },
+  "points": 0,
+  "signals": [
+    "multiple_account_access_per_device",
+    "ten_minute_spend_exceeded"
+  ],
+  "state": "deny",
+  "threat": {
+    "improbableTravel": false,
+    "ip_blocklists": false,
+    "is_anonymous": false,
+    "is_bogon": false,
+    "is_datacenter": false,
+    "is_icloud_relay": false,
+    "is_known_abuser": false,
+    "is_known_attacker": false,
+    "is_proxy": false,
+    "is_threat": false,
+    "is_timezone_inconsistent": false,
+    "is_tor": false,
+    "is_vpn": false
+  },
+  "timeData": {
+    "globalDayOfMonth": 4,
+    "globalDayOfWeek": 4,
+    "globalHour": 14,
+    "globalMinute": 40,
+    "globalMonth": 1,
+    "globalSecond": 35,
+    "globalYear": 2024,
+    "localDayOfMonth": 4,
+    "localDayOfWeek": 4,
+    "localHour": 9,
+    "localMonth": 1,
+    "localYear": 2024
+  },
+  "userId": "Keyri",
+  "userModel": {},
+  "uuid": "ca7f4545-d628-4303-9711-df13cbd35c73"
+}
