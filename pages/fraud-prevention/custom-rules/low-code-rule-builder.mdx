@@ -6,8 +6,10 @@ Keyri collects and calculates. Rulesets are written as JSON objects using a
 syntax similar to MongoDB queries. Please reference
 [this page](/fraud-prevention/custom-rules) for a full list of available
 conditions that you can evaluate in your rules and our
-[cookbook](/fraud-prevention/custom-rules/custom-rules-cookbook) for examples of
-useful custom rules.
+[examples](/fraud-prevention/custom-rules/custom-rules-cookbook) for examples of
+useful custom rules. Please also see this page for a real-life example of the
+JSON object that the Keyri rules engine evaluates:
+[Keyri Rules Engine JSON](/example-json.json).
 
 ## Logic Operators
 
@@ -16,24 +18,60 @@ useful custom rules.
 Explicitly define a set of conditions that must all be true. Use an array to
 list these conditions.
 
-- **Example**: To check if a user is over 18 and active:
-  ```json
-  {
-    "$and": [{ "age": { "$gte": 18 } }, { "status": "active" }]
-  }
-  ```
+- **Example**: Block users who are both on a new device and VPN:
+
+```json copy
+{
+  "rule": "New Device and VPN - deny",
+  "conditions": {
+    "$and": [
+      {
+        "instanceDeltas.deviceUsers.changed": {
+          "$eq": "true"
+        }
+      },
+      {
+        "threat.is_vpn": {
+          "$eq": "true"
+        }
+      }
+    ]
+  },
+  "outcome": "deny",
+  "signal": "new_device_and_vpn",
+  "enabled": true
+}
+```
 
 ### `$or`
 
 Define a set of conditions where at least one must be true. Like `$and`, it uses
 an array.
 
-- **Example**: To check if a user is either over 18 or has a "veteran" status:
-  ```json
-  {
-    "$or": [{ "age": { "$gte": 18 } }, { "status": "veteran" }]
-  }
-  ```
+- **Example**: Warn if users are either on a new device or VPN:
+
+```json copy
+{
+  "rule": "New Device or VPN - warn",
+  "conditions": {
+    "$or": [
+      {
+        "instanceDeltas.deviceUsers.changed": {
+          "$eq": "true"
+        }
+      },
+      {
+        "threat.is_vpn": {
+          "$eq": "true"
+        }
+      }
+    ]
+  },
+  "outcome": "warn",
+  "signal": "new_device_and_vpn",
+  "enabled": true
+}
+```
 
 ## Comparison Operators
 
@@ -122,24 +160,35 @@ session, you can craft a rule like this:
 
 Calculates the sum of specified values in an array.
 
-- **Example**:
+- **Example**: Block if the sum of money spent in the last 24 hours is greater
+  than $2,500:
 
-```
-"conditions": {
+```json copy
+{
+  "rule": "24-hour spend threshold - $2500",
+  "conditions": {
     "$and": [
-        {
-            "2500": {
-                "$gte": {
-                    "$sum": [
-                        "userModel.metadata.amount._sum_24_hr_",
-                        "eventMetadata.amount"
-                    ]
-                }
-            }
-        },
+      {
+        "2500": {
+          "$gte": {
+            "$sum": [
+              "userModel.metadata.amount._sum_24_h_",
+              "eventMetadata.amount"
+            ]
+          }
+        }
+      },
+      {
+        "eventMetadata.amount": {
+          "$gt": 0
+        }
+      }
     ]
-},
-
+  },
+  "outcome": "deny",
+  "signal": "24-hour_spend_threshold_exceeded",
+  "enabled": true
+}
 ```
 
 Here, we're saying if the sum of money spent in the last 24 hours **and** the
