@@ -193,3 +193,189 @@ we'll want to deny.
     Addresses for this user in 24 hours - block it.
   - `historicalData.device.uniqueIp._totals_day_`: If there are more than 3 IP
     Addresses for this device in 24 hours - block it.
+
+---
+
+### Block Users on New Device and VPN
+
+Leverage the `threat` object to determine whether the user is using a VPN 
+and the `changed` boolean value under `deviceUsers` to determine whether 
+that user-device combination is new.
+
+#### Code:
+
+```json
+{
+  "rule": "New Device and VPN - deny",
+  "conditions": {
+    "$and": [
+      {
+        "instanceDeltas.deviceUsers.changed": {
+          "$eq": "true"
+        }
+      },
+      {
+        "threat.is_vpn": {
+          "$eq": "true"
+        }
+      }
+    ]
+  },
+  "outcome": "deny",
+  "signal": "new_device_and_vpn",
+  "enabled": true,
+  "strength": 2,
+  "notes": "Deny if the device is new to the account and is on VPN; strength: 2"
+}
+```
+
+### Only Allow Users from a Certain Country
+
+The following rule will only allow users from the US to access your site. 
+The user's country is denoted in the `ipGeoData.country_code` property. 
+
+#### Code:
+
+```json
+{
+  "rule": "Only allow users from the US",
+  "conditions": {
+    "ipGeoData.country_code": {
+      "$ne": "US"
+    }
+  },
+  "outcome": "block",
+  "signal": "only_allow_users_from_us",
+  "enabled": true,
+  "strength": 2,
+  "notes": "Deny users from any country except for the U.S.; strength: 2"
+}
+```
+
+### Override Keyri's Risk Determination with your Own Risk Model
+
+If you already have a risk model, you can use it in conjunction with Keyri 
+rulesets or use its determination to simply override Keyri's determination. 
+Pass in your risk score as metadata and use it in your ruleset. In this 
+example, we're overriding Keyri if the risk score from your model is very 
+low. It has a `strength` value of 10 to override rules with the default strength 
+value of 9 or below.
+
+#### Code:
+
+```json
+{
+  "rule": "Override Keyri with own risk model",
+  "conditions": {
+    "$and": [
+      {
+        "metadata.riskScore": {
+          "$lte": 5
+        }
+      }
+    ]
+  },
+  "outcome": "allow",
+  "signal": "override_keyri_with_own_risk_model",
+  "enabled": true,
+  "strength": 10,
+  "notes": "Allow if internal risk score is less than or equal to 5 even if Keyri's system has a different determination; strength: 10"
+}
+```
+
+## Financial Rules
+
+### Limit Transactions to a Certain Amount
+
+If If you want to limit the amount of money that can be transferred in a single 
+event, you can add metadata when triggering the event to indicate the amount. 
+Be sure to name the metadata field the same as the one in the rule. Here's it's 
+named `amount`.
+
+#### Code:
+
+```json
+{
+  "rule": "Transaction threshold - 1000",
+  "conditions": {
+    "$and": [
+      {
+        "eventMetadata.amount": {
+          "$gt": 1000
+        }
+      }
+    ]
+  },
+  "outcome": "deny",
+  "signal": "Transaction_threshold_exceeded",
+  "enabled": true,
+  "strength": 2,
+  "notes": "Deny if money being transferred in 1 event is greater than 1,000; strength: 2"
+}
+```
+
+### Limit Transaction Totals over a Period of Time
+
+You can use built-in math functionality to query and sum the total value of 
+the amounts a given user has transacted over a period of time. 
+
+#### Code:
+
+```json
+{
+  "rule": "24-hour spend threshold - 2500",
+  "conditions": {
+    "$and": [
+      {
+        "2500": {
+          "$lte": {
+            "$sum": [
+              "userModel.metadata.amount._sum_24_h_",
+              "eventMetadata.amount"
+            ]
+          }
+        }
+      },
+      {
+        "eventMetadata.amount": {
+          "$gt": 0
+        }
+      }
+    ]
+  },
+  "outcome": "deny",
+  "signal": "24-hour_spend_threshold_exceeded",
+  "enabled": true,
+  "strength": 2,
+  "notes": "Deny if money being transferred in the past 24 hours is greater than 2,500; strength: 2"
+}
+```
+
+### Block High-Value Transactions from a New Country
+
+Use this rule to block a high-value transaction from a country that the 
+user has never been in before.
+
+#### Code:
+
+```json
+{
+  "rule": "new_country_high_value_txn",
+  "conditions": {
+    "$and": [
+      {
+        "userModel.country_code.${ipGeoData.country_code}._count_": { "$eq": 1 }
+      },
+      {
+        "eventMetadata.amount": { 
+         "$gte": 10000 }
+      }
+    ]
+  },
+  "outcome": "deny",
+  "signal": "high_value_new_country",
+  "enabled": true,
+  "strength": 2,
+  "notes": "Deny if user is transferring greater than 10,000 from a new country; strength: 2"
+}
+```
