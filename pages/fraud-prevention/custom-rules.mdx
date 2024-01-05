@@ -5,18 +5,26 @@ Fraud Prevention Scaling and Enterprise plans. These rules can be created and
 edited in the Keyri dashboard using either our no-code rule builder or
 [low-code rule builder](/fraud-prevention/custom-rules/low-code-rule-builder).
 For examples of useful custom rules, please see our
-[cookbook](/fraud-prevention/custom-rules/custom-rules-cookbook).
+[examples](/fraud-prevention/custom-rules/custom-rules-cookbook).
 
-Rules are built using a combination of conditions, comparators, values, and
-outcomes. Conditions are the data points that are used to evaluate the rule — a
-combination of data points that Keyri collects from the user's device and
-calculates. Comparators are the operators that are used to compare the condition
-to the value. Values are the values that are used to compare the condition to.
-Outcomes are the recommendation of the rule that results from the evaluation of
-the rule. For example, you can use our standard "allow", "warn", and "deny"
-outcomes, or you can create your own custom outcomes in the low-code rule
-builder. Outcomes are the summary recommendation read by your server to
-determine the course of action to take for the user's request.
+Rules are built using a combination of conditions, comparators, values,
+outcomes, and strengths.
+
+- **Conditions** are the data points that are used to evaluate the rule — a
+  combination of data points that Keyri collects from the user's device and
+  calculates.
+- **Comparators** are the operators that are used to compare the condition to
+  the value.
+- **Values** are the values that are used to compare the condition to.
+- **Outcomes** are the recommendation of the rule that results from the
+  evaluation of the rule to be used by your server to determine the course of
+  action to take for the user's request. For example, you can use our standard
+  "allow", "warn", and "deny" outcomes, or you can create your own custom
+  outcomes in the low-code rule builder.
+- **Strengths** are the weights that are assigned to the rule to determine
+  whether this rule gets overridden by other rules or overrides other rules. The
+  higher the strength number, the more likely the rule is to override other
+  rules. Strengths can only be assigned in the low-code rule builder.
 
 A full list of conditions is as follows:
 
