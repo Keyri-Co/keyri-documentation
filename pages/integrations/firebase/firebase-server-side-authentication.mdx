@@ -405,26 +405,28 @@ To register a user, one first must set up a keypair with the Keyri SDK and send 
 </Callout>
 
 ```swift copy
-    static func register(username: String) {
-        let keyri = KeyriInterface(appKey: appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey)
+static func register(username: String) {
+    let keyri = KeyriInterface(appKey: appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey)
 
-        let key = try! keyri.generateAssociationKey(publicUserId: username).derRepresentation.base64EncodedString
+    let key = try! keyri.generateAssociationKey(publicUserId: username).derRepresentation.base64EncodedString
 
-        let body = "{\"email\": \"\(username)\",\"publicKey\": \"\(String(describing: key))\"}"
+    let body = "{\"email\": \"\(username)\",\"publicKey\": \"\(String(describing: key))\"}"
 
-        var httpReq = URLRequest(url: URL(string: "url.tld/keyriregister")!)
-        httpReq.httpBody = body.data(using: .utf8)!
+    var httpReq = URLRequest(url: URL(string: "url.tld/keyriregister")!)
+    httpReq.httpBody = body.data(using: .utf8)!
 
-        URLSession.shared.dataTask(with: httpReq) { data, _, _ in
-            if let data = data {
-                let token = String(data: data, encoding: .utf8)!
-                Auth.auth().signIn(withCustomToken: token) { user, error in
-                    if let user = user {
-                        // Log in the user
-                    }
+    URLSession.shared.dataTask(with: httpReq) { data, _, _ in
+        if let data = data {
+            let token = String(data: data, encoding: .utf8)!
+            Auth.auth().signIn(withCustomToken: token) { user, error in
+                if let user = user {
+                    // Log in the user
                 }
             }
-        }.resume()
+        }
+    }.resume()
+}
+
 ```
 
 ### Sign in an Existing User In-App
@@ -442,15 +444,16 @@ To sign in an existing user, the flow is actually very similar to the registrati
 One can use the Keyri SDK to generate this payload, first by looking up the user in Keyri's sdk, and using the key to sign the data (there is a function built into Keyri that does this for you). We display this below
 
 ```swift copy
-    static func signIn(username: String) {
-        let keyri = KeyriInterface(appKey: appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey)
+static func signIn(username: String) {
+    let keyri = KeyriInterface(appKey: appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey)
 
-        if let key = try! keyri.getAssociationKey(publicUserId: username) {
-            let data =  String(Date.now()) + "_" + String(RandomNumberGenerator().random(100000))
-            let signature = try! keyri.generateUserSignature(data: data)
-            let payload = "{\"username\": \(username),\"data\": \(data),\"signature\": \"\(signature)\"}"
-        }
+    if let key = try! keyri.getAssociationKey(publicUserId: username) {
+        let data =  String(Date.now()) + "_" + String(RandomNumberGenerator().random(100000))
+        let signature = try! keyri.generateUserSignature(publicUserId: username, data: data)
+        let payload = "{\"username\": \(username),\"data\": \(data),\"signature\": \"\(signature)\"}"
     }
+}
+
 ```
 
 This payload can then be sent to the custom API, which will respond with a Custom Token, which can be used to authenticate the user as shown above.
@@ -462,5 +465,6 @@ Alternatively, one can send the same payload to a browser session via Keyri's QR
 ```swift
 let keyri = KeyriInterface(appKey: appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey)
 
-keyri.easyKeyriAuth(username: username, appKey: appKey, payload: payload)
+keyri.easyKeyriAuth(payload: payload, username: username)
+
 ```

@@ -109,7 +109,14 @@ do {
         // Do something with the credentials
         let keyri = KeyriInterface(appKey: appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey)
 
-        keyri.easyKeyriAuth(payload: credentials.secretKey, publicUserId: username)
+        keyri.easyKeyriAuth(payload: credentials.secretKey, publicUserId: username) { easyKeyriAuthRes in
+            switch easyKeyriAuthRes {
+                case .success:
+                    print("Successfully authenticated")
+                case .failure(let error):
+                    print("Failed with: \(error)")
+            }
+        }
     }
 
     // Get cognito user pool token
@@ -117,4 +124,5 @@ do {
     print("Fetch auth session failed with error - \(error)")
 } catch {
 }
+
 ```

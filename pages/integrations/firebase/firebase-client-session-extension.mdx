@@ -202,12 +202,9 @@ try {
     final payload = json.toString();
 
     await keyri
-    .easyKeyriAuth("[APPKey]",
-        payload, credential.emailAddress)
+    .easyKeyriAuth(payload, credential.emailAddress)
     .then((authResult) => _onAuthResult(authResult))
     .catchError((error, stackTrace) => _onError(error));
-
-
 
 } on FirebaseAuthException catch (e) {
   if (e.code == 'weak-password') {
@@ -218,4 +215,5 @@ try {
 } catch (e) {
   print(e);
 }
+
 ```

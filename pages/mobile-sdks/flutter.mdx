@@ -53,7 +53,7 @@ This function can be used if you'd like to present your own custom Scanner and/o
 
 2.  Presenting your own custom confirmation screen to the user
 
-3.  Presenting the built-in Keyri confirmation screen \(`initializeDefaultScreen()`\) - this method is used below
+3.  Presenting the built-in Keyri confirmation screen \(`initializeDefaultConfirmationScreen()`\) - this method is used below
 
 ```dart copy
 import 'package:flutter/material.dart';
@@ -345,3 +345,69 @@ private fun processLink(data: Uri?) {
     } ?: Log.e("Keyri", "Failed to process link")
 }
 ```
+
+## Interacting with the API
+
+The following methods are available to interact with the Keyri SDK API, which can be used to craft your own custom flows and leverage the SDK in different ways:
+
+- `Future<Session> initiateQrSession(String sessionId, {String? publicUserId})` - call it after obtaining the sessionId from QR code or deep link. Returns Session object with Risk attributes (needed to show confirmation screen) or Exception
+
+- `Future<bool> easyKeyriAuth(String payload, {String? publicUserId})` - handle process flow with passed scanned url and showing default confirmation screen. Easiest way to process session from deeplink
+
+- `Future<bool> initializeDefaultConfirmationScreen(String payload)` - to show Confirmation with default UI. Returns Boolean result. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
+
+- `Future<LoginObject> login({String? publicUserId})` - call this method to generate object for login which includes timestampNonce, signature, publicKey and userId
+
+- `Future<RegisterObject> register({String? publicUserId})` - call this method to generate object for register which includes publicKey and userId
+
+- `Future<bool> confirmSession(String payload, bool trustNewBrowser)` - call this function if user confirmed the dialog, trustNewBrowser is false by default. Returns Boolean authentication result
+
+- `Future<bool> denySession(String payload)` - call if the user denied the dialog. Returns Boolean authentication result
+
+- `Future<bool> processLink(String link, String payload, {String? publicUserId})` - process flow with passed uri with showing default confirmation screen. Easiest way to process session from deeplink. Returns result of authentication or error
+
+- `Future<String?> generateAssociationKey({String? publicUserId})` - creates a persistent ECDSA keypair for the given public user ID (example: email address) and returns public key
+
+- `Future<String?> generateUserSignature({String? publicUserId, required String data})` - returns an ECDSA signature of the timestamp and optional data with the publicUserId's privateKey (or, if not provided, anonymous privateKey), data can be anything
+
+- `Future<Map<String, String>> listAssociationKeys()` - returns a list of names (publicUserIds) of "association keys" (public keys)
+
+- `Future<Map<String, String>> listUniqueAccounts()` - returns a list of association keys except key for Anon user
+
+- `Future<String?> getAssociationKey({String? publicUserId})` - returns Base64 public key for the specified publicUserId
+
+- `Future<bool> removeAssociationKey(String publicUserId)` - removes public key for the specified publicUserId
+
+- `Future<FingerprintEventResponse> sendEvent({String? publicUserId, required EventType eventType, required bool success}))` - sends fingerprint event with specified event type and result. Returns the event risk response object from the Keyri API
+
+## Session Object
+
+The session object is returned on successful `initiateQrSession` calls, and is used to handle presenting the situation to the end user and getting their confirmation to complete authentication. Below are some of the key properties and methods that can be triggered. If you are utilizing the built-in views, you are only responsible for calling the confirm/deny methods above
+
+- IPAddressMobile/Widget - The IP Address of both mobile device and web browser
+
+- RiskAnalytics - if applicable
+
+- RiskStatus - clear, warn or deny
+
+- RiskFlagString - if RiskStatus is warn or deny, this string alerts the user to what is triggering the risk situation
+
+- GeoData - Location data for both mobile and widget
+
+- Mobile
+
+- city
+
+- country_code
+
+- Browser
+
+- city
+
+- country_code
+
+- `confirmSession()` and `denySession()` - see descriptions in **Interacting with the API**.
+
+# Disclaimer
+
+We care deeply about the quality of our product and rigorously test every piece of functionality we offer. That said, every integration is different. Every app on the App Store has a different permutation of build settings, compiler flags, processor requirements, compatibility issues etc and it's impossible for us to cover all of those bases, so we strongly recommend thorough testing of your integration before shipping to production. Please feel free to email us at support@keyri.com to submit a bug report or feature request.

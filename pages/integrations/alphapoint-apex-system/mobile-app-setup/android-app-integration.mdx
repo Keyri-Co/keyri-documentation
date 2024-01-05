@@ -2,27 +2,18 @@
 description: AlphaPoint customers can add QR authentication using their Android mobile app to create a secure, easy-to-use, and convenient auth system for their users.
 ---
 
+import { AndroidSDKVersion } from 'components/AndroidSDKVersion';
+
 # Keyri QR Login - AlphaPoint Android Apps
 
 ## Install Keyri SDK
-
-Add the JitPack repository to your root **build.gradle** file:
-
-```kotlin copy
-allprojects {
-    repositories {
-        // ...
-        maven { url "https://jitpack.io" }
-    }
-}
-```
 
 Add SDK dependency to your **build.gradle** file and sync project:
 
 ```kotlin copy
 dependencies {
     // ...
-    implementation("com.github.Keyri-Co:keyri-android-whitelabel-sdk:$latestKeyriVersion")
+    implementation("com.keyri:keyrisdk:${AndroidSDKVersion}")
 }
 ```
 
