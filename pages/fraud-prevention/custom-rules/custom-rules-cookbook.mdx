@@ -202,12 +202,12 @@ user-device combination is new.
     "$and": [
       {
         "instanceDeltas.deviceUsers.changed": {
-          "$eq": "true"
+          "$eq": true
         }
       },
       {
         "threat.is_vpn": {
-          "$eq": "true"
+          "$eq": true
         }
       }
     ]
@@ -308,7 +308,7 @@ amounts a given user has transacted over a period of time.
         "2500": {
           "$lte": {
             "$sum": [
-              "userModel.metadata.amount._sum_24_h_",
+              "userModel.metadata.amount._sum_24_hr_",
               "eventMetadata.amount"
             ]
           }
@@ -339,7 +339,7 @@ never been in before.
   "conditions": {
     "$and": [
       {
-        "userModel.country_code.${ipGeoData.country_code}._count_": { "$eq": 1 }
+        "instanceDeltas.country_code.changed": { "$eq": true }
       },
       {
         "eventMetadata.amount": { "$gte": 10000 }
