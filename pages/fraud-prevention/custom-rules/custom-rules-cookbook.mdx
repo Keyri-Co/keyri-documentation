@@ -1,11 +1,11 @@
-# Keyri Rules-Engine Cookbook
+# Keyri Custom Rules - Examples
 
 Here you'll find example solutions to common problems as copy-and-paste code
 snippets with explanations. These can be used both with our no-code rule builder
 and
 [low-code rule builder](/fraud-prevention/custom-rules/low-code-rule-builder).
 
-## Recipes
+## General Rules
 
 ### Reduce False Positives
 
@@ -33,7 +33,10 @@ other rules that might have been triggered.
     "deviceModel.lieProbability": { "$lte": 0.2 }
   },
   "outcome": "allow",
-  "signal": "established_user_device_allow"
+  "signal": "established_user_device_allow",
+  "strength": 2,
+  "enabled": true,
+  "notes": "Allow if device age is at least 7 days, the user has been seen on the device at least 2 times, and the lie probability is less than or equal to 0.2; strength: 2"
 }
 ```
 
@@ -70,15 +73,18 @@ verification.
 
 ```json
     {
-    "rule": "too_many_user_denials",
-    "conditions": {
+      "rule": "too_many_user_denials",
+      "conditions": {
         "$or": [
-            {"historicalData.user._denials_10_min_": { "$gte": 3 }},
-            {"historicalData.user._denials_hour_": { "$gte": 5 }},
-        ],
-    },
-    "outcome": "deny",
-    "signal": "deny_user_id_list",
+          { "historicalData.user._denials_10_min_": { "$gte": 3 } },
+          { "historicalData.user._denials_hour_": { "$gte": 5 } }
+        ]
+      },
+      "outcome": "deny",
+      "signal": "deny_user_id_list",
+      "enabled": true,
+      "strength": 2,
+      "notes": "Deny if user has previously been denied at least 3 times in the past 10 minutes or at least 5 times in the past hour; strength: 2"
     },
 ```
 
@@ -88,13 +94,13 @@ verification.
   whatever you want).
 - `outcome`: Set to "deny", so if the rule evaluates to true, the event is
   denied.
-- `strength`: Doesn't have to be set. We're letting it default to 1.
+- `strength`: A value of 2 means it will override other rules with a lower strength.
 - `conditions`: Defines the criteria for the rule. In this case they're nested
-  in an "or" array so if any are true - the whole rule returns as true
+  in an "or" array so if any are true - the whole rule returns as true.
   - `historicalData.user._denials_10_min_`: If there are more than 2 denials in
-    10 minutes on this IP - block it for 10 minutes
+    10 minutes on this IP - block it for 10 minutes.
   - `historicalData.user._denials_hour_`: If there are more than 4 denials in 1
-    hour on this IP - block it for an hour
+    hour on this IP - block it for an hour.
 
 ---
 
@@ -107,14 +113,13 @@ If the IP Address you're evaluating is associated with 326 login denials in last
 
 You're blocking IP Addresses with more than `count` denials in a given period.
 After too many denials occur on the IP Address - nobody can use it for 10
-minutes, an hour, whatever
+minutes, an hour, etc.
 
 #### Code:
 
 ```json
 {
   "rule": "too_many_ip_denials",
-  "eventType": "all",
   "conditions": {
     "$or": [
       { "historicalData.ip._denials_10_min_": { "$gte": 3 } },
@@ -122,7 +127,10 @@ minutes, an hour, whatever
     ]
   },
   "outcome": "deny",
-  "signal": "deny_ip_list"
+  "signal": "deny_ip_list",
+  "enabled": true,
+  "strength": 2,
+  "notes": "Deny if IP has previously been denied at least 3 times in the past 10 minutes or at least 10 times in the past hour; strength: 2"
 }
 ```
 
@@ -132,13 +140,13 @@ minutes, an hour, whatever
   whatever you want).
 - `outcome`: Set to "deny", so if the rule evaluates to true, the event is
   denied.
-- `strength`: Doesn't have to be set. We're letting it default to 1.
+- `strength`: A value of 2 means it will override other rules with a lower strength.
 - `conditions`: Defines the criteria for the rule. In this case they're nested
-  in an "or" array so if any are true - the whole rule returns as true
+  in an "or" array so if any are true - the whole rule returns as true.
   - `historicalData.ip._denials_10_min_`: If there are more than 2 denials in 10
-    minutes on this IP - block it
+    minutes on this IP - block it.
   - `historicalData.ip._denials_hour_`: If there are more than 9 denials in 1
-    hour on this IP - block it
+    hour on this IP - block it.
 
 ---
 
@@ -158,7 +166,6 @@ we'll want to deny.
 ```json
 {
   "rule": "too_many_ip_addresses",
-  "eventType": "all",
   "conditions": {
     "$or": [
       { "historicalData.user.uniqueIp._totals_day_": { "$gte": 4 } },
@@ -166,7 +173,10 @@ we'll want to deny.
     ]
   },
   "outcome": "deny",
-  "signal": "deny_ip_list"
+  "signal": "deny_ip_list",
+  "enabled": true,
+  "strength": 2,
+  "notes": "Deny if device or user has been seen on at least 4 unique IP addresses in the past 24 hours; strength: 2"
 }
 ```
 
@@ -176,10 +186,10 @@ we'll want to deny.
   whatever you want).
 - `outcome`: Set to "deny", so if the rule evaluates to true, the event is
   denied.
-- `strength`: Doesn't have to be set. We're letting it default to 1.
+- `strength`: A value of 2 means it will override other rules with a lower strength.
 - `conditions`: Defines the criteria for the rule. In this case they're nested
-  in an "or" array so if any are true - the whole rule returns as true
+  in an "or" array so if any are true - the whole rule returns as true.
   - `historicalData.user.uniqueIp._totals_day_`: If there are more than 3 IP
-    Addresses for this user in 24 hours - block it
+    Addresses for this user in 24 hours - block it.
   - `historicalData.device.uniqueIp._totals_day_`: If there are more than 3 IP
-    Addresses for this device in 24 hours - block it
+    Addresses for this device in 24 hours - block it.
