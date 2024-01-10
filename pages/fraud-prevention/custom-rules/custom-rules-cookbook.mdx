@@ -352,3 +352,55 @@ never been in before.
   "strength": 2
 }
 ```
+
+### Transaction Anomaly Detection
+
+Your compliance rules say that a user can't have more than 5 transactions over $1,000 in a 72 hour
+time period. Here's how you can do that:
+
+```json copy
+
+  "rule": "Transaction Anomaly Detected",
+  "outcome": "deny",
+  "signal": "transaction_anomaly_detected",
+  "enabled": true,
+  "strength": 2,
+  "conditions": {
+      "$transform": [
+          {"testValue": 4},
+          {"actualValue": {
+              "$reduce": {
+                  "input": "userModel.rawMetaData",
+                  "initialValue": 0,
+                  "conditions": {
+                      "$and": [
+                          {"value": {"$gte": 500}},
+                          {"attribute": "metadata.amount"},
+                          {"hoursAgo": {"$gte": 0}},
+                          {"hoursAgo": {"$lte": 72}}
+                      ]
+                  },
+                  "math": {
+                      "$sum": ["$$value", "count"]
+                  }
+              }
+          }}
+      ],
+      "$and": [
+          {"actualValue": {"$gte": "testValue"}},
+          {"eventMetadata.amount": {"$gte": 500}}
+      ]
+  }
+```
+
+This one is verbose - but not really that bad once you see what's going on.
+
+#### Explanation
+
+- `rule`: The name of the rule, here it's "Transaction Anomaly Detected" (name it
+  whatever you want).
+- `outcome`: Set to "deny", so if the rule evaluates to true, the event is
+  denied.
+- `strength`: Doesn't have to be set. We're letting it default to 2.
+- `conditions`: Defines the criteria for the rule. 
+  - `$transform`: This function is an array of things that you want _add_ to the object, or things you want to update. In this case, we're writing the number `4` directly to the object so we can use it in logic later. We're also summing up all transactions with the `reduce` function.
