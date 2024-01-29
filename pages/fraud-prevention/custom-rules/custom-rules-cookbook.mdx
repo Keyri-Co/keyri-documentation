@@ -355,77 +355,67 @@ never been in before.
 
 ### Transaction Anomaly Detection
 
-Your compliance rules say that a user can't have more than 5 transactions over $1,000 in a 72 hour
-time period. Here's how you can do that:
+Your compliance rules say that a user can't have more than 5 transactions over
+$1,000 in a 72 hour time period. Here's how you can do that:
 
 ```json copy
 {
-  // This is what we're calling the rule
-  "rule": "Transaction Anomaly Detected",
-  // This is what happens if our "conditions" are true
-  "outcome": "deny",
-  // This is the rule's unique identifier
-  "signal": "transaction_anomaly_detected",
-  // This means the rule is to be used if it is TRUE
-  "enabled": true,
-  // This means the rule overrides anything with a strength < 2 if
-  // it evaluates to TRUE
-  "strength": 2,
-  // This defines the rule's logic - it resolves to TRUE or FALSE.
+  "rule": "Transaction Anomaly Detected", // This is the rule's name
+  "outcome": "deny", // This is what happens if our "conditions" are true
+  "signal": "transaction_anomaly_detected", // The string that will be returned to you if the rule is triggered
+  "enabled": true, // This means the rule is to be used if it is true
+  "strength": 2, // This means the rule overrides anything with a strength < 2
   "conditions": {
-      "$transform": [
-          // Add the number 4 to the object for later use as 'testValue'
-          {"testValue": 4},
-          // Put the value from the following calculation on the object
-          // as 'actualValue'
-          {"actualValue": {
-              // glorified "sumIf" function
-              "$reduce": {
-                  // What field are we summing?
-                  "input": "userModel.rawMetaData",
-                  // What number do we want to start with
-                  "initialValue": 0,
-                  // What criteria does each element need to meet to
-                  // added to the total?
-                  "conditions": {
-                      // This is an explicit 'AND' so all things must
-                      // be true
-                      "$and": [
-                          // the 'value' field must be >= 500
-                          {"value": {"$gte": 500}},
-                          // the 'attribute' field must EQUAL the 
-                          // string 'metadata.amount' for this example
-                          {"attribute": {"$eq": "metadata.amount"}},
-                          // the 'hoursAgo' field must be >= 0
-                          {"hoursAgo": {"$gte": 0}},
-                          // the 'hoursAgo' field must be <= 72
-                          {"hoursAgo": {"$lte": 72}}
-                      ]
-                  },
-                  // What do we want to do to each element that meets
-                  // our criteria?
-                  "math": {
-                      // We're to sum ('$sum') the running total ('$$value')
-                      // and the value of the element's 'count' field  
-                      "$sum": ["$$value", "count"]
-                  }
-              }
-          }}
-      ],
-      // Congratulations for sticking that out! You deserve a coffee
-      // break after all that!
-      //
-      // We're out of the "$transform" function and can now do logic
-      // against the values we added to the 
-      // object ("actualValue", "testValue")
-      //
-      // EVALUATE THE WHOLE THING AS TRUE with an explicit AND
-      "$and": [
-          // If the "actualValue" (the sumIf) >= "testValue" (4)
-          {"actualValue": {"$gte": "testValue"}},
-          // AND the "eventMetadata.amount" >= 500
-          {"eventMetadata.amount": {"$gte": 500}}
-      ]
+    // This defines the rule's logic - it resolves to true or false
+    "$transform": [
+      // Add the number 4 to the object for later use as 'testValue'
+      { "testValue": 4 },
+      // Put the value from the following calculation on the object
+      // as 'actualValue'
+      {
+        "actualValue": {
+          // glorified "sumIf" function
+          "$reduce": {
+            // What field are we summing?
+            "input": "userModel.rawMetaData",
+            // What number do we want to start with
+            "initialValue": 0,
+            // What criteria does each element need to meet to
+            // added to the total?
+            "conditions": {
+              // This is an explicit 'AND' so all things must
+              // be true
+              "$and": [
+                // the 'value' field must be >= 500
+                { "value": { "$gte": 500 } },
+                // the 'attribute' field must EQUAL the
+                // string 'metadata.amount' for this example
+                { "attribute": { "$eq": "metadata.amount" } },
+                // the 'hoursAgo' field must be >= 0
+                { "hoursAgo": { "$gte": 0 } },
+                // the 'hoursAgo' field must be <= 72
+                { "hoursAgo": { "$lte": 72 } }
+              ]
+            },
+            // What do we want to do to each element that meets
+            // our criteria?
+            "math": {
+              // We're to sum ('$sum') the running total ('$$value')
+              // and the value of the element's 'count' field
+              "$sum": ["$$value", "count"]
+            }
+          }
+        }
+      }
+    ],
+    // We're out of the "$transform" function and can now do logic
+    // against the values we added to the object ("actualValue", "testValue")
+    "$and": [
+      // If the "actualValue" (the sumIf) >= "testValue" (4)
+      { "actualValue": { "$gte": "testValue" } },
+      // AND the "eventMetadata.amount" >= 500
+      { "eventMetadata.amount": { "$gte": 500 } }
+    ]
   }
 }
 ```
@@ -434,10 +424,14 @@ This one is verbose - but not really that bad once you see what's going on.
 
 #### Explanation
 
-- `rule`: The name of the rule, here it's "Transaction Anomaly Detected" (name it
-  whatever you want).
+- `rule`: The name of the rule, here it's "Transaction Anomaly Detected" (name
+  it whatever you want).
 - `outcome`: Set to "deny", so if the rule evaluates to true, the event is
   denied.
-- `strength`: Doesn't have to be set. We're letting it default to 2.
-- `conditions`: Defines the criteria for the rule. 
-  - `$transform`: This function is an array of things that you want _add_ to the object, or things you want to update. In this case, we're writing the number `4` directly to the object so we can use it in logic later. We're also summing up all transactions with the `reduce` function.
+- `strength`: Optional. Determines the overriding behavior of this rule over
+  others of lesser strength.
+- `conditions`: Defines the criteria for the rule.
+  - `$transform`: This function is an array of things that you want _add_ to the
+    object, or things you want to update. In this case, we're writing the number
+    `4` directly to the object so we can use it in logic later. We're also
+    summing up all transactions with the `reduce` function.
