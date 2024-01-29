@@ -2,41 +2,110 @@ import { Callout } from 'nextra-theme-docs';
 
 # Fraud Analytics Server-Side Setup
 
-As noted in the Web and Mobile app fraud analytics documentation, once you trigger an event that you'd like evaluated for its risk, the Keyri API will return an encrypted object that your application should submit to your server alongside its regular event payload. For example, for a login event, your application should submit the credentials it already does (username/password for example) and add to the payload the encrypted risk object that the Keyri API returns to you.
-
-Once at your server, decrypt the object to parse the event risk before processing the event as you would normally do. To decrypt it, you will need the private key corresponding to the public key you used in your client application, which you received in Setup & Credentials in the Keyri dashboard.
+For analysis and decryption of the object created by the client, you will need to hit our REST API Server with a payload like described below.
 
 ## Node.js Example
 
-To decrypt the object, you'll need to run ECDH for key agreement, HKDF for key derivation, and finally AES-GCM for decryption. In a Node.js environment, you can use our "EZCrypto" library available from npm to make the process as simple as possible:
-
-```bash
-$ npm install @justinwwolcott/ez-web-crypto
-```
-
 If your backend uses a different framework, feel free to reach out to support@keyri.com for specific code and guidance.
 
-```typescript
-import EZCrypto from '@justinwwolcott/ez-web-crypto';
+### Server Code
 
-const { username, password, encryptedRiskObject } = req.body;
-const ezCrypto = new EZCrypto();
+```javascript
+// Nothing to import.
 
-const privateKey = 'your_ECDH_private_key';
+  const url = "https://fp.keyri.com/v1/client";
 
-let decryptedRiskObject = await ezCrypto.HKDFDecrypt(
-  privateKey,
-  encryptedRiskObject.keyriEncryptionPublicKey,
-  encryptedRiskObject.salt,
-  encryptedRiskObject.iv,
-  encryptedRiskObject.encryptedPayload
-);
+  // Create Payload
+  const sendBody = {
+    // this comes from the client application
+    "encryptedB64Payload": "eyJjbGllbnRFbmNyeX...U4UmVJK09wOHc9PSJ9",
+    // the string "undefined" is special. It tells our API to give the user
+    // the same "userId" as their "deviceId"
+    "userId": "undefined",
+    // This can be anything - but "visits","login","signup","access" are common.
+    "eventType": "visits",
+    // This can be anything you want to use for later analytics or rules
+    "metadata": {},
+    // We need you to give us the IP Address of client
+    ipAddress,
+    // We need you to give us the headers the client gave you
+    headers: event.headers,
+    // This is your public encryption key. (app.keyri.com > setup & credentials > Service Encryption Key)
+    Service_Encryption_Key,
+    // If not provided, you'll have to decrypt the payload yourself
+    Service_Decryption_Key
+  };
+  
+  // Send and receive response
+  let processedData = await fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(sendBody)
+  });
+  
+  let processedDataJson = await processedData.json();
 
-decryptedRiskObject = new TextDecoder().decode(decryptedRiskObject);
-decryptedRiskObject = JSON.parse(decryptedLoginEvent).fingerprintEvent;
+```
 
-// You can now parse through the `encryptedRiskObject` to read and
-// act on parts of the risk assessment you care about
+### Decrypted Object
 
-// ...proceed with your login function accordingly
+* `riskSummary`:  Outcome based on your risk settings (e.g., "warn", "allow", "deny").
+
+* `ipAddress`: Client's IP address.
+
+* `ipLocationData`: Geographical data derived from IP (city, region, country, and time zone)
+
+* `userId`: User ID in your system.
+
+* `deviceId`: Unique device ID.
+
+* `wagId`: Liberal device ID - similar across browsers.
+
+* `signals`: Suspicious signals detected.
+
+* `trustScore`: A score between 0 and 1, based on browser metrics, behavioral analytics, and Bayesian machine learning. A higher score indicates a "good" user.
+
+* `changes`: Recorded changes to user or device.
+
+* `event_type`: Type of logged event.
+
+* `deviceAge`:  Age of the device ID in _your_ service.
+
+* `globalDeviceAge`: Age of the device ID across _any_ service.
+
+* `timestamp`: Time of the API's assessment.
+
+* `clientPublicSignatureKey`: Key for verifying the encrypted object's signature.
+
+* `instance`: Data available for rules engine processing.
+
+Example of a typical decrypted response:
+
+```json
+{
+    "ipAddress": "6.6.6.6",
+    "userId": "Bad@Guy.com",
+    "deviceId": "6c6d32ed-50...-c453429b3d5b",
+    "wagId": "NFDp7Gg0vv...MMAaDTKWP0=",
+    "signals": [
+        "multiple_account_signups_per_device",
+        "multiple_account_access_per_device"
+    ],
+    "trustScore": 0.11329117957360035,
+    "changes": [],
+    "event_type": "signup",
+    "deviceAge": 157.31792944444445,
+    "globalDeviceAge": 168.628485,
+    "timeStamp": 1688905691858,
+    "riskSummary": "deny",
+    "ipLocationData": {
+        "city": "Dallas",
+        "region": "Texas",
+        "country": "US",
+        "time_zone": "CDT"
+    },
+    "instance": {
+        ...
+    }
+}
 ```

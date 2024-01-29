@@ -21,49 +21,41 @@ Using npm:
 $ npm i @keyri/xray
 ```
 
-Once the package is installed, you can import the library using `import` or `require`:
 
-```typescript
-import { XRAY } from "@keyri/xray";
+### Using CDN:
+```html
+<!-- Adding library from NPM via UNPKG -->
+<script type="module" >
 
-const xray = new XRAY();
+    // Pull Library from CDN
+    import {XRAY} from 'https://unpkg.com/@keyri/xray/index.mjs';
 
-const info = await xray.scan(
-  data.eventType, // The type of event: Login, Signup, Visits, Access
-  data.userId, // The id of the user in your system
-  data.yourPublicEcdhKey, // This comes from our dashboard and is used
-                          // -- to identify you and as an encryption key
-  5000,  // Optional Timeout. 
-         // -- If nothing happens before this, an error is returned 
-  "safe"  // Optional Commit-Mode. When used, the API does not
-          // -- automatically update information about the device or user.
-          // -- The Relying-Party (you) must make an additional API
-          // -- call to make this happen. 
-);
+</script>
 ```
 
-You can get the constant you need (your `serviceEncryptionKey`(pair)) from the Keyri Dashboard under Setup & Credentials
+## Usage
 
-## Example
+Once the package is installed, you can import the library using `import`:
 
-**Note** CommonJS usage
+```javascript
 
-### Browser
+import {XRAY} from '@keyri/xray';
 
-```typescript
-import { XRAY } from "@keyri/xray";
+const _xray = new XRAY();    // Instantiate the library
+await _xray.load();          // Load into memory
+const xray = _xray.xray;     // Expose the main functionality
 
-const serviceEncryptionKey = 'your_ECDH_public_key';
+// Get Encrypted Analytics Payload returned locally
+const encrypted_fraud_data = await xray.scan({"apiUrl": "local"});
+```
 
-async function login(userId, password) {
-  const xray = new XRAY();
-  // Call the Keyri fraud analytics function and await its response
-  const encryptedRiskObject = await xray.scan('login', userId, serviceEncryptionKey, 5000);
-  // Send the Keyri response object
-  // as part of your API call to retrieve protected resources
-  const loginResponse = await fetch('/api/login', {
-    method: 'POST',
-    body: { userId, password, encryptedRiskObject },
-  });
+### Data Transmission
+Send the collected data to _your_ server using your preferred method (Attached to a form submission, XHR, WebSockets, WebRTC, etc.).
+
+Example payload from `xray.scan`: 
+
+```json
+{
+    "encryptedB64Payload": "eyJjbGllbnRFbmNyeX...U4UmVJK09wOHc9PSJ9"
 }
 ```
