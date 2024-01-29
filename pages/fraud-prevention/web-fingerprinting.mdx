@@ -1,10 +1,18 @@
 ---
-description: Permanently associate your users with their devices to improve UX and reduce fraud
+description:
+  Permanently associate your users with their devices to improve UX and reduce
+  fraud
 ---
 
 # Web App Fraud Analytics
 
-Keyri provides a JavaScript agent for fraud analytics that produces durable device ID fingerprints that persist across sessions. It provides risk analytics data to your client and server for events you want analyzed. Trigger the fraud analytics agent at each event that you want to assess the risk of; the Keyri API will provide a summary of the risk level and details about the event's risk signals as well as details about the user such as location. The JavaScript agent is lightweight and can be deployed in a few minutes.
+Keyri provides a JavaScript agent for fraud analytics that produces durable
+device ID fingerprints that persist across sessions. It provides risk analytics
+data to your client and server for events you want analyzed. Trigger the fraud
+analytics agent at each event that you want to assess the risk of; the Keyri API
+will provide a summary of the risk level and details about the event's risk
+signals as well as details about the user such as location. The JavaScript agent
+is lightweight and can be deployed in a few minutes.
 
 ## Features
 
@@ -21,49 +29,42 @@ Using npm:
 $ npm i @keyri/xray
 ```
 
-Once the package is installed, you can import the library using `import` or `require`:
+### Using CDN:
 
-```typescript
-import { XRAY } from "@keyri/xray";
-
-const xray = new XRAY();
-
-const info = await xray.scan(
-  data.eventType, // The type of event: Login, Signup, Visits, Access
-  data.userId, // The id of the user in your system
-  data.yourPublicEcdhKey, // This comes from our dashboard and is used
-                          // -- to identify you and as an encryption key
-  5000,  // Optional Timeout. 
-         // -- If nothing happens before this, an error is returned 
-  "safe"  // Optional Commit-Mode. When used, the API does not
-          // -- automatically update information about the device or user.
-          // -- The Relying-Party (you) must make an additional API
-          // -- call to make this happen. 
-);
+```html
+<!-- Adding library from NPM via UNPKG -->
+<script type="module">
+  // Pull Library from CDN
+  import { XRAY } from 'https://unpkg.com/@keyri/xray/index.mjs';
+</script>
 ```
 
-You can get the constant you need (your `serviceEncryptionKey`(pair)) from the Keyri Dashboard under Setup & Credentials
+## Usage
 
-## Example
+Once the package is installed, you can import the library as follows. The
+library outputs an encrypted client object that you first pass to your server
+and thereafter use to make requests to the Keyri API.
 
-**Note** CommonJS usage
+```javascript
+import { XRAY } from '@keyri/xray';
 
-### Browser
+const _xray = new XRAY(); // Instantiate the library
+await _xray.load(); // Load into memory
+const xray = _xray.xray; // Expose the main functionality
 
-```typescript
-import { XRAY } from "@keyri/xray";
+// Get Encrypted Analytics Payload returned locally
+const encrypted_fraud_data = await xray.scan({ apiUrl: 'local' });
+```
 
-const serviceEncryptionKey = 'your_ECDH_public_key';
+### Data Transmission
 
-async function login(userId, password) {
-  const xray = new XRAY();
-  // Call the Keyri fraud analytics function and await its response
-  const encryptedRiskObject = await xray.scan('login', userId, serviceEncryptionKey, 5000);
-  // Send the Keyri response object
-  // as part of your API call to retrieve protected resources
-  const loginResponse = await fetch('/api/login', {
-    method: 'POST',
-    body: { userId, password, encryptedRiskObject },
-  });
+Send the collected data to your server using your preferred method (Attached to
+a form submission, XHR, WebSockets, WebRTC, etc.).
+
+Example payload from `xray.scan()`:
+
+```json
+{
+  "encryptedB64Payload": "eyJjbGllbnRFbmNyeX...U4UmVJK09wOHc9PSJ9"
 }
 ```
