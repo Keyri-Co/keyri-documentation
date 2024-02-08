@@ -1,0 +1,8 @@
+{
+  "mobile-app-authentication": "Mobile App Authentication",
+  "qr-authentication": "QR Authentication (Web & TV)",
+  "server-setup": "Server Setup",
+  "passkeys": "Passkeys",
+  "integrations": "Integrations",
+  "echoguard": "EchoGuard"
+}

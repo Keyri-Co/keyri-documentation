@@ -1,0 +1,8 @@
+{
+  "amazon-cognito": "Amazon Cognito",
+  "auth0": "Auth0",
+  "banno": "Banno Digital Banking",
+  "firebase": "Firebase",
+  "ping-identity": "Ping Identity",
+  "supabase": "Supabase"
+}

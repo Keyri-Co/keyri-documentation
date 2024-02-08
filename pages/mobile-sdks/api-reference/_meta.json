@@ -1,0 +1,7 @@
+{
+  "ios": "iOS",
+  "android": "Android",
+  "react-native": "React Native",
+  "flutter": "Flutter",
+  "cordova": "Cordova"
+}
