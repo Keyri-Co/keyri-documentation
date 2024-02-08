@@ -1,0 +1,156 @@
+---
+description: Learn how to install and initialize Keyri SDKs in your mobile apps
+---
+
+import { Tab, Tabs } from 'nextra-theme-docs';
+import { AndroidSDKVersion } from 'components/AndroidSDKVersion';
+
+# SDK Installation and Initialization
+
+Choose your platform or framework to get started with Keyri SDKs. Note that you
+will need an `appKey`, `apiKey`, and/or `serviceEncryptionKey` from the Keyri
+dashboard to use the features you want.
+
+## System Requirements
+
+<Tabs items={['iOS', 'Android']}>
+    <Tab>
+        * iOS 14+
+        * Swift 5+
+        * Apple A7 chip or later (iPhone 5s or later)
+    </Tab>
+    <Tab>
+        * Android API level 23+
+        * AndroidX support
+        * Kotlin coroutine capability
+    </Tab>
+
+</Tabs>
+
+## Installation
+
+Keyri SDKs can be installed through your platform's standard package managers.
+Below are the installation instructions for each platform.
+
+<Tabs items={['iOS', 'Kotlin', 'Java', 'React Native', 'Flutter', 'Cordova']}>
+    <Tab>
+        To integrate the Keyri iOS SDK into your Xcode project using CocoaPods, specify it in your Podfile:
+
+        ```ruby copy
+        pod 'keyri-pod'
+        ```
+        The SDK can then be imported into any Swift file as follows:
+
+        ```swift copy
+        import keyri-pod
+        ```
+
+    </Tab>
+    <Tab>
+        Add the Keyri SDK dependency to your module `build.gradle` file and sync project, replacing `VERSION_NUMBER` with the latest version number, currently **<AndroidSDKVersion />**:
+
+        ```kotlin copy
+        dependencies {
+            // ...
+            implementation("com.keyri:keyrisdk:VERSION_NUMBER")
+        }
+        ```
+    </Tab>
+    <Tab>
+        Add the Keyri SDK dependency to your module `build.gradle` file and sync project, replacing `VERSION_NUMBER` with the latest version number, currently **<AndroidSDKVersion />**:
+
+        ```kotlin copy
+        dependencies {
+            // ...
+            implementation("com.keyri:keyrisdk:VERSION_NUMBER")
+            implementation("com.keyri:keyrisdk-java:VERSION_NUMBER")
+        }
+        ```
+    </Tab>
+    <Tab>
+        The Keyri SDK can be installed using npm or yarn.
+
+        ```shell
+        yarn add react-native-keyri
+        OR
+        npm i react-native-keyri
+        ```
+
+        The SDK can then be imported into any js or ts file as follows:
+
+        ```javascript copy
+        import Keyri from 'react-native-keyri';
+        ```
+
+    </Tab>
+    <Tab>
+        To integrate the Keyri Dart Package, run this command in terminal in root of the project directory:
+
+        ```shell copy
+        flutter pub add keyri_v3
+        ```
+
+        The SDK can then be imported into any dart file as follows:
+
+        ```dart copy
+        import 'package:keyri_v3/keyri.dart';
+        ```
+
+    </Tab>
+    <Tab>
+        The Cordova CLI can be used to incorporate the Keyri SDK into your Cordova project.
+        To install Keyri plugin, run this command in terminal in root of the project directory:
+
+        ```shell copy
+        cordova plugin add @keyri/cordova-keyri
+        ```
+
+        The plugin then can be imported into any js or ts files as follows:
+
+        ```javascript copy
+        let Keyri = window.plugins.CordovaKeyri;
+        ```
+    </Tab>
+
+</Tabs>
+
+## Initialization
+
+Initialize the Keyri object with keys from the dashboard. If you're using fraud
+prevention, the `publicApiKey` and `serviceEncryptionKey` are required.
+
+<Tabs items={['iOS', 'Kotlin', 'Java', 'React Native', 'Flutter', 'Cordova']}>
+    <Tab>
+        ```swift copy
+        public init(appKey: String, publicApiKey: String? = nil, serviceEncryptionKey: String? = nil, blockEmulatorDetection: Bool? = true)
+        ```
+    </Tab>
+    <Tab>
+        ```kotlin copy
+        // Import the SDK at the top of the file
+        val keyri = Keyri(this@MainActivity, appKey, publicApiKey, serviceEncryptionKey)
+        ```
+    </Tab>
+    <Tab>
+        ```java copy
+        // Import the SDK at the top of the file
+        KeyriSdk keyri = new KeyriSdk(this, appKey, publicApiKey, serviceEncryptionKey);
+        ```
+    </Tab>
+    <Tab>
+        ```javascript copy
+        Keyri.initialize({appKey: appKey, publicApiKey: publicApiKey,serviceEncryptionKey: serviceEncryptionKey})
+        ```
+    </Tab>
+    <Tab>
+        ```dart copy
+        Keyri keyri = Keyri(appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey, blockEmulatorDetection: true);
+        ```
+    </Tab>
+    <Tab>
+        ```javascript copy
+        Keyri.initialize({appKey: appKey, publicApiKey: publicApiKey,serviceEncryptionKey: serviceEncryptionKey})
+        ```
+    </Tab>
+
+</Tabs>

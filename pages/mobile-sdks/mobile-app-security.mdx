@@ -1,0 +1,28 @@
+---
+description: Mobile device and app hardening for consumer apps
+---
+
+# Mobile Security
+
+Keyri SDKs are embedded with a suite of security checks as outlined below. These
+are best in class standalone features that can be utilized when Keyri methods
+are called or be implemented throughout your mobile application for protection
+against code tampering and manipulation.
+
+- Emulator detection
+- Jailbreak detection
+- Method swizzle detection
+- Presence of known malicious apps and packages on the device
+- Code tamper detection
+- Runtime injection detection
+
+## Usage
+
+- Keyri automatically runs application security checks upon the instantiation of
+  the Keyri object built into our SDKs. Simply calling the Keyri constructor
+  will trigger each of the checks. The SDK is configured to terminate the
+  application if any of these checks fail, as the entire runtime environment and
+  all of the data within your application can potentially be compromised in such
+  a situation.
+
+## Enabling and Disabling Checks
