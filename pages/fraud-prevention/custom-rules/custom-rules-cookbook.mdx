@@ -308,7 +308,7 @@ amounts a given user has transacted over a period of time.
         "2500": {
           "$lte": {
             "$sum": [
-              "userModel.metadata.amount._sum_24_hr_",
+              "userModel.metadata.amount._sum_24_hours",
               "eventMetadata.amount"
             ]
           }
