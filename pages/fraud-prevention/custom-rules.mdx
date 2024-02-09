@@ -220,23 +220,22 @@ user agent as a condition, you would use `deviceModel.userAgentParsed`.
   device
   - `_denials_10_minutes`: Number of denials this device has hit in the last 10
     minutes
-  - `_denials_hour`: Number of denials this device has incurred in the last
-    hour
-  - `_denials_24_hours`: Number of denials this device has incurred in the last 24
-    hours
+  - `_denials_hour`: Number of denials this device has incurred in the last hour
+  - `_denials_24_hours`: Number of denials this device has incurred in the last
+    24 hours
   - `_denials_all`: Number of denials this device has ever incurred
-  - `_totals_10_minutes`: Number of events this device has created in the last 10
-    minutes
+  - `_totals_10_minutes`: Number of events this device has created in the last
+    10 minutes
   - `_totals_hour`: Number of events this device has created in the last hour
-  - `_totals_24_hours`: Number of events associated with this device in the last 24
-    hours
+  - `_totals_24_hours`: Number of events associated with this device in the last
+    24 hours
   - `_totals_all` Number of events associated with this device for all time
   - `_percent_denial_10_minutes`: Percent of events denied on this device in the
     last 10 minutes
   - `_percent_denial_hour`: Percent of events denied on this device in the last
     60 minutes
-  - `_percent_denial_24_hours`: Percent of events denied on this device in the last
-    24 hours
+  - `_percent_denial_24_hours`: Percent of events denied on this device in the
+    last 24 hours
   - `_percent_denial_all`: Percent of events denied on this device for all time
   - `events`: Same information as above, but broken out by 'eventType'
   - `uniqueUser`: Count of unique users using this device in the last 10
@@ -266,10 +265,11 @@ user agent as a condition, you would use `deviceModel.userAgentParsed`.
 - **Use Case**: If a deviceId changes IP Addresses 15 times in 10 minutes -
   something might be up. You can block it here.
 
-* Attributes: `asn_name`,`city`,`continent_code`, `country_code`,`dayOfWeek`,
-  `dayPart`,`deviceId`,`eventType`,`ip`,`ip_timezone_name`, `is_anonymous`,
-  `is_datacenter`,`is_proxy`,`is_tor`,`is_vpn`,`language`,`lieProbability`,`longitude`,`latitude`,`region_code`,
-  `state`,`system`,`time_zone_location`,`userAgentParsed`,`wagId`
+* Attributes: `asn_name`, `city`, `continent_code`, `country_code`, `dayOfWeek`,
+  `dayPart`, `deviceId`, `eventType`, `ip`, `ip_timezone_name`, `is_anonymous`,
+  `is_datacenter`, `is_proxy`, `is_tor`, `is_vpn`, `language`, `lieProbability`,
+  `longitude`, `latitude`, `region_code`, `state`, `system`,
+  `time_zone_location`, `userAgentParsed`, `wagId`
 
 * Sub-Attributes: All of the attributes listed above have the following
   properties: `changes_last_10_minutes`, `changes_last_hour`,
@@ -285,32 +285,36 @@ user agent as a condition, you would use `deviceModel.userAgentParsed`.
   current city is "Los Alamos" which was last seen over 80 days ago, and
   represents 0.2% of the user's "City" usage.
 
-* Attributes: `asn_name`,`city`,`continent_code`, `country_code`,`dayOfWeek`,
-  `dayPart`,`deviceId`,`eventType`,`ip`,`ip_timezone_name`, `is_anonymous`,
-  `is_datacenter`,`is_proxy`,`is_tor`,`is_vpn`,`language`,`lieProbability`,`longitude`,`latitude`,`region_code`,
-  `state`,`system`,`time_zone_location`,`userAgentParsed`,`wagId`
+* Attributes: `asn_name`, `city`, `continent_code`, `country_code`, `dayOfWeek`,
+  `dayPart`, `deviceId`, `eventType`, `ip`, `ip_timezone_name`, `is_anonymous`,
+  `is_datacenter`, `is_proxy`, `is_tor`, `is_vpn`, `language`, `lieProbability`,
+  `longitude`, `latitude`, `region_code`, `state`, `system`,
+  `time_zone_location`, `userAgentParsed`, `wagId`
 
 * **Sub-Attributes**: Each attribute has a list of every value ever associated
   with the user, detailed metrics therein, and the following:
 
-* `_count` : Number of times this attribute has been seen
-* `_count_10_minutes` : Number of times this attribute has been seen in the last 10 minutes
-* `_count_1_hour` : Number of times this attribute has been seen in the last hour
-* `_count_24_hours` : Number of times this attribute has been seen in the last 24 hours
-* `_count_1_month` : Number of times this attribute has been seen in the last month
+* `_count`: Number of times this attribute has been seen
+* `_count_10_minutes`: Number of times this attribute has been seen in the last
+  10 minutes
+* `_count_1_hour`: Number of times this attribute has been seen in the last hour
+* `_count_24_hours`: Number of times this attribute has been seen in the last 24
+  hours
+* `_count_1_month`: Number of times this attribute has been seen in the last
+  month
 * `_lastdate`: The last date this attribute was seen
 * `_lastentry`: The last value for this attribute provided by this user (e.g.
   with `city` it might be "Paris")
-* `_unique`: The number of unique entries for an attribute for this user (if
-  the user has logged events in 4 differennt cities - the number would be 4)
-* `_unique_10_minutes`: The number of unique entries for an attribute for this user
-  in the last 10 minutes
+* `_unique`: The number of unique entries for an attribute for this user (if the
+  user has logged events in 4 differennt cities - the number would be 4)
+* `_unique_10_minutes`: The number of unique entries for an attribute for this
+  user in the last 10 minutes
 * `_unique_1_hour`: The number of unique entries for an attribute for this user
   in the last hour
-* `_unique_24_hours`: The number of unique entries for an attribute for this user
-  in the last day
-* `_unique_1_month`: The number of unique entries for an attribute for this
-  user in the last month
+* `_unique_24_hours`: The number of unique entries for an attribute for this
+  user in the last day
+* `_unique_1_month`: The number of unique entries for an attribute for this user
+  in the last month
 
 * **Value-Attributes**: Each entry for an attribute (e.g. "Dallas" under the
   attribute "city") has the following properties:
