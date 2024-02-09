@@ -184,15 +184,15 @@ user agent as a condition, you would use `deviceModel.userAgentParsed`.
   For example:
 
 ```javascript
-// `_usage_` represents the total event count, while `_unique_` indicates the count of unique user IDs
+// `_usage` represents the total event count, while `_unique` indicates the count of unique user IDs
 
 "events": {
     "login": {
         "ivy-mike": 240,
         "leo-tzillard": 1,
         "enrico-fermi": 29,
-        "_usage_": 270,
-        "_unique_": 3
+        "_usage": 270,
+        "_unique": 3
     },
 }
 ```
@@ -218,26 +218,26 @@ user agent as a condition, you would use `deviceModel.userAgentParsed`.
 
 * `device`: Count of events, denials, and denial percentages incurred by _this_
   device
-  - `_denials_10_min_`: Number of denials this device has hit in the last 10
+  - `_denials_10_minutes`: Number of denials this device has hit in the last 10
     minutes
-  - `_denials_hour_`: Number of denials this device has incurred in the last
+  - `_denials_hour`: Number of denials this device has incurred in the last
     hour
-  - `_denials_day_`: Number of denials this device has incurred in the last 24
+  - `_denials_24_hours`: Number of denials this device has incurred in the last 24
     hours
-  - `_denials_all_`: Number of denials this device has ever incurred
-  - `_totals_10_min_`: Number of events this device has created in the last 10
+  - `_denials_all`: Number of denials this device has ever incurred
+  - `_totals_10_minutes`: Number of events this device has created in the last 10
     minutes
-  - `_totals_hour_`: Number of events this device has created in the last hour
-  - `_totals_day_`: Number of events associated with this device in the last 24
+  - `_totals_hour`: Number of events this device has created in the last hour
+  - `_totals_24_hours`: Number of events associated with this device in the last 24
     hours
-  - `_totals_all_` Number of events associated with this device for all time
-  - `_percent_denial_10_min_`: Percent of events denied on this device in the
+  - `_totals_all` Number of events associated with this device for all time
+  - `_percent_denial_10_minutes`: Percent of events denied on this device in the
     last 10 minutes
-  - `_percent_denial_hour_`: Percent of events denied on this device in the last
+  - `_percent_denial_hour`: Percent of events denied on this device in the last
     60 minutes
-  - `_percent_denial_day_`: Percent of events denied on this device in the last
+  - `_percent_denial_24_hours`: Percent of events denied on this device in the last
     24 hours
-  - `_percent_denial_all_`: Percent of events denied on this device for all time
+  - `_percent_denial_all`: Percent of events denied on this device for all time
   - `events`: Same information as above, but broken out by 'eventType'
   - `uniqueUser`: Count of unique users using this device in the last 10
     minutes, hour, day, or ever. For both totals and denials. E.G. how many
@@ -268,7 +268,8 @@ user agent as a condition, you would use `deviceModel.userAgentParsed`.
 
 * Attributes: `asn_name`,`city`,`continent_code`, `country_code`,`dayOfWeek`,
   `dayPart`,`deviceId`,`eventType`,`ip`,`ip_timezone_name`, `is_anonymous`,
-  `is_datacenter`,`is_proxy`,`is_tor`,`is_vpn`,`language`,`lieProbability`,`longitude`,`latitude`,`region_code`,`state`,`system`,`time_zone_location`,`userAgentParsed`,`wagId`
+  `is_datacenter`,`is_proxy`,`is_tor`,`is_vpn`,`language`,`lieProbability`,`longitude`,`latitude`,`region_code`,
+  `state`,`system`,`time_zone_location`,`userAgentParsed`,`wagId`
 
 * Sub-Attributes: All of the attributes listed above have the following
   properties: `changes_last_10_minutes`, `changes_last_hour`,
@@ -286,26 +287,29 @@ user agent as a condition, you would use `deviceModel.userAgentParsed`.
 
 * Attributes: `asn_name`,`city`,`continent_code`, `country_code`,`dayOfWeek`,
   `dayPart`,`deviceId`,`eventType`,`ip`,`ip_timezone_name`, `is_anonymous`,
-  `is_datacenter`,`is_proxy`,`is_tor`,`is_vpn`,`language`,`lieProbability`,`longitude`,`latitude`,`region_code`,`state`,`system`,`time_zone_location`,`userAgentParsed`,`wagId`
+  `is_datacenter`,`is_proxy`,`is_tor`,`is_vpn`,`language`,`lieProbability`,`longitude`,`latitude`,`region_code`,
+  `state`,`system`,`time_zone_location`,`userAgentParsed`,`wagId`
 
 * **Sub-Attributes**: Each attribute has a list of every value ever associated
   with the user, detailed metrics therein, and the following:
 
-* `_count_` : Number of this this attribute has been seen
-* `_lastdate_`: The last date this attribute was seen
-* `_lastentry_`: The last value for this attribute provided by this user (e.g.
+* `_count` : Number of times this attribute has been seen
+* `_count_10_minutes` : Number of times this attribute has been seen in the last 10 minutes
+* `_count_1_hour` : Number of times this attribute has been seen in the last hour
+* `_count_24_hours` : Number of times this attribute has been seen in the last 24 hours
+* `_count_1_month` : Number of times this attribute has been seen in the last month
+* `_lastdate`: The last date this attribute was seen
+* `_lastentry`: The last value for this attribute provided by this user (e.g.
   with `city` it might be "Paris")
-* `_maxentry_`: The _largest_ value ever associated with this user for this
-  attribute (e.g. for `city` it might be "Zurich")
-* `_unique_`: The number of unique entries for an attribute for this user (if
+* `_unique`: The number of unique entries for an attribute for this user (if
   the user has logged events in 4 differennt cities - the number would be 4)
-* `_unique_10_min_`: The number of unique entries for an attribute for this user
+* `_unique_10_minutes`: The number of unique entries for an attribute for this user
   in the last 10 minutes
-* `_unique_1_hr_`: The number of unique entries for an attribute for this user
+* `_unique_1_hour`: The number of unique entries for an attribute for this user
   in the last hour
-* `_unique_24_hr_`: The number of unique entries for an attribute for this user
+* `_unique_24_hours`: The number of unique entries for an attribute for this user
   in the last day
-* `_unique_1_month_`: The number of unique entries for an attribute for this
+* `_unique_1_month`: The number of unique entries for an attribute for this
   user in the last month
 
 * **Value-Attributes**: Each entry for an attribute (e.g. "Dallas" under the
