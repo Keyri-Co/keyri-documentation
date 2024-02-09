@@ -74,8 +74,8 @@ verification.
   "rule": "too_many_user_denials",
   "conditions": {
     "$or": [
-      { "historicalData.user._denials_10_min_": { "$gte": 3 } },
-      { "historicalData.user._denials_hour_": { "$gte": 5 } }
+      { "historicalData.user._denials_10_minutes": { "$gte": 3 } },
+      { "historicalData.user._denials_hour": { "$gte": 5 } }
     ]
   },
   "outcome": "deny",
@@ -94,9 +94,9 @@ verification.
 - `strength`: Doesn't have to be set. We're letting it default to 1.
 - `conditions`: Defines the criteria for the rule. In this case they're nested
   in an "or" array so if any are true - the whole rule returns as true
-  - `historicalData.user._denials_10_min_`: If there are more than 2 denials in
+  - `historicalData.user._denials_10_minutes`: If there are more than 2 denials in
     10 minutes on this IP - block it for 10 minutes
-  - `historicalData.user._denials_hour_`: If there are more than 4 denials in 1
+  - `historicalData.user._denials_hour`: If there are more than 4 denials in 1
     hour on this IP - block it for an hour
 
 ---
@@ -119,8 +119,8 @@ minutes, an hour, etc.
   "rule": "too_many_ip_denials",
   "conditions": {
     "$or": [
-      { "historicalData.ip._denials_10_min_": { "$gte": 3 } },
-      { "historicalData.ip._denials_hour_": { "$gte": 10 } }
+      { "historicalData.ip._denials_10_minutes": { "$gte": 3 } },
+      { "historicalData.ip._denials_hour": { "$gte": 10 } }
     ]
   },
   "outcome": "deny",
@@ -139,9 +139,9 @@ minutes, an hour, etc.
 - `strength`: Doesn't have to be set. We're letting it default to 1.
 - `conditions`: Defines the criteria for the rule. In this case they're nested
   in an "or" array so if any are true - the whole rule returns as true
-  - `historicalData.ip._denials_10_min_`: If there are more than 2 denials in 10
+  - `historicalData.ip._denials_10_minutes`: If there are more than 2 denials in 10
     minutes on this IP - block it
-  - `historicalData.ip._denials_hour_`: If there are more than 9 denials in 1
+  - `historicalData.ip._denials_hour`: If there are more than 9 denials in 1
     hour on this IP - block it
 
 ---
@@ -164,8 +164,8 @@ we'll want to deny.
   "rule": "too_many_ip_addresses",
   "conditions": {
     "$or": [
-      { "historicalData.user.uniqueIp._totals_day_": { "$gte": 4 } },
-      { "historicalData.device.uniqueIp._totals_day_": { "$gte": 4 } }
+      { "historicalData.user.uniqueIp._totals_24_hours": { "$gte": 4 } },
+      { "historicalData.device.uniqueIp._totals_24_hours": { "$gte": 4 } }
     ]
   },
   "outcome": "deny",
@@ -184,9 +184,9 @@ we'll want to deny.
 - `strength`: Doesn't have to be set. We're letting it default to 1.
 - `conditions`: Defines the criteria for the rule. In this case they're nested
   in an "or" array so if any are true - the whole rule returns as true
-  - `historicalData.user.uniqueIp._totals_day_`: If there are more than 3 IP
+  - `historicalData.user.uniqueIp._totals_24_hours`: If there are more than 3 IP
     Addresses for this user in 24 hours - block it
-  - `historicalData.device.uniqueIp._totals_day_`: If there are more than 3 IP
+  - `historicalData.device.uniqueIp._totals_24_hours`: If there are more than 3 IP
     Addresses for this device in 24 hours - block it
 
 ### Block Users on New Device and VPN
@@ -308,7 +308,7 @@ amounts a given user has transacted over a period of time.
         "2500": {
           "$lte": {
             "$sum": [
-              "userModel.metadata.amount._sum_24_hr_",
+              "userModel.metadata.amount._sum_24_hours",
               "eventMetadata.amount"
             ]
           }
