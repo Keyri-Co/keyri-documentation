@@ -2,5 +2,6 @@
   "getting-started": "Getting Started",
   "web-app-setup": "Web App Setup",
   "mobile-app-setup": "Mobile App Setup",
-  "server-setup": "Server Setup"
+  "server-setup": "Server Setup",
+  "risk-rules": "Risk Rules Engine"
 }

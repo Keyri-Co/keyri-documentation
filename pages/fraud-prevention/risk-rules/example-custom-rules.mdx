@@ -1,0 +1,437 @@
+# Custom Rules - Examples
+
+Here you'll find example solutions to common problems as copy-and-paste code
+snippets with explanations. These can be used both with our no-code rule builder
+and
+[low-code rule builder](/fraud-prevention/custom-rules/low-code-rule-builder).
+
+## General Rules
+
+### Reduce False Positives
+
+Everyone hates captchas, especially when they're not doing anything suspicious
+on a site they visit frequently. You can enhance the user experience
+significantly by implementing this simple rule. It allows known good users
+(probably 98%) to bypass certain checks, reserving stricter measures for those
+you're less certain about.
+
+#### How it Works
+
+If you've seen user `a@b.com` on device `abc123` 15 times in the last 3 months,
+you can be fairly certain they're not a bad actor, and they can supersede any
+other rules that might have been triggered.
+
+#### Code
+
+```json copy
+{
+  "rule": "established_user_device_allow",
+  "conditions": {
+    "deviceModel.deviceAgeUser": { "$gte": 7 },
+    "deviceModel.daysUserSeenOnDeviceCount": { "$gte": 2 },
+    "deviceModel.lieProbability": { "$lte": 0.2 }
+  },
+  "outcome": "allow",
+  "signal": "established_user_device_allow",
+  "enabled": true,
+  "strength": 2
+}
+```
+
+#### Explanation
+
+- `rule`: The name of the rule, here it's "established_user_device_allow".
+- `outcome`: Set to "allow", so if the rule evaluates to true, the event is
+  allowed.
+- `strength`: A value of 2 means it will override other rules with a lower
+  strength.
+- `conditions`: Defines the criteria for the rule:
+  - `deviceModel.deviceAgeUser`: If the device and user combo is older than 6
+    days, it returns true.
+  - `deviceModel.daysUserSeenOnDeviceCount`: If the user has appeared on this
+    device on 2 or more distinct days, it returns true.
+  - `deviceModel.lieProbability`: The likelihood of device tampering should be
+    under 20% to return true.
+
+---
+
+### Automatically Block Users With Too Many Denials
+
+You don't want to give bad actors unlimited attempts to try logging into a
+user's account, right? The best policy is to lock the user's account.
+
+#### How It Works
+
+You're blocking User ID's with more than `count` denials in a given period.
+After too many denials occur for this account - it can't be used for 10 minutes,
+an hour, a day, or until the user provides some additional guidance and
+verification.
+
+#### Code
+
+```json copy
+{
+  "rule": "too_many_user_denials",
+  "conditions": {
+    "$or": [
+      { "historicalData.user._denials_10_min_": { "$gte": 3 } },
+      { "historicalData.user._denials_hour_": { "$gte": 5 } }
+    ]
+  },
+  "outcome": "deny",
+  "signal": "deny_user_id_list",
+  "enabled": true,
+  "strength": 2
+}
+```
+
+#### Explanation
+
+- `rule`: The name of the rule, here it's "too_many_user_denials" (name it
+  whatever you want).
+- `outcome`: Set to "deny", so if the rule evaluates to true, the event is
+  denied.
+- `strength`: Doesn't have to be set. We're letting it default to 1.
+- `conditions`: Defines the criteria for the rule. In this case they're nested
+  in an "or" array so if any are true - the whole rule returns as true
+  - `historicalData.user._denials_10_min_`: If there are more than 2 denials in
+    10 minutes on this IP - block it for 10 minutes
+  - `historicalData.user._denials_hour_`: If there are more than 4 denials in 1
+    hour on this IP - block it for an hour
+
+---
+
+### Automatically Block Abusive IP Addresses
+
+If the IP Address you're evaluating is associated with 326 login denials in last
+24 hours, you probably don't want to let any one use it, right?
+
+#### How It Works
+
+You're blocking IP Addresses with more than `count` denials in a given period.
+After too many denials occur on the IP Address - nobody can use it for 10
+minutes, an hour, etc.
+
+#### Code
+
+```json copy
+{
+  "rule": "too_many_ip_denials",
+  "conditions": {
+    "$or": [
+      { "historicalData.ip._denials_10_min_": { "$gte": 3 } },
+      { "historicalData.ip._denials_hour_": { "$gte": 10 } }
+    ]
+  },
+  "outcome": "deny",
+  "signal": "deny_ip_list",
+  "enabled": true,
+  "strength": 2
+}
+```
+
+#### Explanation
+
+- `rule`: The name of the rule, here it's "too_many_ip_denials" (name it
+  whatever you want).
+- `outcome`: Set to "deny", so if the rule evaluates to true, the event is
+  denied.
+- `strength`: Doesn't have to be set. We're letting it default to 1.
+- `conditions`: Defines the criteria for the rule. In this case they're nested
+  in an "or" array so if any are true - the whole rule returns as true
+  - `historicalData.ip._denials_10_min_`: If there are more than 2 denials in 10
+    minutes on this IP - block it
+  - `historicalData.ip._denials_hour_`: If there are more than 9 denials in 1
+    hour on this IP - block it
+
+---
+
+### Too Many IP Changes
+
+If the user or device coming in has been on 10 or more IP addresses over the
+course of the day, you might want to engage in step-up-authentication, as this
+is pretty suspicious.
+
+#### How It Works
+
+If the user or device has been on 4 or more unique IP Addresses in 24 hours,
+we'll want to deny.
+
+#### Code
+
+```json copy
+{
+  "rule": "too_many_ip_addresses",
+  "conditions": {
+    "$or": [
+      { "historicalData.user.uniqueIp._totals_day_": { "$gte": 4 } },
+      { "historicalData.device.uniqueIp._totals_day_": { "$gte": 4 } }
+    ]
+  },
+  "outcome": "deny",
+  "signal": "deny_ip_list",
+  "enabled": true,
+  "strength": 2
+}
+```
+
+#### Explanation
+
+- `rule`: The name of the rule, here it's "too_many_ip_denials" (name it
+  whatever you want).
+- `outcome`: Set to "deny", so if the rule evaluates to true, the event is
+  denied.
+- `strength`: Doesn't have to be set. We're letting it default to 1.
+- `conditions`: Defines the criteria for the rule. In this case they're nested
+  in an "or" array so if any are true - the whole rule returns as true
+  - `historicalData.user.uniqueIp._totals_day_`: If there are more than 3 IP
+    Addresses for this user in 24 hours - block it
+  - `historicalData.device.uniqueIp._totals_day_`: If there are more than 3 IP
+    Addresses for this device in 24 hours - block it
+
+### Block Users on New Device and VPN
+
+Leverage the `threat` object to determine whether the user is using a VPN and
+the `changed` boolean value under `deviceUsers` to determine whether that
+user-device combination is new.
+
+```json copy
+{
+  "rule": "New Device and VPN - deny",
+  "conditions": {
+    "$and": [
+      {
+        "instanceDeltas.deviceUsers.changed": {
+          "$eq": true
+        }
+      },
+      {
+        "threat.is_vpn": {
+          "$eq": true
+        }
+      }
+    ]
+  },
+  "outcome": "deny",
+  "signal": "new_device_and_vpn",
+  "enabled": true,
+  "strength": 2
+}
+```
+
+### Only Allow Users from a Certain Country
+
+The following rule will only allow users from the US to access your site. The
+user's country is denoted in the `ipGeoData.country_code` property.
+
+```json copy
+{
+  "rule": "Only allow users from the US",
+  "conditions": {
+    "ipGeoData.country_code": {
+      "$ne": "US"
+    }
+  },
+  "outcome": "block",
+  "signal": "only_allow_users_from_us",
+  "enabled": true,
+  "strength": 2
+}
+```
+
+### Override Keyri's Risk Determination with your Own Risk Model
+
+If you already have a risk model, you can use it in conjunction with Keyri
+rulesets or use its determination to simply override Keyri's determination. Pass
+in your risk score as metadata and use it in your ruleset. In this example,
+we're overriding Keyri if the risk score from your model is very low. It has a
+`strength` value of 2 to override rules with the default strength value of 1.
+
+```json copy
+{
+  "rule": "Override Keyri with own risk model",
+  "conditions": {
+    "$and": [
+      {
+        "metadata.riskScore": {
+          "$lte": 5
+        }
+      }
+    ]
+  },
+  "outcome": "allow",
+  "signal": "override_keyri_with_own_risk_model",
+  "strength": 10,
+  "enabled": true
+}
+```
+
+## Financial Rules
+
+### Limit Transactions to a Certain Amount
+
+If you want to limit the amount of money that can be transferred in a single
+event, you can add metadata when triggering the event to indicate the amount. Be
+sure to name the metadata field the same as the one in the rule. Here's it's
+named `amount`.
+
+```json copy
+{
+  "rule": "Transaction threshold - $1000",
+  "conditions": {
+    "$and": [
+      {
+        "eventMetadata.amount": {
+          "$gt": 1000
+        }
+      }
+    ]
+  },
+  "outcome": "deny",
+  "signal": "Transaction_threshold_exceeded",
+  "enabled": true,
+  "strength": 2
+}
+```
+
+### Limit Transaction Totals over a Period of Time
+
+You can use built-in math functionality to query and sum the total value of the
+amounts a given user has transacted over a period of time.
+
+```json copy
+{
+  "rule": "24-hour spend threshold - $2500",
+  "conditions": {
+    "$and": [
+      {
+        "2500": {
+          "$lte": {
+            "$sum": [
+              "userModel.metadata.amount._sum_24_hr_",
+              "eventMetadata.amount"
+            ]
+          }
+        }
+      },
+      {
+        "eventMetadata.amount": {
+          "$gt": 0
+        }
+      }
+    ]
+  },
+  "outcome": "deny",
+  "signal": "24-hour_spend_threshold_exceeded",
+  "enabled": true,
+  "strength": 2
+}
+```
+
+### Block High-Value Transactions from a New Country
+
+Use this rule to block a high-value transaction from a country that the user has
+never been in before.
+
+```json copy
+{
+  "rule": "new_country_high_value_txn",
+  "conditions": {
+    "$and": [
+      {
+        "instanceDeltas.country_code.changed": { "$eq": true }
+      },
+      {
+        "eventMetadata.amount": { "$gte": 10000 }
+      }
+    ]
+  },
+  "outcome": "deny",
+  "signal": "high_value_new_country",
+  "enabled": true,
+  "strength": 2
+}
+```
+
+### Transaction Anomaly Detection
+
+Your compliance rules say that a user can't have more than 5 transactions over
+$1,000 in a 72 hour time period. Here's how you can do that:
+
+```json copy
+{
+  "rule": "Transaction Anomaly Detected", // This is the rule's name
+  "outcome": "deny", // This is what happens if our "conditions" are true
+  "signal": "transaction_anomaly_detected", // The string that will be returned to you if the rule is triggered
+  "enabled": true, // This means the rule is to be used if it is true
+  "strength": 2, // This means the rule overrides anything with a strength < 2
+  "conditions": {
+    // This defines the rule's logic - it resolves to true or false
+    "$transform": [
+      // Add the number 4 to the object for later use as 'testValue'
+      { "testValue": 4 },
+      // Put the value from the following calculation on the object
+      // as 'actualValue'
+      {
+        "actualValue": {
+          // glorified "sumIf" function
+          "$reduce": {
+            // What field are we summing?
+            "input": "userModel.rawMetaData",
+            // What number do we want to start with
+            "initialValue": 0,
+            // What criteria does each element need to meet to
+            // added to the total?
+            "conditions": {
+              // This is an explicit 'AND' so all things must
+              // be true
+              "$and": [
+                // the 'value' field must be >= 500
+                { "value": { "$gte": 500 } },
+                // the 'attribute' field must EQUAL the
+                // string 'metadata.amount' for this example
+                { "attribute": { "$eq": "metadata.amount" } },
+                // the 'hoursAgo' field must be >= 0
+                { "hoursAgo": { "$gte": 0 } },
+                // the 'hoursAgo' field must be <= 72
+                { "hoursAgo": { "$lte": 72 } }
+              ]
+            },
+            // What do we want to do to each element that meets
+            // our criteria?
+            "math": {
+              // We're to sum ('$sum') the running total ('$$value')
+              // and the value of the element's 'count' field
+              "$sum": ["$$value", "count"]
+            }
+          }
+        }
+      }
+    ],
+    // We're out of the "$transform" function and can now do logic
+    // against the values we added to the object ("actualValue", "testValue")
+    "$and": [
+      // If the "actualValue" (the sumIf) >= "testValue" (4)
+      { "actualValue": { "$gte": "testValue" } },
+      // AND the "eventMetadata.amount" >= 500
+      { "eventMetadata.amount": { "$gte": 500 } }
+    ]
+  }
+}
+```
+
+This one is verbose - but not really that bad once you see what's going on.
+
+#### Explanation
+
+- `rule`: The name of the rule, here it's "Transaction Anomaly Detected" (name
+  it whatever you want).
+- `outcome`: Set to "deny", so if the rule evaluates to true, the event is
+  denied.
+- `strength`: Optional. Determines the overriding behavior of this rule over
+  others of lesser strength.
+- `conditions`: Defines the criteria for the rule.
+  - `$transform`: This function is an array of things that you want _add_ to the
+    object, or things you want to update. In this case, we're writing the number
+    `4` directly to the object so we can use it in logic later. We're also
+    summing up all transactions with the `reduce` function.

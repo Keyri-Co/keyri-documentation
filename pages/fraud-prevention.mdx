@@ -1,0 +1,119 @@
+---
+description:
+  Keyri provides powerful fingerprinting for mobile and web applications to
+  power real-time fraud prevention.
+---
+
+import { Steps } from 'nextra/components';
+
+# Real-Time Fraud Prevention
+
+Keyri's fraud prevention platform provides a way to monitor user events across
+devices and sessions and provides associated risk signals to prevent fraud in
+real time. The basis for Keyri's solution falls into three categories: data
+ingestion, risk analysis, and event decisioning.
+
+- **Data Ingestion**: Keyri's mobile SDKs and JavaScript libraries ingest two
+  categories of data, device-based data and contextual IP/location-based data.
+  The Keyri mobile SDKs provide useful methods for permanently associating users
+  with their devices, and our JavaScript fingerprinting library is used to
+  fingerprint your users' browsers, whether they're on incognito/private
+  browsing or not. Keyri additionally ingests and generates intelligence on IP,
+  location, and country of access to block known attacker IPs and flag suspect
+  networks.
+- **Risk Analysis**: Keyri's system ingests data and associates it with events.
+  Data from each event is then analyzed and run through both pre-configured and
+  customized [risk rules](/fraud-prevention/risk-rules), taking into
+  consideration device, account history, and IP-based signals, to determine the
+  risk of each event in conjunction with machine-learning-based anomaly
+  detection.
+- **Event Determination & Real-Time Prevention**: Keyri's system then provides
+  full customizability to allow, warn, or deny users in real-time based on on
+  your risk signal settings specified in the dashboard.
+
+## Use Cases
+
+A list of common attack vectors addressed by Keyri can be found below, but it is
+first helpful to cover certain attack vectors that Keyri is uniquely positioned
+to prevent:
+
+- **Avoid fraudulent multiple account creation**: Stop users from creating
+  multiple accounts to exploit your app for nefarious purposes such as signup
+  bonus abuse or free trial abuse. During your registration flow, detect in the
+  background even in an unauthenticated state, whether the user has used an
+  account for your service in the past regardless of what credentials they are
+  using to register the new account. While the user goes through your
+  registration flow, you can call methods in the Keyri mobile SDK (on mobile) or
+  our Javascript fingerprinting agent, and if they return an account or list of
+  accounts that have been used on that device before, you can suggest or force
+  the user to log into one of those existing accounts, even if they used a
+  different email address or phone number to attempt registering the new
+  account.
+
+- **Permaban bad actors**: While you can easily ban individual bad actor
+  accounts by changing their account profiles or access rights, those same
+  individuals can simply create new accounts and sockpuppets. Keyri
+  fingerprinting utilities can help you ensure that, for this group of users,
+  creating a new account is more difficult than simply providing new
+  credentials, such as a different email address, phone number, or a fresh
+  re-installation of your app. Regardless of what new credentials or account
+  identifiers these bad actors input while registering a new account, Keyri
+  utilities will inform you that they have already created at least one account
+  before.
+
+- **Avoid accidental multiple account creation**: Using the same
+  existing-account-detection functionality outlined above, you can suggest or
+  force the user to log into one of their existing accounts, even if they used a
+  different email address or phone number to attempt registering the new
+  account.
+
+### Common Attack Vectors
+
+| Attack Type                   | Description                                                                                                                                                                                                                                                                                    |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Account Selling               | Scammers purchase accounts from real users and leverage these accounts for nefarious activity.                                                                                                                                                                                                 |
+| API Abuse                     | Attackers can use automated scripts to abuse certain API functionality or limit service activity.                                                                                                                                                                                              |
+| Application Code Tampering    | Attackers will alter a mobile application's source code with malicious intent and repackage it to resemble the original. This attack can be used to steal sensitive credentials and account information.                                                                                       |
+| Bot Attacks                   | Bots can replicate human behavior to create fraudulent accounts, or perform other malicious activity on applications.                                                                                                                                                                          |
+| Brute Force Cracking          | Attackers apply guess and check algorithms to decipher previously stolen password hashes or systematically guess users login credentials.                                                                                                                                                      |
+| Credential Compromise         | Attackers successfully gain access to a user's account credentials to login.                                                                                                                                                                                                                   |
+| Credential Sharing            | Willful credential sharing by an individual with an unauthorized individual.                                                                                                                                                                                                                   |
+| Credential Stuffing           | Bots attempt large-scale logins to verify lists of usernames and passwords from a breach of a service into another service's authentication prompt. This attack exploits the fact that people reuse passwords across different services.                                                       |
+| Jailbroken / Rooted Device    | These devices are susceptible to malware and viruses due to weakened built-in security features of the devices. These devices have compromised Keystores which put credentials at risk. Numerous digital fraud cases on jailbroken and rooted devices have been noted by banking institutions. |
+| Malicious Application Layover | Overlay attacks use malicious applications to display content over another legitimate application to copy keystrokes and gain access sensitive credentials. These are generally more prevalent on Android devices.                                                                             |
+| Malware                       | Attackers use malware, such as keyloggers, spyware, and trojans, to gain unauthorized access to a user’s account. This malware is typically installed on users' devices and captures sensitive login credentials or active session tokens.                                                     |
+| Man-in-the -Middle            | Attackers position themselves in between the user and the system so that they can intercept and alter data traveling between them.                                                                                                                                                             |
+| Online Banking Fraud          | Scammers with compromised user credentials access banking applications to execute fraudulent payments and withdrawals.                                                                                                                                                                         |
+| Phishing                      | Scammers send emails or other messages disguised as legitimate communication from a trusted company. These often contain links to fake websites set up to capture login credentials from users.                                                                                                |
+| Session Hijacking             | Attackers exploit a user's web session control mechanism to gain access to a session token, and thus access to an application.                                                                                                                                                                 |
+| SIM Swapping                  | Scammers impersonate the user to convince their mobile service provider to transfer the phone number to a new SIM card controlled by the attacker, which allows them to intercept SMS OTP codes and access the user's account.                                                                 |
+| Social Engineering            | Scammers pose as customer service representatives to deceive and trick users into divulging sensitive information or grant unauthorized access to their accounts.                                                                                                                              |
+
+## Usage
+
+<Steps>
+### Get device fingerprint data
+
+Use the [Keyri SDKs](/fraud-prevention/mobile-app-setup) (on native mobile apps)
+or [JavaScript library](/fraud-prevention/web-app-setup.) (on web apps) to get
+device fingerprint data.
+
+### Send device fingerprint data to your server
+
+Add the device fingerprint data to your client app's normal request payload. For
+example, if you want to analyze the risk of a login event, add the device
+fingerprint data to the login request.
+
+### Send the data to Keyri
+
+Add details about the event, such as the event type, user ID, and any metadata
+you want to include, and
+[send it to Keyri's API](/fraud-prevention/server-setup).
+
+### Keyri returns risk details
+
+The Keyri API returns risk details about the event, including the overall risk
+determination, device information, user history information, etc. Parse the
+object and use the risk determination to make a decision about the event.
+
+</Steps>

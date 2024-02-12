@@ -1,0 +1,119 @@
+import { Callout } from 'nextra-theme-docs';
+
+# Fraud Analytics Server-Side Setup
+
+For analysis of the object created by the client, you will need to hit our REST
+API with a payload that is outlined below.
+
+## Node.js Example
+
+If your backend uses a different framework, feel free to reach out to
+support@keyri.com for specific code and guidance.
+
+### Request
+
+Please be sure to have read the client-side setup documentation
+([web](/fraud-prevention/web-fingerprinting) or
+[mobile](/fraud-prevention/mobile-fingerprinting)) before proceeding.
+
+```javascript copy
+const url = 'https://fp.keyri.com/v1/client';
+
+// Create Payload
+const sendBody = {
+  // this comes from the client application
+  encryptedB64Payload: 'eyJjbGllbnRFbmNyeX...U4UmVJK09wOHc9PSJ9',
+  // the string "undefined" is special. It tells our API to give the user
+  // the same "userId" as their "deviceId"
+  userId: 'undefined',
+  // This can be anything - but "visits","login","signup","access" are common.
+  eventType: 'visit',
+  // This can be anything you want to use for later analytics or rules
+  metadata: { key: 'value' },
+  // We need you to give us the IP address of the client
+  ipAddress,
+  // We need you to give us the headers the client gave you
+  headers: event.headers,
+  // This is your public encryption key. (app.keyri.com > setup & credentials > Service Encryption Key)
+  Service_Encryption_Key,
+  // If not provided, you'll have to decrypt the payload yourself
+  Service_Decryption_Key,
+};
+
+// Send and receive response
+let processedData = await fetch(url, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(sendBody),
+});
+
+let processedDataJson = await processedData.json();
+```
+
+### Response
+
+- `riskSummary`: Outcome based on your risk settings (e.g., "warn", "allow",
+  "deny").
+
+- `ipAddress`: Client's IP address.
+
+- `ipLocationData`: Geographical data derived from IP (city, region, country,
+  and time zone)
+
+- `userId`: User ID in your system.
+
+- `deviceId`: Unique device ID.
+
+- `wagId`: Liberal device ID - similar across browsers.
+
+- `signals`: Suspicious signals detected.
+
+- `trustScore`: A score between 0 and 1, based on browser metrics, behavioral
+  analytics, and Bayesian machine learning. A higher score indicates a "good"
+  user.
+
+- `changes`: Recorded changes to user or device.
+
+- `event_type`: Type of logged event.
+
+- `deviceAge`: Age of the device ID in _your_ service.
+
+- `globalDeviceAge`: Age of the device ID across _any_ service.
+
+- `timestamp`: Time of the API's assessment.
+
+- `clientPublicSignatureKey`: Key for verifying the encrypted object's
+  signature.
+
+- `instance`: Data available for rules engine processing.
+
+Example of a typical decrypted response:
+
+```json
+{
+    "ipAddress": "6.6.6.6",
+    "userId": "Bad@Guy.com",
+    "deviceId": "6c6d32ed-50...-c453429b3d5b",
+    "wagId": "NFDp7Gg0vv...MMAaDTKWP0=",
+    "signals": [
+        "multiple_account_signups_per_device",
+        "multiple_account_access_per_device"
+    ],
+    "trustScore": 0.11329117957360035,
+    "changes": [],
+    "event_type": "signup",
+    "deviceAge": 157.31792944444445,
+    "globalDeviceAge": 168.628485,
+    "timeStamp": 1688905691858,
+    "riskSummary": "deny",
+    "ipLocationData": {
+        "city": "Dallas",
+        "region": "Texas",
+        "country": "US",
+        "time_zone": "CDT"
+    },
+    "instance": {
+        ...
+    }
+}
+```
