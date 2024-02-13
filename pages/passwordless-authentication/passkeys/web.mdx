@@ -1,0 +1,535 @@
+# Passkey Setup on Main Web App
+
+This guide will walk you through the setup and installation process for the
+`keyri-auth-core` package. It is responsible for everything from creating your
+QR code to listening to events from the QR code to handling front-end passkey
+activities.
+
+## Installation
+
+To install the `keyri-auth-core` package, run the following command:
+
+```
+npm i keyri-auth-core
+```
+
+This command installs the package and its dependencies into your project.
+
+### Demonstration
+
+If you want to see a live example of how the `keyri-auth-core` package works all
+together, you can clone the following repository and install the required
+dependencies:
+
+```
+git clone https://github.com/Keyri-Co/keyri-hello-world
+```
+
+After cloning the repository, navigate to the project folder and run:
+
+```
+npm install
+```
+
+This command installs the necessary dependencies for the demonstration project.
+Once the installation is complete, you can explore the project to see how the
+keyri-auth-core package is utilized.
+
+## QR Code Widget Setup and Styling
+
+The following outlines how to set up an iframe to handle QR code creation for
+user authentication. We will discuss event handling in the following section
+titled "Event Handling."
+
+Create an HTML file and add the following boilerplate code:
+
+```html
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      crossorigin="anonymous"
+      media="all"
+      rel="stylesheet"
+      href="./css/qr.css"
+    />
+  </head>
+  <body>
+    <div class="pre-blurry" id="qr-target"></div>
+    <div id="qr-lay-over"></div>
+  </body>
+</html>
+```
+
+Add the script tag to import the library and set up the iframe:
+
+```html
+<script src="./dist/index.min.js"></script>
+<script type="module">
+  // Note: If you're using a build tool like webpack, you can
+  // import `IFrameManager` from 'keyri-auth-core'. If you're
+  // not using a modular approach, the global `KeyriFrontEnd`
+  // is exposed by the library.
+
+  const { IFrameManager } = KeyriFrontEnd;
+  const iFrameManager = new IFrameManager();
+  await iFrameManager.start();
+</script>
+```
+
+This code initializes the iframe manager for QR code authentication. The
+IFrameManager is either imported from the keyri-auth-core library or accessed
+through the global KeyriFrontEnd object, depending on your project setup. The
+iframe manager is started using the start() method.
+
+### QR Code Styling (Optional)
+
+Below is an example of CSS styles that work well with the QR code iframe. Please
+note that these styles are not mandatory and can be customized to fit your
+preferences.
+
+```css copy
+/*
+* ***************************************************************************
+* CSS SUGGESTIONS THAT WE HAVE FOUND TO WORK WELL
+* BUT ARE BY NO MEANS MANDATORY
+* ***************************************************************************
+*/
+
+/* Set the dimensions and position of the QR overlay */
+#qr-lay-over {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+/* Set the dimensions and background size for the QR target */
+#qr-target {
+  height: 100%;
+  width: 100%;
+  z-index: -1;
+  background-size: 33%;
+}
+
+/* Define the blurOn animation for applying blur effect */
+@keyframes blurOn {
+  0% {
+    filter: opacity(1);
+  }
+  100% {
+    filter: opacity(0.3) blur(7px);
+  }
+}
+
+/* Define the blurOff animation for removing blur effect */
+@keyframes blurOff {
+  0% {
+    filter: opacity(0.3) blur(7px);
+  }
+  100% {
+    filter: opacity(1);
+  }
+}
+
+/* Apply initial blur effect to the QR target */
+.pre-blurry {
+  filter: opacity(0.3) blur(7px);
+}
+
+/* Apply the blurOn animation on the QR target when it becomes blurry */
+.blurry {
+  animation: blurOn 0.15s;
+  filter: opacity(0.3) blur(7px);
+}
+
+/* Apply the blurOff animation on the QR target when it becomes un-blurred */
+.off.blurry {
+  animation: blurOff 0.15s;
+  filter: opacity(1);
+}
+
+/* Set the reload background image and its properties */
+.reload {
+  background: url('https://static.keyri.com/library-keyri-connect/reload.svg');
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  background-size: contain;
+}
+
+/* Set the check background image and its properties */
+.check {
+  background: url('https://static.keyri.com/library-keyri-connect/check.svg');
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  background-size: contain;
+}
+
+/* Define the color animation for the QR code elements */
+rect:not(:first-child) {
+  animation: col 5s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+/* Set the color animation keyframes */
+@keyframes col {
+  0% {
+    fill: black;
+  }
+  100% {
+    fill: blue;
+  }
+}
+```
+
+## API Event Handling
+
+The `EventHandler` module simplifies the handling of events coming from the QR
+iframe. This guide demonstrates how to listen for each event.
+
+### Usage
+
+Import the `EventManager` class:
+
+```javascript
+const { EventManager } = KeyriFrontEnd;
+window.eventManager = new EventManager(window);
+```
+
+## Handle Keyri App-Based Validation
+
+Set a handler for standard Keyri App-Based Validation. The `detail.data`
+attribute of the event object contains the decrypted payload from mobile. In a
+production environment, you would send this to your server for verification and
+session management.
+
+```javascript
+window.addEventListener('qr_event_session_validate', async (evt) => {
+  // Notify the user of the event, e.g., through a modal or by reloading the page
+  alert('SESSION VALIDATE!!');
+
+  // Log the session validation event
+  console.log('SESSION VALIDATE', evt.detail.data);
+});
+```
+
+### Handle Risk Metrics
+
+If you are signed up for risk metrics, a base64 encoded risk detail object is
+made available to the browser, signed by the API, and twice by the browser. This
+can be sent to the server for analysis or decision-making.
+
+```javascript
+window.addEventListener('qr_event_risk_data', async (evt) => {
+  // Extract the risk data
+  let data = evt.detail.data.information.data;
+
+  // Log the risk data
+  console.log('RISK DATA', JSON.parse(atob(data)));
+});
+```
+
+## Handle Errors from the QR
+
+Set a handler for any errors coming out of the QR.
+
+```javascript
+window.addEventListener('qr_event_socket_error', async (evt) => {
+  // Display the error to the user
+  alert(evt?.detail?.data);
+});
+```
+
+### Listen for Passkey Framework Events
+
+#### User Logins
+
+Listen for events coming from the passkey framework for user logins.
+
+```javascript
+window.addEventListener('qr_event_appless_login', async (evt) => {
+  // Parse Data from the Event
+  let data = JSON.parse(evt.detail.data);
+
+  // Hit the Relying Party's API with the provided information
+  let output = await localAppless.rp_validate_data(data);
+
+  // TODO: ERROR HANDLING!
+
+  // Let the user know that everything went to plan
+  alert('OK!');
+});
+```
+
+#### Registrations
+
+```javascript
+window.addEventListener('qr_event_appless_registration', async (evt) => {
+  // Log the event
+  console.log(evt);
+
+  // Notify the user
+  alert('PASSKEY LOG IN');
+});
+```
+
+## Export
+
+Export the module as default:
+
+```javascript
+export default true;
+```
+
+## Passkey Configuration
+
+This guide demonstrates how to use the `ApplessLocal` class to handle
+user-triggered events in your login page. The `ApplessLocal` class manages the
+following actions:
+
+- Local Passkey Creation
+- Local Passkey Verification
+- Mobile Web Passkey Creation
+- Mobile Web Passkey Verification
+
+### Usage
+
+Import the `ApplessLocal` class:
+
+If you're using WebKit:
+
+```javascript
+import { ApplessLocal } from 'keyri-auth-core';
+```
+
+Otherwise, access it through the global `KeyriFrontEnd` object:
+
+```javascript
+const { ApplessLocal } = KeyriFrontEnd;
+```
+
+Define the URL for mobile app authentication:
+
+```javascript
+const MobileAppUrl = 'http://localhost/mobile.html';
+```
+
+Instantiate the `ApplessLocal` class with the API Routes:
+
+```javascript
+let localAppless = new ApplessLocal(
+  './api/passkey/register',
+  './api/passkey/login'
+);
+```
+
+### Register a Logged-in User
+
+Create an async function to register a logged-in user:
+
+```javascript
+async function makeLocalPassKey(e) {
+  // Prevent the default behavior of the event
+  e.preventDefault();
+
+  // Replace {USER-SESSION-TOKEN} with the actual session token
+  let idToken = '{USER-SESSION-TOKEN}';
+
+  // Register the user using the ApplessLocal instance
+  await localAppless.register(idToken);
+
+  // In a production environment, you might reload the page or show a modal
+  // to inform the user about the successful registration
+  alert('LOCAL PASS KEY CREATED');
+}
+```
+
+### Authenticate an Existing User
+
+Create an async function to authenticate an existing user:
+
+```javascript
+async function authenticateLocalPasskey(e) {
+  // Prevent the default behavior of the event
+  e.preventDefault();
+
+  // Authenticate the user using the ApplessLocal instance
+  let authData = await localAppless.authenticate(true);
+
+  // In a production environment, you might reload the page
+  alert(authData.message);
+}
+```
+
+### Generate a URL for the iframe (Mobile Passkey)
+
+Create an async function to generate a URL for the iframe to register a mobile
+device:
+
+```javascript
+async function makeMobilePassKey(e) {
+  // Prevent the default behavior of the event
+  e.preventDefault();
+
+  // Replace {SESSION_TOKEN} with the actual session token
+  const SESSION_TOKEN = '{SESSION_TOKEN}';
+
+  // Get the iframe element to update for user registration
+  const QR_IFRAME = document.getElementById('qr-iframe');
+
+  // Prompt the user for a one-time PIN to prevent shoulder surfing
+  const ONE_TIME_PIN = prompt('Pick a number between 1 and 100');
+
+  // Build the query string for the iframe using the ApplessLocal instance
+  let QUERY_STRING = localAppless.registerMobile(SESSION_TOKEN, ONE_TIME_PIN);
+  let TMP_SRC = `./qr.html?mobile=${MobileAppUrl}&qsd=false&${QUERY_STRING}`;
+
+  // Set the 'src' attribute of the iframe, which takes the user to the mobile page
+  // where they can enter their passcode, submit biometrics, and register their device
+  QR_IFRAME.src = TMP_SRC;
+}
+```
+
+### Export Functions
+
+```javascript
+export { makeLocalPassKey, authenticateLocalPasskey, makeMobilePassKey };
+```
+
+By following this guide, you can handle user-triggered events on your login page
+using the `ApplessLocal` class.
+
+## Login Setup for QR Passkeys
+
+This example demonstrates how to create a login page with KeyriQR. It provides
+various authentication methods, including local passkeys, mobile registration,
+and app-based authentication.
+
+### HTML Structure
+
+The HTML structure includes an iframe for displaying the QR code, and a series
+of buttons for the available authentication methods.
+
+```html
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <title>QR - Demo</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      crossorigin="anonymous"
+      media="all"
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <main class="text-center">
+      <div>
+        <iframe
+          scrolling="no"
+          frameborder="0"
+          height="500"
+          width="500"
+          id="qr-iframe"
+        ></iframe>
+      </div>
+      <a
+        class="btn btn-lg btn-primary"
+        style="width: 100%; margin-bottom: 20px;"
+        id="makeLocalPassKey"
+        >CREATE LOCAL PASSKEY</a
+      >
+      <a
+        class="btn btn-lg btn-primary"
+        style="width: 100%; margin-bottom: 20px;"
+        id="authenticateLocalPasskey"
+        >SIGN-IN WITH LOCAL PASSKEY</a
+      >
+      <a
+        class="btn btn-lg btn-primary"
+        style="width: 100%; margin-bottom: 20px;"
+        id="registerAPhone"
+        >REGISTER A PHONE</a
+      >
+      <a
+        class="btn btn-lg btn-primary"
+        style="width: 100%; margin-bottom: 20px;"
+        id="signInWithPhone"
+        >SIGN IN WITH PHONE</a
+      >
+      <a
+        class="btn btn-lg btn-primary"
+        style="width: 100%; margin-bottom: 20px;"
+        id="signInWithApp"
+        >SIGN IN WITH APP</a
+      >
+    </main>
+  </body>
+</html>
+```
+
+### JavaScript
+
+The script handles the iframe source, imports the required modules, and assigns
+event listeners to the buttons.
+
+```javascript
+// Import event manager for handling events from the iframe
+import * as EventManager from './mjs/eventManager.mjs';
+
+// Import environment-specific variables, such as host, app key, and mobile URL
+import { host, appKey, mobile } from './mjs/keys.mjs';
+
+// Import local and appless authentication methods
+import {
+  makeLocalPassKey,
+  authenticateLocalPasskey,
+  makeMobilePassKey,
+} from './mjs/localAppless.mjs';
+
+// Build the iframe source URL with the necessary query parameters
+const iframeSrc = `./qr.html?qsd=false&Host=${host}&appKey=${appKey}&mobile=${mobile}`;
+
+// Set the source of the iframe to display the QR code
+const iframe = document.querySelector('iframe');
+iframe.src = iframeSrc;
+
+// Assign event listeners to the buttons for the various authentication methods
+document.getElementById('makeLocalPassKey').onclick = async (e) => {
+  await makeLocalPassKey(e);
+};
+
+document.getElementById('authenticateLocalPasskey').onclick = async (e) => {
+  await authenticateLocalPasskey(e);
+};
+
+document.getElementById('registerAPhone').onclick = async (e) => {
+  console.log('ding!');
+  await makeMobilePassKey(e);
+};
+
+document.getElementById('signInWithPhone').onclick = async (e) => {
+  alert('scan qr with a REGISTERED Phone');
+};
+
+document.getElementById('signInWithApp').onclick = async (e) => {
+  alert('scan qr with your APP!');
+};
+```
+
+This portion of the JavaScript code assigns event listeners to the buttons for:
+
+- Registering a Passkey locally
+- Using a Passkey locally
+- Registering a Passkey on your phone via QR
+- Scanning a QR with a Passkey registered phone
+- Scanning a QR with an app
