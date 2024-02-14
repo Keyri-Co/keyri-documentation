@@ -48,38 +48,49 @@ This will handle all links with the following scheme: `https://{yourCompany}.one
 In the AppDelegate where the processing of links is declared, you need to add handlers in the `application(_:continue:restorationHandler:)` method:
 
 <Tabs items={['Swift', 'Objective-C']}>
-    <Tab>
+<Tab>
 ```swift copy
-func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-    guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
-        let incomingURL = userActivity.webpageURL
-    else {
-        return false
+Scene {
+    WindowGroup {
+    ContentView()
+        .onOpenURL { url in
+            // Handle the deep link URL
+            processLink(url)
+        }
     }
-
-    process(url: incomingURL)
-
-    return true
 }
 
-func process(url: URL) {
-    let sessionId = URLComponents(url: url, resolvingAgainstBaseURL: true)?.queryItems?.first(where: { $0.name == "sessionId" })?.value ?? ""
+func processLink(url: URL) {
+    let appKey = "[Your appKey]" // Get this value from the Keyri Dashboard
+    let publicApiKey = "[Your publicApiKey]" // Get this optional value from the Keyri Dashboard for Fraud Prevention
+    let serviceEncryptionKey = "[Your serviceEncryptionKey]" // Get this optional value from the Keyri Developer Portal for Fraud Prevention
+    let publicUserId = "public-User-Id" // publicUserId is optional
     let payload = "Custom payload here"
-    let appKey = "App key here" // Get this value from the Keyri Developer Portal
 
-    let keyri = KeyriInterface(appKey: appKey) // Be sure to import the SDK at the top of the file
-    keyri.initiateQrSession(sessionId: sessionId, publicUserId: "TestUser") { sessionResult in
+    let sessionId = URLComponents(url: url, resolvingAgainstBaseURL: true)?.queryItems?.first(where: { $0.name == "sessionId" })?.value ?? ""
+
+    let keyri = KeyriInterface(appKey: appKey)
+
+    keyri.initiateQrSession(sessionId: sessionId, publicUserId: publicUserId) { sessionResult in
         switch sessionResult {
         case .success(let session):
             // You can optionally create a custom screen and pass the session ID there. We recommend this approach for large enterprises
+            keyri.initializeDefaultConfirmationScreen(session: session, payload: payload, completion: completion)
+
             // In a real world example you’d wait for user confirmation first
-            do {
-                try session.confirm(payload: payload, trustNewBrowser: true) // or session.deny()
-            } catch {
-                print(error)
-            }
+            session.confirm(payload: payload, trustNewBrowser: trustNewBrowser, completion: completion) // or session.deny(payload, completion)
         case .failure(let error):
-            print(error)
+            // On error
+        }
+    }
+
+    // Or delegate link processing to Keyri SDK
+    keyri.processLink(url, payload, publicUserId) { result in
+        switch result {
+            case .success:
+                // Successfully authenticated
+            case .failure(let error):
+                // On error
         }
     }
 }
@@ -88,6 +99,45 @@ func process(url: URL) {
 </Tab>
 <Tab>
 ```objective-c copy
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    [self processLink:url];
+}
+
+- (void)processLink: (NSURL *)url {
+    NSString *appKey = @"[Your appKey]"; // Get this value from the Keyri Dashboard
+    NSString *publicApiKey = @"[Your publicApiKey]"; // Get this optional value from the Keyri Dashboard for Fraud Prevention
+    NSString *serviceEncryptionKey = @"[Your serviceEncryptionKey]"; // Get this optional value from the Keyri Developer Portal for Fraud Prevention
+    NSString *publicUserId = @"public-User-Id"; // publicUserId is optional
+    NSString *payload = @"Custom payload here";
+
+    [self.keyri initializeKeyriWithAppKey:appKey publicApiKey:publicApiKey serviceEncryptionKey:serviceEncryptionKey blockEmulatorDetection:YES];
+
+    if (self != nil) {
+    NSString *stringUrl = url;
+    URLParser *parser = [[[URLParser alloc] initWithURLString:stringUrl] autorelease];
+    NSString *sessionId = [parser valueForVariable:@"sessionId"];
+
+    [self.keyri initiateQrSessionWithSessionId:sessionId publicUserId:publicUserId completion:^(Session * _Nullable session, NSError * _Nullable error) {
+        if (session != nil) {
+            // You can optionally create a custom screen and pass the session ID there. We recommend this approach for large enterprises
+            [self.keyri initializeDefaultConfirmationScreenWithSession: session payload: payload completion: completion]
+
+            // In a real world example you’d wait for user confirmation first
+            [session confirmWithPayload: payload trustNewBrowser: trustNewBrowser completion: completion] // or session.deny(payload, completion)
+        } else {
+            // On error
+        }
+    }];
+
+    // Or delegate link processing to Keyri SDK
+    [self.keyri processLinkWithUrl:url payload:payload completion:^(BOOL, NSError * _Nullable error) {
+        if (error != nil) {
+            // Successfully authenticated
+        } else {
+            // On error
+        }
+    }];
+}
 
 ```
 </Tab>
@@ -101,44 +151,59 @@ This can be used in conjunction with Universal links or exclusively.
 
 The Keyri SDK includes a default Scanner view, which can be invoked and displayed as shown below. Unfortunately, due to platform limitations, we had to keep this in UIKit for the time being but will be on the lookout for options to convert over to SwiftUI as time goes on. The completion block is the important piece here: we return the exact string as shown in the QR code. All you need to do is convert to URL, and then you're free to process the response the same way we did above (notice the `process(url)` function is exactly the same in both cases)
 
+<Tabs items={['Swift', 'Objective-C']}>
+<Tab>
 ```swift copy
-func handleDisplayingScanner() {
-    let scanner = Scanner()
-    scanner.completion = { str in
-        guard let url = URL(string: str) else { return nil }
-        process(url)
-    }
-
-    scanner.show()
-}
-
-func process(url: URL) {
-    let sessionId = URLComponents(url: url, resolvingAgainstBaseURL: true)?.queryItems?.first(where: { $0.name == "sessionId" })?.value ?? ""
+func openEasyKeyriAuth() {
+    let appKey = "[Your appKey]" // Get this value from the Keyri Dashboard
+    let publicApiKey = "[Your publicApiKey]" // Get this optional value from the Keyri Dashboard for Fraud Prevention
+    let serviceEncryptionKey = "[Your serviceEncryptionKey]" // Get this optional value from the Keyri Developer Portal for Fraud Prevention
+    let publicUserId = "public-User-Id" // publicUserId is optional
     let payload = "Custom payload here"
-    let appKey = "App key here" // Get this value from the Keyri Developer Portal
 
-    let keyri = KeyriInterface(appKey: appKey) // Be sure to import the SDK at the top of the file
-    keyri.initiateQrSession(sessionId: sessionId, publicUserId: "TestUser") { sessionResult in
-        switch sessionResult {
-        case .success(let session):
-            // You can optionally create a custom screen and pass the session ID there. We recommend this approach for large enterprises
-            // In a real world example you’d wait for user confirmation first
-            do {
-                try session.confirm(payload: payload, trustNewBrowser: true) // or session.deny()
-            } catch {
-                print(error)
-            }
-        case .failure(let error):
-            print(error)
+    let keyri = KeyriInterface(appKey: appKey)
+
+    keyri.easyKeyriAuth(payload: payload, publicUserId: publicUserId) { result in
+        switch result {
+            case .success:
+                // Authenticated
+            case .failure(let error):
+                // On error
         }
     }
 }
 
 ```
+</Tab>
+<Tab>
+```objective-c copy
+- (void)openEasyKeyriAuth {
+    NSString *appKey = @"[Your appKey]"; // Get this value from the Keyri Dashboard
+    NSString *publicApiKey = @"[Your publicApiKey]"; // Get this optional value from the Keyri Dashboard for Fraud Prevention
+    NSString *serviceEncryptionKey = @"[Your serviceEncryptionKey]"; // Get this optional value from the Keyri Developer Portal for Fraud Prevention
+    NSString *publicUserId = @"public-User-Id"; // publicUserId is optional
+    NSString *payload = @"Custom payload here";
+
+    [self.keyri initializeKeyriWithAppKey:appKey publicApiKey:publicApiKey serviceEncryptionKey:serviceEncryptionKey blockEmulatorDetection:YES];
+
+    [self.keyri easyKeyriAuthWithPayload:payload publicUserId:publicUserId completion:^(BOOL success, NSError * _Nullable error) {
+        if (success) {
+            // Authenticated
+        } else {
+            // On error
+        }
+    }];
+}
+```
+</Tab>
+</Tabs>
 
 ## Interacting with the API
 
 The following methods are available to interact with the Keyri SDK API, which can be used to craft your own custom flows and leverage the SDK in different ways:
+
+### Swift
+
 - `public init(appKey: String, publicApiKey: String? = nil, serviceEncryptionKey: String? = nil, blockEmulatorDetection: Bool? = true)`- Initialize the Keyri object with the keys retrieved from the dashboard. If you're using sendEvent() to take advantage of our fraud dashboard, the publicApiKey and serviceEncryptionKey are required
 
 - `func sendEvent(publicUserId: String = Constants.ANON_USER, eventType: EventType = .visits, success: Bool = true, completion: @escaping (Result<FingerprintResponse, Error>) -> ())` - Sends an event to our dashboard containing a device snapshot to our dashboard. The response you receive will be sent, as is, to your own backend, where you can utilize our scripts to help you decrypt. See the code sample below and https://docs.keyri.com/fraud-prevention for more
@@ -173,38 +238,72 @@ The following methods are available to interact with the Keyri SDK API, which ca
 
 - `func KeyriInterface.sendEvent(publicUserId: String = Constants.ANON_USER, eventType: EventType = .visits, success: Bool = true, completion: @escaping (Result<FingerprintResponse, Error>) -> ())` - sends fingerprint event and event result for specified publicUserId's
 
-`payload` can be anything (session token or a stringified JSON containing multiple items. Can include things like publicUserId, timestamp, customSignedData and ECDSA signature)
+- `func KeyriInterface.createFingerprint(completion: @escaping (Result<FingerprintEventRequest>) -> ())` - creates and returns fingerprint event object
 
-// TODO: Add Swift/Obj-C references as on Android
+Payload can be anything (session token or a stringified JSON containing multiple items. Can include things like publicUserId, timestamp, customSignedData and ECDSA signature)
+
+
+### Objective-C
+
+- `- (void)initializeKeyriWithAppKey:(NSString * _Nonnull)appKey publicApiKey:(NSString * _Nullable)publicApiKey serviceEncryptionKey:(NSString * _Nullable)serviceEncryptionKey blockEmulatorDetection:(BOOL)blockEmulatorDetection` - Initialize the Keyri object with the keys retrieved from the dashboard. If you're using sendEvent() to take advantage of our fraud dashboard, the publicApiKey and serviceEncryptionKey are required
+
+- `- (void)easyKeyriAuthWithPayload:(NSString * _Nonnull)payload publicUserId:(NSString * _Nonnull)publicUserId completion:(void (^ _Nonnull)(BOOL, NSError * _Nullable))completion` - call to have Keyri drive you through the entire process - we display the scanner, scan the QR code, handle user confirmation and fire off the result to the browser - all with one line of code in your app 😀
+
+- `- (void)generateAssociationKeyWithPublicUserId:(NSString * _Nullable)publicUserId completion:(void (^ _Nonnull)(NSString * _Nullable, NSError * _Nullable))completion` - creates a persistent ECDSA keypair for the given public user ID (example: email address) and return public key
+
+- `- (void)generateUserSignatureWithPublicUserId:(NSString * _Nullable)publicUserId data:(NSData * _Nonnull)data completion:(void (^ _Nonnull)(NSString * _Nullable, NSError * _Nullable))completion` - returns an ECDSA signature of the timestamp and optional customSignedData with the publicUserId's privateKey (or, if not provided, anonymous privateKey), data can be anything
+
+- `- (void)listAssociationKeysWithCompletion:(void (^ _Nonnull)(NSDictionary<NSString *, NSString *> * _Nullable, NSError * _Nullable))completion` - returns a dictionary of "association keys" and ECDSA Base64 public keys
+
+- `- (void)listUniqueAccountsWithCompletion:(void (^ _Nonnull)(NSDictionary<NSString *, NSString *> * _Nullable, NSError * _Nullable))completion` - returns a dictionary of unique "association keys" and ECDSA Base64 public keys
+
+- `- (void)getAssociationKeyWithPublicUserId:(NSString * _Nullable)publicUserId completion:(void (^ _Nonnull)(NSString * _Nullable, NSError * _Nullable))completion` - returns Base64 public key for the specified publicUserId
+
+- `- (void)removeAssociationKeyWithPublicUserId:(NSString * _Nonnull)publicUserId completion:(void (^ _Nonnull)(NSError * _Nullable))completion` - removes association public key for the specified publicUserId
+
+- `- (void)initiateQrSessionWithSessionId:(NSString * _Nonnull)sessionId publicUserId:(NSString * _Nullable)publicUserId completion:(void (^ _Nonnull)(Session * _Nullable, NSError * _Nullable))completion` - call after obtaining the sessionId from QR-code or deep link. Returns Session object with Risk attributes (needed to show confirmation screen) or Exception
+
+- `- (void)loginWithPublicUserId:(NSString * _Nullable)publicUserId completion:(void (^ _Nonnull)(LoginObject * _Nullable, NSError * _Nullable))completion` - call this method to generate object for login which includes timestampNonce, signature, publicKey and userId
+
+- `- (void)registerWithPublicUserId:(NSString * _Nullable)publicUserId completion:(void (^ _Nonnull)(RegisterObject * _Nullable, NSError * _Nullable))completion` - call this method to generate object for register which includes publicKey and userId
+
+- `- (void)initializeDefaultConfirmationScreenWithSession:(Session * _Nonnull)session payload:(NSString * _Nonnull)payload completion:(void (^ _Nonnull)(BOOL, NSError * _Nullable))completion` -  to show Confirmation with default UI. Alternatively, you can implement a custom Confirmation Screen. The Default screen is built using SwiftUI, however the session object is designed to work seamlessly with UIKit as well should you prefer that route
+
+- `- (void)processLinkWithUrl:(NSURL * _Nonnull)url payload:(NSString * _Nonnull)payload publicUserId:(NSString * _Nullable)publicUserId completion:(void (^ _Nonnull)(BOOL, NSError * _Nullable))completion` - process flow with passed uri with showing default confirmation screen. Easiest way to process session from deeplink. Returns result of authentication or error
+
+- `- (void)sendEventWithPublicUserId:(NSString * _Nullable)publicUserId eventType:(NSString * _Nonnull)eventType success:(BOOL)success completion:(void (^ _Nonnull)(FingerprintResponse * _Nullable, NSError * _Nullable))completion` - sends fingerprint event and event result for specified publicUserId's
+
+- `- (void)createFingerprintWithCompletion:(void (^ _Nonnull)(FingerprintEventRequest * _Nullable, NSError * _Nullable))completion` - creates and returns fingerprint event object
 
 ### Session Object
 
-The session object is returned on successful initiateQrSession calls, and is used to handle presenting the situation to the end user and getting their confirmation to complete authentication. Below are some of the key properties and methods that can be triggered. If you are utilizing the built-in views, you are only responsible for calling the confirm/deny methods above
+The session object is returned on successful `initiateQrSession` calls, and is used to handle presenting the situation to the end user and getting their confirmation to complete authentication. Below are some of the key properties and methods that can be triggered. If you are utilizing the built-in views, you are only responsible for calling the confirm/deny methods above
 
-- IPAddressMobile/Widget - the IP Address of both mobile device and web browser&#x20;
+- iPAddressMobile/Widget - The IP Address of both mobile device and web browser
 
-- WidgetUserAgent - the browser user-agent (e.g., Chrome on macOS)&#x20;
+- riskAnalytics - if applicable
 
-- RiskAnalytics - if available on your subscription plan
+- riskStatus - clear, warn or deny
 
-- RiskStatus - clear, warn or deny
+- riskFlagString - if RiskStatus is warn or deny, this string alerts the user to what is triggering the risk situation
 
-- RiskFlagString - if RiskStatus is warn or deny, this string alerts the user to what is triggering the risk situation
+- geoData - Location data for both mobile and widget
 
-- GeoData - Location data for both mobile and widget
+    - mobile
 
-- Mobile
-- city
+    - city
 
-- country_code
+    - country_code
 
-- Browser
+    - browser
 
-- city
+    - city
 
-- country_code
+    - country_code
 
-- `Session.confirm()` and `Session.deny()` - see descriptions in **Interacting with the API**
+- mobileTemplateResponse - Use this object to define confirmation screen UI
+
+- `fun Session.confirm()` and `fun Session.deny()` - see descriptions in **Interacting with the API**.
 
 # Disclaimer
 

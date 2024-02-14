@@ -299,9 +299,11 @@ protected void onCreate(Bundle savedInstanceState) {
     Uri intentData = getIntent().getData();
 
     if (intentData != null) {
-    processLink(intentData);
+        processLink(intentData);
+    }
 }
 
+private void processLink(Uri intentData) {
     binding.bAuthWithScanner.setOnClickListener(view -> {
         // With ActivityResult API
 
