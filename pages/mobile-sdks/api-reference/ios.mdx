@@ -7,9 +7,7 @@ description: Keyri’s iOS SDK handles secure cryptographic key generation, key 
 ## System Requirements
 
 - iOS 14+
-
 - Swift 5+
-
 - Apple A7 chip or newer (The A7 shipped with the iPhone 5s)
 
 ## Integration
@@ -93,6 +91,7 @@ func process(url: URL) {
 
 ```
 </Tab>
+</Tabs>
 
 **Note:** Keyri will set up the required `/.well-known/apple-app-site-association` JSON at your `https://{yourSubdomain}.onekey.to` page as required by Apple to handle Universal Link handling. Details on this mechanism are described here: https://developer.apple.com/documentation/Xcode/supporting-associated-domains
 
@@ -144,34 +143,6 @@ The following methods are available to interact with the Keyri SDK API, which ca
 
 - `func sendEvent(publicUserId: String = Constants.ANON_USER, eventType: EventType = .visits, success: Bool = true, completion: @escaping (Result<FingerprintResponse, Error>) -> ())` - Sends an event to our dashboard containing a device snapshot to our dashboard. The response you receive will be sent, as is, to your own backend, where you can utilize our scripts to help you decrypt. See the code sample below and https://docs.keyri.com/fraud-prevention for more
 
-```swift copy
-keyri.sendEvent(publicUserId: username, eventType: eventType, success: true) { fingerprintResponse in
-	let dict = [
-	"username": username,
-	"password": password,
-	"publicKey": "C1uC8r7C53NcF/qaUPFDSEoAOh2sbvOLjAetcEKDs1eC40Vx14NMikNJu4aTGD4C9ijL2mvQYekEGxOy2Oj1lA==", // Obtained from dashboard
-	"encryptedSignupEventString": self.stringifyFingerprintResponse(fingerprintResponse)! // see below, force unwrapped for brevity
-	] as [String : String]
-
-	let url = URL(string: "https://fraud-demo.keyri.com/api/signup")!
-	// cut short for brevity, but at this point simply send a POST to the URL using the dict as the http body, and you're done!
-}
-
-func stringifyFingerprintResponse(_ fingerprintResponse: FingerprintResponse) -> String? {
-	let encoder = JSONEncoder()
-	encoder.outputFormatting = .prettyPrinted
-
-	do {
-	    let data = try encoder.encode(fingerprintResponse)
-	    return String(data: data, encoding: .utf8)
-	} catch {
-	    print("Error: \(error)")
-	    return nil
-	}
-}
-
-```
-
 - `func KeyriInterface.easyKeyriAuth(payload: String, publicUserId: String?, completion: @escaping (Result<Void, Error>) -> ())` - call to have Keyri drive you through the entire process - we display the scanner, scan the QR code, handle user confirmation and fire off the result to the browser - all with one line of code in your app 😀
 
 - `func KeyriInterface.initiateQrSession(sessionId: String, publicUserId: String?, completion: @escaping (Result<Session, Error>) -> Void)` - call after obtaining the sessionId from QR-code or deep link. Returns Session object with Risk attributes (needed to show confirmation screen) or Exception
@@ -203,6 +174,8 @@ func stringifyFingerprintResponse(_ fingerprintResponse: FingerprintResponse) ->
 - `func KeyriInterface.sendEvent(publicUserId: String = Constants.ANON_USER, eventType: EventType = .visits, success: Bool = true, completion: @escaping (Result<FingerprintResponse, Error>) -> ())` - sends fingerprint event and event result for specified publicUserId's
 
 `payload` can be anything (session token or a stringified JSON containing multiple items. Can include things like publicUserId, timestamp, customSignedData and ECDSA signature)
+
+// TODO: Add Swift/Obj-C references as on Android
 
 ### Session Object
 

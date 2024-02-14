@@ -179,7 +179,7 @@ private void processLink(@Nullable Uri url) {
     }
 
     // Or delegate link processing to Keyri SDK
-    keyri.processLink(getSupportFragmentManager(), url, "Custom payload here", "public-user-id", new KeyriCallback<>() {
+    keyri.processLink(getSupportFragmentManager(), url, payload, publicUserId, new KeyriCallback<>() {
         @Override
         public void onComplete(Unit result) {
             // Successfully authenticated
