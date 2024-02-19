@@ -45,23 +45,15 @@ prevention system for full event intelligence.
 
 #### Simple Fingerprinting
 
-- `generateAssociationKey(publicUserId: String, completion: (Result<P256.Signing.PublicKey, Error>) -> ())`:
-  Create a persistent record of a user on the device
-- `getAssociationKey(publicUserId: String, completion: (Result<P256.Signing.PublicKey?, Error>) -> ())`:
-  Retrieve key for a given user, if the user has been created
-- `listAssociationKeys(completion: (Result<[String:String]?, Error>) -> ())`:
-  List the keys that have been created on the device
-- `listUniqueAccounts(completion: (Result<[String:String]?, Error>) -> ())`:
-  List the unique accounts associated with the device
-- `generateUserSignature(publicUserId: String, data: Data, completion: (Result<P256.Signing.ECDSASignature, Error>) -> ())`:
-  Sign a piece of data with the user's key
+- `func login(publicUserId: String?, completion: @escaping (Result<LoginObject, Error>) -> ())`: Create object for login with timestamp_nonce, signature, publicKey, userId.
+- `func register(publicUserId: String?, completion: @escaping (Result<RegisterObject, Error>) -> ())`: Create object for register with publicKey, userId
 
 #### Full Fraud Analytics and Prevention
 
-- `sendEvent(publicUserId: String, eventType: EventType, success: Bool, completion: (Result<FingerprintResponse, Error>) -> ())`:
+- `func sendEvent(publicUserId: String, eventType: EventType, success: Bool, completion: (Result<FingerprintResponse, Error>) -> ())`:
   Send Keyri a fingerprint of the device directly from the app and have the
   results returned to the mobile app
-- `createFingerprint(completion: (Result<FingerprintResponse, Error>) -> ())`: Creates fingerprint of the device which can be sent directly to backend
+- `func createFingerprint(completion: (Result<FingerprintResponse, Error>) -> ())`: Creates fingerprint of the device which can be sent directly to backend
 
 ### Example: Protecting Registration/Signup
 
@@ -92,6 +84,7 @@ func registerUser(username: String) throws {
                 keyri.sendEvent(publicUserId: username, eventType: EventType.Signup, success: true)
             case .failure(let error):
                 // Account already registered, suggest to the user to log in with that existing account
+                // keyri.login(publicUserId: username)
         }
     }
 }
@@ -114,6 +107,7 @@ fun registerUser(username: String) {
         keyri.sendEvent(publicUserId = username, eventType = EventType.Signup, success = true)
     }.onFailure { error ->
         // Account already registered, suggest to the user to log in with that existing account
+        // keyri.login(publicUserId = username)
     }
 }
 
@@ -140,6 +134,7 @@ void registerUser(String username) {
         @Override
         public void onError(@Nullable Throwable throwable) {
             // Account already registered, suggest to the user to log in with that existing account
+            // keyri.login(username)
         }
     });
 }
@@ -164,6 +159,7 @@ void registerUser(String username) {
         })
         .catchError((error, stackTrace) => {
             // Account already registered, suggest to the user to log in with that existing account
+            // keyri.login(publicUserId: username)
         });
 }
 
@@ -187,6 +183,7 @@ function registerUser(username: string) {
         })
         .catch((error) => {
             // Account already registered, suggest to the user to log in with that existing account
+            // Keyri.login(username)
         });
 }
 
@@ -339,7 +336,9 @@ You can implement your own backup according to the documentation:
 In this case just include `keyri_backup_prefs` string to your BackupAgentHelper
 as shown below:
 
-```kotlin
+<Tabs items={['Kotlin', 'Java']}>
+<Tab>
+```kotlin copy
 class MyBackupAgent : BackupAgentHelper() {
 
     override fun onCreate() {
@@ -348,7 +347,24 @@ class MyBackupAgent : BackupAgentHelper() {
         addHelper("YOUR BACKUP KEY", helper)
     }
 }
-```
+
+````
+</Tab>
+<Tab>
+```java copy
+public class MyBackupAgent extends BackupAgentHelper() {
+
+    @Override
+    public void onCreate() {
+        SharedPreferencesBackupHelper helper = SharedPreferencesBackupHelper(this, "your prefs files (optional)", "keyri_backup_prefs");
+
+        addHelper("YOUR BACKUP KEY", helper);
+    }
+}
+
+````
+</Tab>
+</Tabs>
 
 After it just add your `MyBackupAgent` to `AndroidManifest.xml`:
 
