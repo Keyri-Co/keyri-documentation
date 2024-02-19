@@ -1,0 +1,63 @@
+---
+description:
+  Keyri QR login using Passkeys and no mobile app. Use biometrics in your mobile
+  browser
+---
+
+# Mobile Web App
+
+This example demonstrates the usage of Passkey QR login in a mobile environment.
+The `ApplessMobile` object is responsible for managing user authentication and
+registration.
+
+## HTML Structure
+
+A simple HTML structure is used, including the required Keyri library.
+
+```html
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <title>KeyriQR - Demo</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <div></div>
+  </body>
+</html>
+```
+
+## JavaScript
+
+```javascript
+<script src="./dist/index.min.js"></script>
+<script type="module">
+
+  // In a production environment these should be environment variables
+  import { appKey } from "./mjs/keys.mjs";
+
+  // Import the ApplessMobile class from the KeyriFrontEnd library
+  const { ApplessMobile } = KeyriFrontEnd;
+
+  // Initialize the ApplessMobile object with the app key
+  // NOTE: This app key should only be used for development environments
+  const mobileAppless = new ApplessMobile( null, appKey);
+
+  // Start the mobile authentication/registration process
+  const mobileData = await mobileAppless.start();
+
+  // Check if the user needs to register
+  if (mobileData.userParameters?.register === "true") {
+    // Prompt the user to enter a one-time pin
+    let ONE_TIME_PIN = prompt("Enter a number between 1 and 100");
+
+    // Finish the registration process using the provided one-time pin
+    let output = await mobileAppless.finish(ONE_TIME_PIN);
+  } else {
+    // Finish the authentication process
+    let output = await mobileAppless.finish();
+  }
+</script>
+
+```
