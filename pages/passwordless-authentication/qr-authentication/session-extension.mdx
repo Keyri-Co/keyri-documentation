@@ -1,0 +1,39 @@
+---
+description:
+  Incorporate Keyri’s QR browser widget into your webpage in a few simple steps.
+  Install Keyri’s SDKs and get up and running with QR authentication quickly.
+---
+
+# Client Session Extension Through QR Scanning
+
+Session extension is the quickest strategy for using Keyri to authenticate a
+user into your web or TV app by having them scan a QR code rendered on the
+screen. It requires the user to be already logged into your mobile app through
+any means (email/password, social login, etc.). Once scanned, your mobile app
+will, using the Keyri SDK, encrypt the user's session token(s) and send them to
+the web or TV client, where it will be decrypted and used to initiate an
+authenticated session.
+
+The primary advantage of this system is that it requires no backend modification
+whatsoever - all changes are minimal and contained to your client apps. The lack
+of backend modification makes this flow ideal if you currently use a third-party
+authentication system like Supabase, Firebase, or Auth0.
+
+![Keyri Session Extension Diagram](/sessionExtensionDiagram.png 'Keyri Session Extension Diagram')
+
+## Implementation Examples
+
+Examples of session extension in action can be seen in our
+[Supabase](../integrations/supabase),
+[Firebase](../integrations/firebase/session-extension), and
+[Auth0](../integrations/auth0) integration guides. They demonstrate how to use
+the Keyri SDK to send the user's session credentials to your web or TV client
+and subsequently process it to log the user in.
+
+Broadly, the flow entails sending session credentials from your mobile app to
+the client using the Keyri QR widget. Once the widget receives the encrypted
+session credentials, it will decrypt them and make them available to your web/TV
+app, which can then simply store them as cookies, LocalStorage items, or
+IndexedDB items. Alternatively, further processing can be performed using them,
+such as using a refresh token from the mobile app to obtain a new access token
+for the web/TV app.

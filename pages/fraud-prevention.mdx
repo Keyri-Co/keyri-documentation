@@ -4,8 +4,6 @@ description:
   power real-time fraud prevention.
 ---
 
-import { Steps } from 'nextra/components';
-
 # Real-Time Fraud Prevention
 
 Keyri's fraud prevention platform provides a way to monitor user events across
@@ -88,32 +86,3 @@ to prevent:
 | Session Hijacking             | Attackers exploit a user's web session control mechanism to gain access to a session token, and thus access to an application.                                                                                                                                                                 |
 | SIM Swapping                  | Scammers impersonate the user to convince their mobile service provider to transfer the phone number to a new SIM card controlled by the attacker, which allows them to intercept SMS OTP codes and access the user's account.                                                                 |
 | Social Engineering            | Scammers pose as customer service representatives to deceive and trick users into divulging sensitive information or grant unauthorized access to their accounts.                                                                                                                              |
-
-## Usage
-
-<Steps>
-### Get device fingerprint data
-
-Use the [Keyri SDKs](/fraud-prevention/mobile-app-setup) (on native mobile apps)
-or [JavaScript library](/fraud-prevention/web-app-setup.) (on web apps) to get
-device fingerprint data.
-
-### Send device fingerprint data to your server
-
-Add the device fingerprint data to your client app's normal request payload. For
-example, if you want to analyze the risk of a login event, add the device
-fingerprint data to the login request.
-
-### Send the data to Keyri
-
-Add details about the event, such as the event type, user ID, and any metadata
-you want to include, and
-[send it to Keyri's API](/fraud-prevention/server-setup).
-
-### Keyri returns risk details
-
-The Keyri API returns risk details about the event, including the overall risk
-determination, device information, user history information, etc. Parse the
-object and use the risk determination to make a decision about the event.
-
-</Steps>

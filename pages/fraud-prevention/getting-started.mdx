@@ -1,3 +1,5 @@
+import { Steps } from 'nextra-theme-docs';
+
 # Get Started with Keyri Fraud Prevention
 
 First, create a service on the Keyri dashboard and get your API key and
@@ -10,3 +12,32 @@ available to you. You can double-click on an event log to see full details.
 Now proceed to the [web app setup](/fraud-prevention/web-app-setup) or the
 [mobile app setup](/fraud-prevention/mobile-app-setup) pages to get started with
 integration.
+
+## Usage
+
+<Steps>
+### Get device fingerprint data
+
+Use the [Keyri SDKs](/fraud-prevention/mobile-app-setup) (on native mobile apps)
+or [JavaScript library](/fraud-prevention/web-app-setup.) (on web apps) to get
+device fingerprint data in your client application.
+
+### Send device fingerprint data to your server
+
+Add the device fingerprint data to your client app's normal request payload. For
+example, if you want to analyze the risk of a login event, add the device
+fingerprint data to the login request.
+
+### Send the data to Keyri
+
+Add details about the event, such as the event type, user ID, and any metadata
+you want to include, and
+[send it to Keyri's API](/fraud-prevention/server-setup).
+
+### Keyri returns risk details
+
+The Keyri API returns risk details about the event, including the overall risk
+determination, device information, user history information, etc. Parse the
+object and use the risk determination to make a decision about the event.
+
+</Steps>

@@ -1,0 +1,56 @@
+---
+description:
+  Keyri routes your users’ QR scanning journey intelligently - to your app if
+  they have it installed, or to your App Store or Play Store listing if they do
+  not.
+---
+
+# Smart Deep Linking
+
+![](/smartDeepLinking.png)
+
+Deep linking refers to the mechanism in which a URI, presented in any interface
+or context, takes your user to a specific location or function within your
+mobile app. Parameters in the URI are then fed into the location / function to
+trigger a specific action.
+
+Keyri's QR codes encode an ordinary URL for a web page that has a `sessionId`
+query parameter. When visited on a mobile device, JavaScript on this webpage
+instantly detects the operating system of the user's device and generates the
+OS-specific URI to take them to your app to initiate QR login, passing along the
+`sessionId` that the Keyri SDK in your app then consumes.
+
+This means that your users can initiate QR login just by scanning the login code
+from their phone's camera app. On iOS, all they have to do is swipe left on the
+lock screen to open the camera, and on Android, all they have to do is
+double-tap the power button. The deep linking mechanism saves your user from
+having to unlock their phone, locate your app, and tap into a specific screen to
+initiate QR login. This allows for the entire QR login user journey to be
+completed from start to finish in under 1 second.
+
+If your user does not have your mobile app installed, when they scan the login
+QR code, they will be automatically taken to your app's App Store or Play Store
+listing.
+
+When you register your application on the
+[Keyri Dashboard](https://app.keyri.com) and verify your domain, we generate a
+`https://{yourCompany}.onekey.to` subdomain. You need to provide all of the
+requested information about your app to allow Keyri to properly add your
+subdomain and its deep linking/redirection behavior. All QR codes on your client
+app will encode the following URL:
+`https://{yourCompany}.onekey.to/?sessionId={sessionId}`. This URL hosts the
+JavaScript that takes users to your app to initiate QR login if they have your
+app installed, or to your App Store / Play Store listing if they do not. The URI
+that takes them into your app passes along the sessionId that is then fed into
+the Keyri SDK.
+
+iOS calls its latest deep link scheme
+[Universal Links](https://developer.apple.com/ios/universal-links/), and Android
+employs an analogous system called
+[App Links](https://developer.android.com/training/app-links). Both systems
+require specific JSONs to be hosted in different directories of the domain you
+wish to associate your app with to enable deep linking. Keyri automatically
+handles the generation and hosting of the two JSONs for your
+`https://{yourCompany}.onekey.to` subdomain, so the only thing you need to do to
+handle deep links in your apps is basic configuration as outlined in the
+[Mobile SDKs](./mobileSDKs) documentation.

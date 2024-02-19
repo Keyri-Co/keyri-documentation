@@ -1,0 +1,103 @@
+---
+description:
+  AlphaPoint customers can add QR authentication using their Android mobile app
+  to create a secure, easy-to-use, and convenient auth system for their users.
+---
+
+import { AndroidSDKVersion } from 'components/AndroidSDKVersion';
+
+# Keyri QR Login - AlphaPoint Android Apps
+
+## Install Keyri SDK
+
+Add SDK dependency to your **build.gradle** file and sync project:
+
+```kotlin copy
+dependencies {
+    // ...
+    implementation("com.keyri:keyrisdk:${AndroidSDKVersion}")
+}
+```
+
+## Set Up User Login
+
+Please refer to [Android documentation](/mobile-sdks/android) for detailed
+instructions about how to set up the SDK to handle Authentication via URL Deep
+linking and/or a built in Scanner
+
+### Provision and retrieve API login credentials from the APEX WebSocket API Using `GetAPICredentials()`
+
+Keyri's session object has a "payload" field in which you can input any data,
+which will be encrypted all the way to the browser when the user scans the login
+QR code and the valid session is confirmed. You can fetch the user's API
+credentials from the APEX user management system at any point before this, and
+populate this field with the API credentials before going on to confirm the
+session. Please see the sample code below
+
+**Important Note:** The `APIKey` and `APISecret` will be decommissioned as soon
+as the user is logged in on the browser.
+
+This function can be activated once the login QR code has been scanned and
+parsed, either from a Universal Link (iOS) / App Link (Android) or your app's
+built-in QR code scanner.
+
+Construct the function as follows:
+
+1. Send the following message to `wss://apexapi.{yourDomain}/WSGateway` with the
+   user's `UserId`:
+
+```json copy
+{
+  "m": 0,
+  "i": 76,
+  "n": "AddUserAPIKey",
+  "o": "{\"UserId\":{UserId},\"Permissions\":[\"Trading\",\"Withdraw\",\"Deposit\"]}"
+}
+```
+
+2. In return, you will receive an `APIKey` and `APISecret` as follows:
+
+```json copy
+{
+  "m": 1,
+  "i": 76,
+  "n": "AddUserAPIKey",
+  "o": "{\"APIKey\":\"...\",\"APISecret\":\"...\",\"UserId\":[UserId],\"Permissions\":[\"Trading\",\"Withdraw\",\"Deposit\"],\"Nonce\":0}"
+}
+```
+
+3. Finally, the function must return values for `APIKey`, `APISecret`, and
+   `UserId`. These three items will subsequently be passed into the Keyri
+   `initiateQrSession()` method. Please see the
+   [Android App Integration](/mobile-sdks/android) page for details on how this
+   function is invoked
+
+This _example_ uses Native Android functions to handle websockets
+
+```kotlin copy
+fun getApiCredentials(data: SocketMessage): String {
+    val socket = Socket("wss://apexapi.{yourDomain}/WSGateway", PORT)
+    val dataOutputStream = DataOutputStream(socket.getOutputStream())
+
+    dataOutputStream.writeUTF(data.toSocketData())
+    dataOutputStream.flush()
+    dataOutputStream.close()
+
+    val dataInputStream = DataInputStream(socket.getInputStream())
+    val response = dataInputStream.readUTF()
+
+    dataInputStream.close()
+    socket.close()
+
+    return response
+}
+
+data class SocketMessage(val m: Int, val i: Int, val n: String, val o: String) {
+    fun toSocketData() = JsonObject().also {
+        it.addProperty("m", m)
+        it.addProperty("i", i)
+        it.addProperty("n", n)
+        it.addProperty("o", o)
+    }.toString()
+}
+```
