@@ -306,7 +306,7 @@ Payload can be anything (session token or a stringified JSON containing multiple
 
 - `- (void)initializeKeyriWithAppKey:(NSString * _Nonnull)appKey publicApiKey:(NSString * _Nullable)publicApiKey serviceEncryptionKey:(NSString * _Nullable)serviceEncryptionKey blockEmulatorDetection:(BOOL)blockEmulatorDetection` - Initialize the Keyri object with the keys retrieved from the dashboard. If you're using sendEvent() to take advantage of our fraud dashboard, the publicApiKey and serviceEncryptionKey are required
 
-- `- (void)easyKeyriAuthWithPayload:(NSString * _Nonnull)payload publicUserId:(NSString * _Nonnull)publicUserId completion:(void (^ _Nonnull)(BOOL, NSError * _Nullable))completion` - call to have Keyri drive you through the entire process - we display the scanner, scan the QR code, handle user confirmation and fire off the result to the browser - all with one line of code in your app 😀
+- `- (void)easyKeyriAuthWithPayload:(NSString * _Nonnull)payload publicUserId:(NSString * _Nonnull)publicUserId completion:(void (^ _Nonnull)(BOOL, NSError * _Nullable))completion` - call to have Keyri drive you through the entire process - we display the scanner, scan the QR code, handle user confirmation and fire off the result to the browser - all with one line of code in your app
 
 - `- (void)generateAssociationKeyWithPublicUserId:(NSString * _Nullable)publicUserId completion:(void (^ _Nonnull)(NSString * _Nullable, NSError * _Nullable))completion` - creates a persistent ECDSA keypair for the given public user ID (example: email address) and return public key
 
