@@ -45,15 +45,23 @@ prevention system for full event intelligence.
 
 #### Simple Fingerprinting
 
-- `func login(publicUserId: String?, completion: @escaping (Result<LoginObject, Error>) -> ())`: Create object for login with timestamp_nonce, signature, publicKey, userId.
-- `func register(publicUserId: String?, completion: @escaping (Result<RegisterObject, Error>) -> ())`: Create object for register with publicKey, userId
+- `func register(publicUserId: String?, completion: @escaping (Result<RegisterObject, Error>) -> ())`
+  - Set up a cryptographic fingerprint that binds the user to the device.
+    Creates an object containing the public key that you should register on your
+    backend. This will be used for verifying the user-device combination in the
+    future.
+- `func login(publicUserId: String?, completion: @escaping (Result<LoginObject, Error>) -> ())`
+  - Creates an object for verifying the user-device combination with
+    timestamp_nonce, signature, publicKey, userId. Send this to your backend and
+    verify the signature against the user's previously-registered public key.
 
 #### Full Fraud Analytics and Prevention
 
-- `func sendEvent(publicUserId: String, eventType: EventType, success: Bool, completion: (Result<FingerprintResponse, Error>) -> ())`:
-  Send Keyri a fingerprint of the device directly from the app and have the
-  results returned to the mobile app
-- `func createFingerprint(completion: (Result<FingerprintResponse, Error>) -> ())`: Creates fingerprint of the device which can be sent directly to backend
+- `func sendEvent(publicUserId: String, eventType: EventType, success: Bool, completion: (Result<FingerprintResponse, Error>) -> ())`
+  - Send Keyri a fingerprint of the device directly from the app and have the
+    encrypted results returned to the mobile app
+- `func createFingerprint(completion: (Result<FingerprintResponse, Error>) -> ())`
+    - Creates an encrypted fingerprint of the device which can be sent to your backend to be forwarded to Keyri for analysis
 
 ### Example: Protecting Registration/Signup
 
@@ -87,11 +95,12 @@ func registerUser(username: String) throws {
                 // keyri.login(publicUserId: username)
         }
     }
+
 }
 
-func sendFingerprintToBackend(fingerprint: [String: Any]) {
-    guard let url = URL(string: BASE_URL + "api/fingerprint") else {
-        print("Can't parse request URL: \(urlString)")
+func sendFingerprintToBackend(fingerprint: [String: Any]) { guard let url =
+URL(string: BASE_URL + "api/fingerprint") else { print("Can't parse request URL:
+\(urlString)")
 
         return
     }
@@ -104,9 +113,9 @@ func sendFingerprintToBackend(fingerprint: [String: Any]) {
     URLSession.shared.dataTask(with: request) { data, response, error in
         // Process result
     }.resume()
-}
 
-````
+}
+```
 </Tab>
 <Tab>
 ```kotlin copy
@@ -144,8 +153,7 @@ interface AuthApiService {
         @Body fingerprint: FingerprintEventRequest,
     ): Response<FingeprintResult>
 }
-
-````
+```
 </Tab>
 <Tab>
 ```java copy
@@ -186,9 +194,9 @@ void registerUser(String username) {
             // keyri.login(username)
         }
     });
-}
 
-````
+}
+```
 </Tab>
 <Tab>
 ```dart copy
@@ -221,8 +229,7 @@ Future<http.Response> sendFingerprintToBackend(Map<String, dynamic> body) {
         body: jsonEncode(body),
     );
 }
-
-````
+```
 </Tab>
 <Tab>
 ```javascript copy
@@ -244,27 +251,21 @@ function registerUser(username: string) {
             // Account already registered, suggest to the user to log in with that existing account
             // Keyri.login(username)
         });
+
 }
 
-function sendFingerprintToBackend(body: string): Promise<Response> {
-    return fetch(BASE_URL + 'api/fingerprint', {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: body,
-    });
-}
+function sendFingerprintToBackend(body: string): Promise<Response> { return
+fetch(BASE_URL + 'api/fingerprint', { method: 'POST', headers: { Accept:
+'application/json', 'Content-Type': 'application/json', }, body: body, }); }
 
-````
+```
 </Tab>
 </Tabs>
 
 ## Android Accounts Backup
 
-Preserving user-device fingerprints even after your app is deleted and
-re-installed requires additional backup configuration steps. This document will
+Preserving the simple user-device fingerprints even after your app is deleted and
+re-installed requires additional backup configuration steps. This section will
 help you set up your account backup configuration.
 
 You can find a comparison of Key/Value Backup and Auto Backup here:
@@ -419,6 +420,7 @@ class MyBackupAgent : BackupAgentHelper() {
 }
 
 ````
+
 </Tab>
 <Tab>
 ```java copy
@@ -430,6 +432,7 @@ public class MyBackupAgent extends BackupAgentHelper() {
 
         addHelper("YOUR BACKUP KEY", helper);
     }
+
 }
 
 ````
@@ -481,3 +484,4 @@ sure to disclose the following data collection practice:
 
 An analogous disclosure is not required for iOS apps, since the device data is
 not used by Keyri for cross-app tracking.
+

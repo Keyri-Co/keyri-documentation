@@ -23,35 +23,38 @@ what the user is (their biometrics).
 Keyri's mobile SDKs include
 [ECDSA](https://cryptobook.nakov.com/digital-signatures/ecdsa-sign-verify-messages)
 methods that allow you to tie an individual account to a specific device. These
-methods associate a signing key pair to an account, and the private key is
-persistent on and non-extractable from the device on which it was generated. The
-private key is used to generate cryptographic signatures for a given account
-that can then be validated by your backend application using the key pair's
-public key, which is extractable from the device and can be passed to your
-backend applications.
+methods associate a signing key pair to an account.
 
-## Practical Example
+The public key should be saved in your user credentials database. The private
+key is persistent on and non-extractable from the device on which it was
+generated. It is used to generate cryptographic signatures for a given account
+that can then be validated by your backend application using the user's public
+key.
+
+## Example
 
 <Tabs items={['Swift', 'Kotlin', 'Dart/Flutter', 'React Native']}>
 <Tab>
 ```swift copy
 let keyri = KeyriInterface(appKey: appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey)
 
-func login(username: String) async throws {
-    let loginObject = keyri.login(publicUserId: username)
+func login(username: String) async throws { let loginObject =
+keyri.login(publicUserId: username)
 
     authService.login(urlSuffix: "api/login", body: loginObject)
+
 }
 
-func register(username: String) async throws {
-    let registerObject = keyri.register(publicUserId: username)
+func register(username: String) async throws { let registerObject =
+keyri.register(publicUserId: username)
 
     authService.register(urlSuffix: "api/register", body: registerObject)
+
 }
 
-func makeAuthApiCall(urlSuffix: String, body: [String: Any]) {
-    guard let url = URL(string: BASE_URL + urlSuffix) else {
-        print("Can't parse request URL: \(urlString)")
+func makeAuthApiCall(urlSuffix: String, body: [String: Any]) { guard let url =
+URL(string: BASE_URL + urlSuffix) else { print("Can't parse request URL:
+\(urlString)")
 
         return
     }
@@ -64,9 +67,9 @@ func makeAuthApiCall(urlSuffix: String, body: [String: Any]) {
     URLSession.shared.dataTask(with: request) { data, response, error in
         // Process result
     }.resume()
-}
 
-````
+}
+```
 </Tab>
 <Tab>
 ```kotlin copy
@@ -109,8 +112,7 @@ interface AuthApiService {
         @Body registerObject: RegisterObject,
     ): Response<RegisterResult>
 }
-
-````
+```
 </Tab>
 <Tab>
 ```dart copy
@@ -173,15 +175,17 @@ function makeAuthApiCall(urlSuffix: string, body: string): Promise<Response> {
         body: body,
     });
 }
-
-````
+```
 </Tab>
 </Tabs>
 
 ## Backend Setup
 
-Configure an API endpoint to receive the `signature` and `data` from your app,
-and validate the signature using the public key associated with the user's
-account. The backend setup for passwordless authentication in your mobile app is
-the same as that for server-side QR login: see
-[documentation here](./server-setup) for a Node.js example.
+Configure an API endpoint to receive the data returned by the SDK `register` and
+`login` methods from your app. For the data returned by `register`, you should
+store the public key in your user credentials database. For the data returned by
+`login`, you should verify the signature using the public key associated with
+the user's account.
+
+The backend setup for passwordless authentication in your mobile app is the same
+as that for server-side QR login. See [documentation here](./server-setup) for a Node.js example.

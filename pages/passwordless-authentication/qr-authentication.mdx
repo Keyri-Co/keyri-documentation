@@ -40,12 +40,7 @@ mobile app. Keyri integration into your system is comprised of three parts:
    server-side authentication strategy, not
    [client session extension](./qr-authentication/session-extension))
 
-If you're ready to get started, you can
-[sign up for a free account](https://app.keyri.com/sign-up).
-
-Then proceed to install the [Keyri QR Widget](./qr-authentication/qr-web-widget)
-on your web frontend and the [Keyri SDK](../mobile-sdks/installation) in your
-mobile app.
+Below is code for how to implement QR authentication on your mobile app. You must also install the [Keyri QR Widget](./qr-authentication/qr-web-widget). See[mobile SDK installation and initialization instructions](../mobile-sdks/installation) to get started on your mobile app.
 
 ## High-Level Overview
 
@@ -95,7 +90,7 @@ of the steps you see here are automated by the Keyri Widget and mobile SDKs.
 
 Read on to learn more about specific features of Keyri QR authentication.
 
-## Login example
+## Mobile Login Examples
 
 <Tabs items={['Swift', 'Kotlin', 'Dart/Flutter', 'React Native']}>
 <Tab>
@@ -111,8 +106,7 @@ func qrLogin(username: String) throws {
         // Process result
     }
 }
-
-````
+```
 </Tab>
 <Tab>
 ```kotlin copy
@@ -144,7 +138,7 @@ fun qrLogin(username: String) {
     }
 }
 
-````
+```
 </Tab>
 <Tab>
 ```dart copy
@@ -159,8 +153,7 @@ void qrLogin(String username) async {
             // Process result
         });
 }
-
-````
+```
 </Tab>
 <Tab>
 ```javascript copy
@@ -177,7 +170,6 @@ async function qrLogin(username: string) {
 
     // Process result
 }
-
-````
+```
 </Tab>
 </Tabs>
