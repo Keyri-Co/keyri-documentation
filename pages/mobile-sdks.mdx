@@ -1,19 +1,25 @@
 ---
-description: Keyri has developer friendly SDKs for iOS, Android, Flutter, and React Native that make it easy to add QR authentication and robust security to your app.
+description:
+  Keyri's developer-friendly SDKs for iOS, Android, Flutter, and React Native
+  make it easy to add QR authentication and robust security to your app.
 ---
 
 # Mobile SDKs
 
-## Authentication
+Keyri's mobile SDKs are required for
+[cryptographic passwordless authentication](/passwordless-authentication/mobile-app-authentication),
+[QR authentication](/passwordless-authentication/qr-authentication), and
+[fraud prevention](/fraud-prevention/) in native mobile apps. The SDKs are NOT
+required for
+[email magic links](/passwordless-authentication/echoguard/email-magic-link),
+[reverse SMS](/passwordless-authentication/echoguard/reverse-sms),
+[passkeys](/passwordless-authentication/passkeys), or fraud prevention
+[in web apps](/fraud-prevention/web-app-setup).
 
-Keyri's mobile SDKs handle the secure cryptographic key generation, key storage, encryption, API communications, desktop session identification, session management, and QR scanning required to make a QR authentication system work.
+The SDKs additionally provide built-in app security features, such as root,
+malicious app, tampering, and other detection capabilities. This detection runs
+upon SDK initialization and results in the app shutting down before it is
+compromised any further.
 
-The SDKs include pre-built QR authentication UIs that you can use to finish the mobile side of the system quickly. This pre-built UI can be customized to match your app's aesthetic. Alternatively, you can call the SDK's lower-level functions to build your own entirely custom QR authentication UI/UX.
-
-Our SDKs and API allow your customers to scan your QR code from anywhere - from within your app or with their phone's built-in camera app. The latter case is handled by App Links \(Android\) and Universal Links \(iOS\). The mobile SDK documentation here will walk you through how to set this up.
-
-Keyri's mobile SDKs allow you to send custom data from your app to any client showing the Keyri QR widget, with end-to-end encryption, allowing you to build features that go beyond QR authentication functionality.
-
-## Device Fingerprinting
-
-Keyri's mobile SDKs handle the identification of relevant mobile parameters, secure cryptographic key generation, key storage, encryption, and API communications required to create a persistent mobile device fingerprint to track and identify your customers' mobile devices.
+SDKs are available for iOS, Android, React Native, Flutter, and Cordova. Read on
+for installation and initialization instructions.

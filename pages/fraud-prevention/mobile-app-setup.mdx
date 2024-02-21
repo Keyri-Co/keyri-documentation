@@ -1,0 +1,487 @@
+---
+description:
+  Permanently associate your users with their devices to improve UX and reduce
+  fraud
+---
+
+import { Tab, Tabs } from 'nextra-theme-docs';
+
+# Mobile App Fraud Prevention
+
+Keyri offers powerful mobile fingerprinting and device integrity verification,
+accessible in as little as one line of code.
+
+The SDK will:
+
+- Generate a unique fingerprint which persists even when the app is deleted This
+  is something many developers struggle with. It's quite easy to keep a
+  fingerprint UNTIL the app is deleted, but persistence across installations is
+  tricky. This is exacerbated by the ease with which bad actors can clear out
+  records in the iOS Keychain or Android Secure Storage.
+- Send the information to our API using a strong cryptography technique which
+  ensures the information cannot be tampered with or intercepted Note: This
+  information will be available on the Keyri Dashboard
+- Verify device integrity to stop bad actors before they can reverse-engineer
+  your application or do further damage. We have checks to protect against
+  - Jailbreaks
+  - Malicious sideloaded applications
+  - Method swizzling
+  - Code tampering
+  - Emulators
+
+## Requirements
+
+- iOS: iOS 14+
+- Android: API Level 23+
+
+## Implementation and Installation
+
+Fingerprinting and fraud prevention can be accomplished through two ways with
+Keyri SDKs. You have the option to either use simple fingerprinting to
+powerfully bind a user to their device or the full fraud analytics and
+prevention system for full event intelligence.
+
+### Methods
+
+#### Simple Fingerprinting
+
+- `func register(publicUserId: String?, completion: @escaping (Result<RegisterObject, Error>) -> ())`
+  - Set up a cryptographic fingerprint that binds the user to the device.
+    Creates an object containing the public key that you should register on your
+    backend. This will be used for verifying the user-device combination in the
+    future.
+- `func login(publicUserId: String?, completion: @escaping (Result<LoginObject, Error>) -> ())`
+  - Creates an object for verifying the user-device combination with
+    timestamp_nonce, signature, publicKey, userId. Send this to your backend and
+    verify the signature against the user's previously-registered public key.
+
+#### Full Fraud Analytics and Prevention
+
+- `func sendEvent(publicUserId: String, eventType: EventType, success: Bool, completion: (Result<FingerprintResponse, Error>) -> ())`
+  - Send Keyri a fingerprint of the device directly from the app and have the
+    encrypted results returned to the mobile app
+- `func createFingerprint(completion: (Result<FingerprintResponse, Error>) -> ())`
+    - Creates an encrypted fingerprint of the device which can be sent to your backend to be forwarded to Keyri for analysis
+
+### Example: Protecting Registration/Signup
+
+The following example protects your registration/signup flow. Regardless of the
+credentials that the user inputs when trying to create a new account (like a new
+username), the Keyri methods included here will detect whether that device has
+already registered an account, and if so, suggest to the user to log in with
+that existing account rather than create a new one. Of course, you can implement
+other logic like allowing up to two accounts, blocking certain accounts
+altogether, etc.
+
+<Tabs items={['Swift', 'Kotlin', 'Java', 'Dart/Flutter', 'React Native']}>
+<Tab>
+```swift copy
+func registerUser(username: String) throws {
+    let keyri = KeyriInterface(appKey: appKey)
+
+    keyri.register(publicUserId: username) { result in
+        switch result {
+            case .success(let registerObject):
+                // Run your regular registration process
+                // Optionally, do something else with the key that just got generated.
+                // Keyri Handles saving the key in the Secure Enclave for you
+                // For example, you can later use this key pair to passwordlessly authenticate the user
+
+                let fingerprint = keyri.createFingerprint()
+
+                sendFingerprintToBackend(fingerprint: fingerprint)
+            case .failure(let error):
+                // Account already registered, suggest to the user to log in with that existing account
+                // keyri.login(publicUserId: username)
+        }
+    }
+
+}
+
+func sendFingerprintToBackend(fingerprint: [String: Any]) { guard let url =
+URL(string: BASE_URL + "api/fingerprint") else { print("Can't parse request URL:
+\(urlString)")
+
+        return
+    }
+
+    var request = URLRequest(url: url)
+
+    request.httpMethod = "POST"
+    request.httpBody = body
+
+    URLSession.shared.dataTask(with: request) { data, response, error in
+        // Process result
+    }.resume()
+
+}
+```
+</Tab>
+<Tab>
+```kotlin copy
+fun registerUser(username: String) {
+    val keyri = Keyri(this@MainActivity, appKey)
+
+    keyri.register(publicUserId = username).onSuccess { registerObject ->
+        // Run your regular registration process
+        // Optionally, do something else with the key that just got generated.
+        // Keyri Handles saving the key in the Secure Enclave for you
+        // For example, you can later use this key pair to passwordlessly authenticate the user
+
+        val fingerprint = keyri.createFingerprint()
+
+        val fingerprintResult = makeApiCall {
+            sendFingerprintToBackend(fingerprint)
+        }
+
+        // Process result
+    }.onFailure { error ->
+        // Account already registered, suggest to the user to log in with that existing account
+        // keyri.login(publicUserId = username)
+    }
+}
+
+fun provideAuthApiService(): FingerprintApiService {
+    return provideApiService(BASE_URL, FingerprintApiService::class.java)
+}
+
+// ...
+
+interface AuthApiService {
+    @POST("api/fingerprint")
+    suspend fun sendFingerprintToBackend(
+        @Body fingerprint: FingerprintEventRequest,
+    ): Response<FingeprintResult>
+}
+```
+</Tab>
+<Tab>
+```java copy
+void registerUser(String username) {
+    KeyriSdk keyri = new KeyriSdk(this, appKey);
+
+    keyri.register(username, new KeyriCallback<>() {
+        @Override
+        public void onComplete(RegisterObject registerResult) {
+            // Run your regular registration process
+            // Optionally, do something else with the key that just got generated.
+            // Keyri Handles saving the key in the Secure Enclave for you
+            // For example, you can later use this key pair to passwordlessly authenticate the user
+
+            FingerprintEventRequest fingerprint = keyri.createFingerprint()
+
+            URL url = new URL(BASE_URL + "api/fingerprint");
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setRequestProperty("Content-Type", "application/json");
+
+            String fingerprintJson = Gson().toJson(fingerprint);
+
+            httpURLConnection.setDoOutput(true);
+
+            try (OutputStream outputStream = httpURLConnection.getOutputStream()) {
+                outputStream.write(fingerprintJson.getBytes(StandardCharsets.UTF_8));
+                outputStream.flush();
+            }
+
+            int responseCode = httpURLConnection.getResponseCode();
+            // Process result
+        }
+
+        @Override
+        public void onError(@Nullable Throwable throwable) {
+            // Account already registered, suggest to the user to log in with that existing account
+            // keyri.login(username)
+        }
+    });
+
+}
+```
+</Tab>
+<Tab>
+```dart copy
+void registerUser(String username) {
+    Keyri keyri = Keyri(appKey)
+
+    keyri.register(publicUserId: username)
+        .then((registerResult) => {
+            // Run your regular registration process
+            // Optionally, do something else with the key that just got generated.
+            // Keyri Handles saving the key in the Secure Enclave for you
+            // For example, you can later use this key pair to passwordlessly authenticate the user
+
+            var fingerprint = await keyri.createFingerprint()
+
+            sendFingerprintToBackend(fingerprint)
+        })
+        .catchError((error, stackTrace) => {
+            // Account already registered, suggest to the user to log in with that existing account
+            // keyri.login(publicUserId: username)
+        });
+}
+
+Future<http.Response> sendFingerprintToBackend(Map<String, dynamic> body) {
+    return http.post(
+        Uri.parse(BASE_URL + "api/fingerprint"),
+        headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(body),
+    );
+}
+```
+</Tab>
+<Tab>
+```javascript copy
+function registerUser(username: string) {
+    await Keyri.initialize({ appKey : appKey });
+
+    Keyri.register(username)
+        .then((registerResult) => {
+            // Run your regular registration process
+            // Optionally, do something else with the key that just got generated.
+            // Keyri Handles saving the key in the Secure Enclave for you
+            // For example, you can later use this key pair to passwordlessly authenticate the user
+
+            const fingerprint = await Keyri.createFingerprint();
+
+            sendFingerprintToBackend(JSON.stringify(fingerprint));
+        })
+        .catch((error) => {
+            // Account already registered, suggest to the user to log in with that existing account
+            // Keyri.login(username)
+        });
+
+}
+
+function sendFingerprintToBackend(body: string): Promise<Response> { return
+fetch(BASE_URL + 'api/fingerprint', { method: 'POST', headers: { Accept:
+'application/json', 'Content-Type': 'application/json', }, body: body, }); }
+
+```
+</Tab>
+</Tabs>
+
+## Android Accounts Backup
+
+Preserving the simple user-device fingerprints even after your app is deleted and
+re-installed requires additional backup configuration steps. This section will
+help you set up your account backup configuration.
+
+You can find a comparison of Key/Value Backup and Auto Backup here:
+[Android Backup Overview](https://developer.android.com/guide/topics/data/backup).
+
+Keyri backup file `keyri_backup_prefs` is a SharedPreferences file that contains
+Keyri accounts. You need to keep this file after app uninstall to prevent a loss
+of accounts. There are two options for how to do it.
+
+### Android Auto Backup
+
+Auto Backup for Apps automatically backs up a user's data from apps that target
+and run on Android 6.0 (API level 23) or higher.
+
+Make sure that backup is not disabled in your application. `allowBackup` should
+not be false. The default value is true but to make your intentions clear, we
+recommend explicitly setting the attribute in your manifest as shown below:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application android:allowBackup="true">
+        ...
+    </application>
+</manifest>
+```
+
+[](https://github.com/Keyri-Co/keyri-android-whitelabel-sdk/blob/master/keyrisdk/src/main/java/com/keyrico/keyrisdk/backup/BACKUP.md#control-backup-on-android-11-and-lower)**Control
+backup on Android 11 and lower**
+
+Follow the steps in this section to include or exclude files that are backed up
+on devices running Android 11 (API level 30) or lower.
+
+1.  In `AndroidManifest.xml`, add the `android:fullBackupContent` attribute to
+    the `<application>` element. This attribute points to an XML file that
+    contains backup rules. For example:
+
+```xml
+<application android:fullBackupContent="@xml/backup_rules">
+    ...
+</application>
+```
+
+2. Create an XML file called `@xml/backup_rules` in the `res/xml/` directory.
+   Inside the file, add rules with the `<include>` and `<exclude>` elements. The
+   following sample backs up all shared preferences except device.xml:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <include domain="sharedpref" path="." />
+    <exclude domain="sharedpref" path="device.xml" />
+</full-backup-content>
+```
+
+If you have more granular control over sharedPref backups, make sure you have
+included an `keyri_backup_prefs.xml` file.
+
+[](https://github.com/Keyri-Co/keyri-android-whitelabel-sdk/blob/master/keyrisdk/src/main/java/com/keyrico/keyrisdk/backup/BACKUP.md#control-backup-on-android-12-or-higher)
+
+**Control backup on Android 12 or higher**
+
+If your app targets Android 12 (API level 31) or higher, follow the steps in
+this section to include or exclude files that are backed up on devices that are
+running Android 12 or higher.
+
+1.  In `AndroidManifest.xml`, add the `android:dataExtractionRules` attribute to
+    the `<application>` element. This attribute points to an XML file that
+    contains backup rules. For example:
+
+```xml
+<application android:dataExtractionRules="backup_rules.xml">
+    ...
+</application>
+```
+
+2. Create an XML file called `backup_rules.xml` in the `res/xml/` directory.
+   Inside the file, add rules with the `<include>` and `<exclude>` elements. The
+   following sample backs up all shared preferences `except device.xml`:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="sharedpref" path="." />
+        <exclude domain="sharedpref" path="device.xml" />
+    </cloud-backup>
+</data-extraction-rules>
+```
+
+If you have more granular control over sharedPref backups, make sure you have
+include `keyri_backup_prefs.xml` file.
+
+Check for more details
+on [Back up user data with Auto Backup](https://developer.android.com/guide/topics/data/autobackup).
+
+### Key/Value Backup (Android Backup Service)
+
+Android Backup Service provides cloud storage backup and restore for key-value
+data in your Android app. During a key-value backup operation, the app's backup
+data is passed to the device's backup transport. If the device is using the
+default Google backup transport, then the data is passed to Android Backup
+Service for archiving. Data is limited to 5MB per user of your app. There is no
+charge for storing backup data.
+
+`Note: Key-value backup requires you to write code to define your backup content explicitly, while Auto Backup requires no code and will back up entire files. Most apps should use Auto Backup to implement backup and restore. Your app can implement Auto Backup or key-value backup, but not both.`
+
+[](https://github.com/Keyri-Co/keyri-android-whitelabel-sdk/blob/master/keyrisdk/src/main/java/com/keyrico/keyrisdk/backup/BACKUP.md#implement-key-value-backup)**Implement
+key-value backup**
+
+To back up your app data, you need to implement a backup agent. Your backup
+agent is called by the Backup Manager both during backup and restore.
+
+To implement a backup agent, you must:
+
+1.  Declare your backup agent in your manifest file with the
+    android\:backupAgent attribute.
+
+2.  Define a backup agent by doing one of the following:
+
+- Extending BackupAgent The BackupAgent class provides the central interface
+  that your app uses to communicate with the Backup Manager. If you extend this
+  class directly, you must override `onBackup()` and `onRestore()` to handle the
+  backup and restore operations for your data.
+
+- Extending BackupAgentHelper The BackupAgentHelper class provides a convenient
+  wrapper around the `BackupAgent` class, minimizing the amount of code you need
+  to write. In your `BackupAgentHelper`, you must use one or more helper
+  objects, which automatically back up and restore certain types of data, so
+  that you don't need to implement `onBackup()` and `onRestore()`. Unless you
+  need full control over your app's backups, we recommend using
+  the `BackupAgentHelper` to handle your app's backups.
+
+Android currently provides backup helpers that will back up and restore complete
+files from SharedPreferences and internal storage.
+
+You can implement your own backup according to the documentation:
+[Back up key-value pairs with Android Backup Service](https://developer.android.com/guide/topics/data/keyvaluebackup).
+In this case just include `keyri_backup_prefs` string to your BackupAgentHelper
+as shown below:
+
+<Tabs items={['Kotlin', 'Java']}>
+<Tab>
+```kotlin copy
+class MyBackupAgent : BackupAgentHelper() {
+
+    override fun onCreate() {
+        val helper = SharedPreferencesBackupHelper(this, "your prefs files (optional)", "keyri_backup_prefs")
+
+        addHelper("YOUR BACKUP KEY", helper)
+    }
+}
+
+````
+
+</Tab>
+<Tab>
+```java copy
+public class MyBackupAgent extends BackupAgentHelper() {
+
+    @Override
+    public void onCreate() {
+        SharedPreferencesBackupHelper helper = SharedPreferencesBackupHelper(this, "your prefs files (optional)", "keyri_backup_prefs");
+
+        addHelper("YOUR BACKUP KEY", helper);
+    }
+
+}
+
+````
+</Tab>
+</Tabs>
+
+After it just add your `MyBackupAgent` to `AndroidManifest.xml`:
+
+```xml
+<manifest>
+    ...
+    <application android:backupAgent="MyBackupAgent">
+        <activity>
+            ...
+        </activity>
+    </application>
+</manifest>
+```
+
+Or you can just use
+our [KeyriPrefsBackupAgent](https://github.com/Keyri-Co/keyri-android-whitelabel-sdk/blob/master/keyrisdk/src/main/java/com/keyrico/keyrisdk/backup/KeyriPrefsBackupAgent.kt) which
+implements the necessary logic under the hood as shown below:&#x20;
+
+```xml
+<manifest>
+    ...
+    <application android:backupAgent="com.keyrico.keyrisdk.backup.KeyriPrefsBackupAgent">
+        <activity>
+            ...
+        </activity>
+    </application>
+</manifest>
+```
+
+### Testing backup
+
+See
+[Test backup and restore](https://developer.android.com/guide/topics/data/testingbackup)
+to test backup of Keyri accounts.
+
+## Privacy Disclosures
+
+When submitting your Android app that uses the Keyri SDK for fingerprinting, be
+sure to disclose the following data collection practice:
+
+| Data Types          | Collected | Shared | Processed ephemerally | Required or Optional | Purposes  |
+| ------------------- | --------- | ------ | --------------------- | -------------------- | --------- |
+| Device or other IDs | Yes       | Yes    | No                    | Required             | Analytics |
+
+An analogous disclosure is not required for iOS apps, since the device data is
+not used by Keyri for cross-app tracking.
+

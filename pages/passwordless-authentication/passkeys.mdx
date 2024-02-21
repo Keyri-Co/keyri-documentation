@@ -1,0 +1,35 @@
+# Passkey / WebAuthn Overview
+
+Keyri enables you to use Passkeys with any backend as well as over QR, with your
+user scanning a QR code and being taken to their mobile browser to complete
+their biometrics check, which in turn authorizes their desktop browser
+application.
+
+Below is a high level overview of what setting up passkeys with our architecture
+looks like.
+
+## [Web App](./passkeys/web)
+
+1. Add the QR iframe to your login page
+2. Install the library
+3. Configure the library to handle user-triggered events registration,
+   authentication, etc
+4. Set up the library to handle QR-triggered events (info from API - risk data,
+   errors, registrations, etc)
+
+## [Server](./passkeys/server-setup)
+
+1. Set up passkey registration endpoint
+2. Create passkey validation endpoint
+
+## [Mobile Browser Page](./passkeys/mobile-browser)
+
+Create one simple page that will be used to handle the biometric check when the
+user scans the passkey QR code.
+
+1. Import the library
+2. Handle Registration Events
+3. Handle Authentication Events
+
+If you have any questions or need support, feel free to reach out to our team at
+[support@keyri.com](mailto:support@keyri.com).

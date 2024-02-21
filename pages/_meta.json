@@ -1,28 +1,11 @@
 {
   "index": "Introduction",
-  "authentication": "Authentication",
+  "mobile-sdks": "Mobile SDKs",
   "fraud-prevention": "Fraud Prevention",
-  "mobile-sdks": "Mobile SDK Reference",
-  "mobile-security-features": "Mobile Security Features",
-  "integrations": "Auth Integrations",
-  "---": {
-    "type": "separator"
-  },
-  "echoguard": "EchoGuard",
+  "passwordless-authentication": "Passwordless Authentication",
+  "mobile-app-security": "Mobile App Security",
   "----": {
     "type": "separator"
   },
-  "changelog": "Changelog",
-  "dashboard": {
-    "title": "Keyri Dashboard ↗",
-    "type": "page",
-    "href": "https://app.keyri.com",
-    "newWindow": true
-  },
-  "homePage": {
-    "title": "Keyri Home Page ↗",
-    "type": "page",
-    "href": "https://keyri.com",
-    "newWindow": true
-  }
+  "changelog": "Changelog"
 }

@@ -1,6 +1,4 @@
 {
-  "ios": "iOS",
-  "android": "Android",
-  "react-native": "React Native",
-  "flutter": "Flutter"
+  "installation": "Installation and Initialization",
+  "api-reference": "API Reference"
 }

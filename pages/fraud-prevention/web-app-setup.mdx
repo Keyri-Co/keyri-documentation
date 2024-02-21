@@ -1,0 +1,70 @@
+---
+description:
+  Permanently associate your users with their devices to improve UX and reduce
+  fraud
+---
+
+# Web App Fingerprinting and Fraud Prevention
+
+Keyri provides a JavaScript agent for fraud analytics that produces durable
+device ID fingerprints that persist across sessions. It provides risk analytics
+data to your client and server for events you want analyzed. Trigger the fraud
+analytics agent at each event that you want to assess the risk of; the Keyri API
+will provide a summary of the risk level and details about the event's risk
+signals as well as details about the user such as location. The JavaScript agent
+is lightweight and can be deployed in a few minutes.
+
+## Features
+
+- Retrieve device data for logging and analytics
+- Create device identifier based on device data
+
+## Installing
+
+### Package manager
+
+Using npm:
+
+```bash
+$ npm i @keyri/xray
+```
+
+### Using CDN:
+
+```html
+<!-- Adding library from NPM via UNPKG -->
+<script type="module">
+  // Pull Library from CDN
+  import { XRAY } from 'https://unpkg.com/@keyri/xray/index.mjs';
+</script>
+```
+
+## Usage
+
+Once the package is installed, you can import the library as follows. The
+library outputs an encrypted client object that you first pass to your server
+and thereafter use to make requests to the Keyri API.
+
+```javascript
+import { XRAY } from '@keyri/xray';
+
+const _xray = new XRAY(); // Instantiate the library
+await _xray.load(); // Load into memory
+const xray = _xray.xray; // Expose the main functionality
+
+// Get Encrypted Analytics Payload returned locally
+const encrypted_fraud_data = await xray.scan({ apiUrl: 'local' });
+```
+
+### Data Transmission
+
+Send the collected data to your server using your preferred method (Attached to
+a form submission, XHR, WebSockets, WebRTC, etc.).
+
+Example payload from `xray.scan()`:
+
+```json
+{
+  "encryptedB64Payload": "eyJjbGllbnRFbmNyeX...U4UmVJK09wOHc9PSJ9"
+}
+```

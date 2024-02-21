@@ -15,16 +15,16 @@
   "license": "MIT",
   "homepage": "https://keyri.com",
   "dependencies": {
-    "next": "^13.4.19",
-    "next-seo": "^6.1.0",
-    "nextra": "2.12.3",
-    "nextra-theme-docs": "2.12.3",
+    "next": "^13.5.6",
+    "next-seo": "^6.4.0",
+    "nextra": "2.13.3",
+    "nextra-theme-docs": "2.13.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/node": "20.5.7",
     "@types/react": "18.2.21",
-    "typescript": "^5.2.2"
+    "typescript": "^5.3.3"
   }
 }

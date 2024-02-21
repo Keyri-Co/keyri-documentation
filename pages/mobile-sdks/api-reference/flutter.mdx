@@ -1,0 +1,417 @@
+---
+description: Keyri’s Flutter SDK handles secure cryptographic key generation, key storage, encryption, API communications, and other functions for authentication and fraud prevention.
+---
+
+# Keyri Flutter SDK
+
+Note that the following documentation is focused specifically on Keyri's QR authentication use case. Other use cases as discussed elsewhere in this documentation can be implemented with the Keyri Flutter SDK using the same named methods, but are not covered here, and instead should be referenced in their use case-specific documentation page.
+
+## System Requirements
+
+- Android API level 23 or higher
+- AndroidX compatibility
+- iOS 14+
+- Swift 5+
+- Apple A7 chip or newer \(The A7 shipped with the iPhone 5s\)
+
+## Integration
+
+To integrate the Keyri Dart Package, run this command in terminal in root of the project directory:
+
+```shell copy
+$ flutter pub add keyri_v3
+```
+
+The SDK can then be imported into any dart file as follows:
+
+```dart copy
+import 'package:keyri_v3/keyri.dart';
+```
+
+## API
+
+The Keyri Flutter API reference can be found on pub.dev: https://pub.dev/documentation/keyri/latest/
+
+More detailed descriptions of each method can be found on the relevant native SDK documentation pages:
+
+- [iOS](/mobile-sdks/ios)
+- [Android](/mobile-sdks/android)
+
+## Usage
+
+Below is an example code block which utilizes the Keyri library in 2 common ways:
+
+### `easyKeyriAuth()`
+
+This function allows Keyri to handle everything for you - simply pass in the User Id, App Key, and Payload and Keyri will handle displaying a built-in QR scanner, get the session information, present a Confirmation Dialogue to the user, and finalize the details with the API.
+
+### `initiateQrSession()`
+
+This function can be used if you'd like to present your own custom Scanner and/or Confirmation dialogue to the user. This also works for Universal Links/App Links (see below) Calling this function returns a Session object, which can be handled by:
+
+1.  Automatically confirming \(via `confirmSession()`\)
+
+2.  Presenting your own custom confirmation screen to the user
+
+3.  Presenting the built-in Keyri confirmation screen \(`initializeDefaultConfirmationScreen()`\) - this method is used below
+
+```dart copy
+import 'package:flutter/material.dart';
+import 'package:keyri_v3/keyri.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+const String appKey = "[Your app key here]"; // Change it before launch
+const String? publicApiKey = null; // Change it before launch, optional
+const String? serviceEncryptionKey = null; // Change it before launch, optional
+const bool blockEmulatorDetection = true;
+const String? publicUserId = null; // Change it before launch, optional
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: 'Keyri Example',
+        theme: ThemeData(primarySwatch: Colors.blue),
+        home: const KeyriHomePage(title: 'Keyri Example'));
+  }
+}
+
+class KeyriHomePage extends StatefulWidget {
+  const KeyriHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  State<KeyriHomePage> createState() => _KeyriHomePageState();
+}
+
+class _KeyriHomePageState extends State<KeyriHomePage> {
+  Keyri keyri = Keyri(appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey, blockEmulatorDetection: true);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.title)),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            button(_easyKeyriAuth, 'Easy Keyri Auth'),
+            button(_customUI, 'Custom UI')
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _easyKeyriAuth() {
+    keyri
+        .easyKeyriAuth('Some payload', publicUserId: publicUserId)
+        .then((authResult) => _onAuthResult(authResult == true ? true : false))
+        .catchError((error, stackTrace) => _onError(error));
+  }
+
+  void _customUI() {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => const KeyriScannerAuthPage()));
+  }
+
+  void _onError(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _onAuthResult(bool result) {
+    String text;
+    if (result) {
+      text = 'Successfully authenticated!';
+    } else {
+      text = 'Authentication failed';
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+  }
+
+  Widget button(VoidCallback onPressedCallback, String text) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.deepPurple,
+      ),
+      onPressed: onPressedCallback,
+      child: Text(text),
+    );
+  }
+}
+
+class KeyriScannerAuthPage extends StatefulWidget {
+  const KeyriScannerAuthPage({Key? key}) : super(key: key);
+
+  @override
+  State<KeyriScannerAuthPage> createState() => _KeyriScannerAuthPageState();
+}
+
+class _KeyriScannerAuthPageState extends State<KeyriScannerAuthPage> {
+  bool _isLoading = false;
+
+  Keyri keyri = Keyri(appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey, blockEmulatorDetection: true);
+
+  void onMobileScannerDetect(BarcodeCapture barcodes) {
+    if (barcodes.barcodes.isNotEmpty && !_isLoading) {
+      var barcode = barcodes.barcodes[0];
+
+      if (barcode.rawValue == null) {
+        debugPrint('Failed to scan Barcode');
+        return;
+      }
+
+      final String? code = barcode.rawValue;
+      debugPrint('Scanned barcode: $code');
+
+      if (code == null) return;
+
+      var sessionId = Uri.dataFromString(code).queryParameters['sessionId'];
+
+      if (sessionId == null) return;
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      _onReadSessionId(sessionId);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            flex: 1,
+            child: _isLoading
+                ? const Center(
+                    child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [CircularProgressIndicator()]))
+                : MobileScanner(onDetect: onMobileScannerDetect),
+          )
+        ],
+      ),
+    );
+  }
+
+  Future<void> _onReadSessionId(String sessionId) async {
+    keyri
+        .initiateQrSession(sessionId, publicUserId: publicUserId)
+        .then((session) => keyri
+            .initializeDefaultConfirmationScreen('Some payload')
+            .then((authResult) => _onAuthResult(authResult))
+            .catchError((error, stackTrace) => _onError(error.toString())))
+        .catchError((error, stackTrace) => _onError(error.toString()));
+  }
+
+  void _onError(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+
+    Future.delayed(const Duration(milliseconds: 2000), () {
+      setState(() {
+        _isLoading = false;
+      });
+    });
+  }
+
+  void _onAuthResult(bool result) {
+    var successfullyAuthenticatedText = 'Successfully authenticated!';
+
+    if (!result) {
+      successfullyAuthenticatedText = 'Failed to authenticate';
+    }
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(successfullyAuthenticatedText)));
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+}
+```
+
+## Deep linking
+
+### iOS - Universal Links
+
+To handle Universal Links (e.g., for QR login straight from the user's built-in camera app), you need to add the Associated Domains Entitlement to your App.entitlements file. To set up the entitlement in your app, open the target’s Signing & Capabilities tab in Xcode and add the Associated Domains capability, or if you already have entitlements you can modify your App.entitlements file to match this example:
+
+```xml copy
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:{domainName}</string>
+	</array>
+</dict>
+</plist>
+```
+
+This will handle all links with the following scheme: `https://{yourCompany}.onekey.to?sessionId={sessionId}`
+
+**Note:** Keyri will create your `https://{yourCompany}.onekey.to` page automatically once you configure it in the [dashboard](https://app.keyri.com)
+
+In the AppDelegate where the processing of links is declared, you need to add handlers in the `application(_:continue:restorationHandler:)` method:
+
+```swift copy
+func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+    guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+        let incomingURL = userActivity.webpageURL
+    else {
+        return false
+    }
+    let keyri = KeyriInterface(appKey: appKey)
+    keyri.processLink(url: incomingURL, payload: 'Custom', publicUserId: 'username')
+
+    return true
+}
+```
+
+**Note:** Keyri will set up the required `/.well-known/apple-app-site-association` JSON at your `https://{yourSubdomain}.onekey.to` page as required by Apple to handle Universal Link handling. Details on this mechanism are described here: https://developer.apple.com/documentation/Xcode/supporting-associated-domains
+
+### Android - App Links
+
+To handle Android App Links \(e.g., for QR login straight from the user's built-in camera app\) you need to define the following intent-filter block in your **AndroidManifest.xml**:
+
+```xml copy
+<application...>
+<!-- ...  -->
+    <activity...>
+        <!-- ...  -->
+        <intent-filter android:autoVerify="true">
+            <action android:name="android.intent.action.VIEW" />
+
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+
+        <data android:host="${domainName}" android:scheme="https" />
+        </intent-filter>
+    </activity>
+</application>
+```
+
+In the activity where the processing of links is declared, you need to add handlers in the `onNewIntent()` and `onCreate()` methods, and pass \`sessionId\` to \`easyKeyriAuth\` method:
+
+```kotlin copy
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContentView(R.layout.activity_main)
+
+    intent.data?.let(::process)
+}
+
+override fun onNewIntent(intent: Intent) {
+    super.onNewIntent(intent)
+    process(intent.data)
+}
+
+override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    super.onActivityResult(requestCode, resultCode, data)
+    // Process result of easyKeyriAuth here
+}
+
+private fun processLink(data: Uri?) {
+    data?.getQueryParameters("sessionId")?.firstOrNull()?.let { sessionId ->
+        lifecycleScope.launch(Dispatchers.IO) {
+            easyKeyriAuth(
+                this@MainActivity,
+                123, // Request code (or you can use ActivityResult API)
+                "[Your appKey]", // Get this value from the Keyri dashboard
+                "[Your publicApiKey]", // Get this value from the Keyri dashboard, optional,
+                "[Your serviceEncryptionKey]", // Get this value from the Keyri dashboard, optional
+                true, // blockEmulatorDetection
+                "Custom payload here",
+                "public-User-ID", // publicUserId is optional
+            )
+        }
+    } ?: Log.e("Keyri", "Failed to process link")
+}
+```
+
+## Interacting with the API
+
+The following methods are available to interact with the Keyri SDK API, which can be used to craft your own custom flows and leverage the SDK in different ways:
+
+- `Future<Session> initiateQrSession(String sessionId, {String? publicUserId})` - call it after obtaining the sessionId from QR code or deep link. Returns Session object with Risk attributes (needed to show confirmation screen) or Exception
+
+- `Future<bool> easyKeyriAuth(String payload, {String? publicUserId})` - handle process flow with passed scanned url and showing default confirmation screen. Easiest way to process session from deeplink
+
+- `Future<bool> initializeDefaultConfirmationScreen(String payload)` - to show Confirmation with default UI. Returns Boolean result. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
+
+- `Future<LoginObject> login({String? publicUserId})` - call this method to generate object for login which includes timestampNonce, signature, publicKey and userId
+
+- `Future<RegisterObject> register({String? publicUserId})` - call this method to generate object for register which includes publicKey and userId
+
+- `Future<bool> confirmSession(String payload, bool trustNewBrowser)` - call this function if user confirmed the dialog, trustNewBrowser is false by default. Returns Boolean authentication result
+
+- `Future<bool> denySession(String payload)` - call if the user denied the dialog. Returns Boolean authentication result
+
+- `Future<bool> processLink(String link, String payload, {String? publicUserId})` - process flow with passed uri with showing default confirmation screen. Easiest way to process session from deeplink. Returns result of authentication or error
+
+- `Future<String?> generateAssociationKey({String? publicUserId})` - creates a persistent ECDSA keypair for the given public user ID (example: email address) and returns public key
+
+- `Future<String?> generateUserSignature({String? publicUserId, required String data})` - returns an ECDSA signature of the timestamp and optional data with the publicUserId's privateKey (or, if not provided, anonymous privateKey), data can be anything
+
+- `Future<Map<String, String>> listAssociationKeys()` - returns a list of names (publicUserIds) of "association keys" (public keys)
+
+- `Future<Map<String, String>> listUniqueAccounts()` - returns a list of association keys except key for Anon user
+
+- `Future<String?> getAssociationKey({String? publicUserId})` - returns Base64 public key for the specified publicUserId
+
+- `Future<bool> removeAssociationKey(String publicUserId)` - removes public key for the specified publicUserId
+
+- `Future<FingerprintEventResponse> sendEvent({String? publicUserId, required EventType eventType, required bool success}))` - sends fingerprint event with specified event type and result. Returns the event risk response object from the Keyri API
+
+- `Future<FingerprintEventRequest> createFingerprint()` - creates and returns fingerprint event object
+
+## Session Object
+
+The session object is returned on successful `initiateQrSession` calls, and is used to handle presenting the situation to the end user and getting their confirmation to complete authentication. Below are some of the key properties and methods that can be triggered. If you are utilizing the built-in views, you are only responsible for calling the confirm/deny methods above
+
+- iPAddressMobile/Widget - The IP Address of both mobile device and web browser
+
+- riskAnalytics - if applicable
+
+- riskStatus - clear, warn or deny
+
+- riskFlagString - if RiskStatus is warn or deny, this string alerts the user to what is triggering the risk situation
+
+- geoData - Location data for both mobile and widget
+
+    - mobile
+
+    - city
+
+    - country_code
+
+    - browser
+
+    - city
+
+    - country_code
+
+- mobileTemplateResponse - Use this object to define confirmation screen UI
+
+- `confirmSession()` and `denySession()` - see descriptions in **Interacting with the API**.
+
+# Disclaimer
+
+We care deeply about the quality of our product and rigorously test every piece of functionality we offer. That said, every integration is different. Every app on the App Store has a different permutation of build settings, compiler flags, processor requirements, compatibility issues etc and it's impossible for us to cover all of those bases, so we strongly recommend thorough testing of your integration before shipping to production. Please feel free to email us at support@keyri.com to submit a bug report or feature request

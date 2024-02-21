@@ -1,0 +1,526 @@
+---
+description: Keyri's Android SDK handles secure cryptographic key generation, key storage, encryption, API communications, and all other functions for authentication and fraud prevention.
+---
+
+import { Tab, Tabs } from 'nextra-theme-docs';
+import { AndroidSDKVersion } from 'components/AndroidSDKVersion';
+
+# Keyri Android SDK
+
+## System Requirements
+
+- Android API level 23 or higher
+- AndroidX compatibility
+- Kotlin's coroutines compatibility
+
+Note: Your app does not have to be written in Kotlin to integrate this SDK, but it must be able to depend on Kotlin functionality.
+
+## Integration
+
+Add the Keyri SDK dependency to your module `build.gradle` file and sync project, replacing `VERSION_NUMBER` with the latest version number, currently **<AndroidSDKVersion />**:
+
+```kotlin copy
+dependencies {
+    // ...
+    implementation("com.keyri:keyrisdk:VERSION_NUMBER")
+}
+```
+
+If you are using Java, you also need to add the following dependency to your module:
+
+```kotlin copy
+dependencies {
+    // ...
+    implementation("com.keyri:keyrisdk:VERSION_NUMBER")
+    implementation("com.keyri:keyrisdk-java:VERSION_NUMBER")
+}
+```
+
+### Option 1 - App Links
+
+To handle Android App Links \(e.g., for QR login straight from the user's built-in camera app\) you need to define the following intent-filter block in your `AndroidManifest.xml`:
+
+```xml copy
+<application...>
+<!-- ...  -->
+    <activity...>
+        <!-- ...  -->
+        <intent-filter android:autoVerify="true">
+            <action android:name="android.intent.action.VIEW" />
+
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+
+        <data android:host="${domainName}" android:scheme="https" />
+        </intent-filter>
+    </activity>
+</application>
+```
+
+This will handle all links with the following scheme: `https://{yourCompany}.onekey.to?sessionId={sessionId}`
+
+**Note:** Keyri will create your `https://{yourCompany}.onekey.to` page automatically once you configure it in the [dashboard](https://app.keyri.com)
+
+In the activity where the processing of links is declared, you need to add handlers in the `onNewIntent()` and `onCreate()` methods, and pass `sessionId` to `easyKeyriAuth` method:
+
+<Tabs items={['Kotlin', 'Java']}>
+<Tab>
+```kotlin copy
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContentView(R.layout.activity_main)
+
+    intent.data?.let(::processLink)
+}
+
+override fun onNewIntent(intent: Intent) {
+    super.onNewIntent(intent)
+    processLink(intent.data)
+}
+
+private fun processLink(url: Uri?) {
+    val appKey = "[Your appKey]" // Get this value from the Keyri Dashboard
+    val publicApiKey = "[Your publicApiKey]" // Get this optional value from the Keyri Dashboard for Fraud Prevention
+    val serviceEncryptionKey = "[Your serviceEncryptionKey]" // Get this optional value from the Keyri Developer Portal for Fraud Prevention
+    val publicUserId = "public-User-Id" // publicUserId is optional
+    val payload = "Custom payload here"
+
+    // Be sure to import the SDK at the top of the file
+    val keyri = Keyri(this@MainActivity, appKey, publicApiKey, serviceEncryptionKey)
+
+    // Process link and call initiateQrSession
+    url?.getQueryParameters("sessionId")?.firstOrNull()?.let { sessionId ->
+        lifecycleScope.launch(Dispatchers.IO) {
+            keyri.initiateQrSession(sessionId, publicUserId).onSuccess { session ->
+                 // You can optionally create a custom screen and pass the session ID there. We recommend this approach for large enterprises
+                 val result = keyri.initializeDefaultConfirmationScreen(supportFragmentManager, session, payload).getOrThrow()
+
+                 // In a real world example you’d wait for user confirmation first
+                 session.confirm(payload = payload, context = this, trustNewBrowser = true) // or session.deny(payload, context)
+            }
+        }
+    } ?: Log.e("Keyri", "Failed to process link")
+
+    // Or delegate link processing to Keyri SDK
+    url?.let {
+        keyri.processLink(supportFragmentManager, url, payload, publicUserId).onSuccess {
+            // Successfully authenticated
+        }
+    } ?: Log.e("Keyri", "Failed to process link")
+}
+
+```
+</Tab>
+<Tab>
+```java copy
+@Override
+protected void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+
+    processLink(getIntent().getData());
+}
+
+@Override
+protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    processLink(intent.getData());
+}
+
+private void processLink(@Nullable Uri url) {
+    String appKey = "[Your appKey here]"; // Get this value from the Keyri Dashboard
+    String publicApiKey = "[Your publicApiKey here]"; // Get this optional value from the Keyri Dashboard for Fraud Prevention
+    String serviceEncryptionKey = "[Your serviceEncryptionKey here]"; // Get this optional value from the Keyri Developer Portal for Fraud Prevention
+    String publicUserId = "public-User-Id"; // publicUserId is optional
+    String payload = "Custom payload here";
+
+    String sessionId = url.getQueryParameters("sessionId").get(0);
+
+    KeyriSdk keyri = new KeyriSdk(this, appKey, publicApiKey, serviceEncryptionKey);
+
+    if (sessionId != null) {
+        keyri.initiateQrSession(sessionId, publicUserId, new KeyriCallback<>() {
+            @Override
+            public void onComplete(KeyriSession session) {
+                // You can optionally create a custom screen and pass the session ID there. We recommend this approach for large enterprises
+                keyri.initializeDefaultConfirmationScreen(getSupportFragmentManager(), session, payload, new KeyriCallback<>() {
+                    @Override
+                    public void onComplete(Unit result) {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        // On error
+                    }
+                });
+
+                // In a real world example you’d wait for user confirmation first
+                session.confirm(payload, context, true, new KeyriCallback<>() { // or session.deny(payload, context)
+                    @Override
+                    public void onComplete(Unit result) {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        // On error
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                // On error
+            }
+        });
+    } else {
+        Log.e("Keyri", "Failed to process link");
+    }
+
+    // Or delegate link processing to Keyri SDK
+    keyri.processLink(getSupportFragmentManager(), url, payload, publicUserId, new KeyriCallback<>() {
+        @Override
+        public void onComplete(Unit result) {
+            // Successfully authenticated
+        }
+
+        @Override
+        public void onError(@Nullable Throwable throwable) {
+            // On error
+        }
+    });
+}
+
+```
+</Tab>
+</Tabs>
+
+**Note:** Keyri will set up the required `/.well-known/assetlinks.json` JSON at your `https://{yourSubdomain}.onekey.to` page as required by Android App Links handling. Details on this mechanism are described here: https://developer.android.com/training/app-links/verify-site-associations
+
+### Option 2 - In-App Scanner
+
+Add Scanner dependency to your module **build.gradle** file and sync project:
+
+```kotlin copy
+dependencies {
+    // ...
+    implementation("com.keyri:keyrisdk:VERSION_NUMBER")
+    implementation("com.keyri:scanner:VERSION_NUMBER")
+}
+```
+
+Use `AuthWithScannerActivity` built-in functionality to delegate authentication to SDK. You can use `ActivityResult API` or `onActivityResult`. Call `easyKeyriAuth` and pass `appKey`, `payload` and optional `publicApiKey` and `publicUserId`:
+
+<Tabs items={['Kotlin', 'Java']}>
+<Tab>
+```kotlin copy
+private val easyKeyriAuthLauncher =
+    registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult ->
+        val isSuccess = activityResult.resultCode == Activity.RESULT_OK
+        // Handle authentication result
+        // ...
+    }
+
+override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    super.onActivityResult(requestCode, resultCode, data)
+    val isSuccess = resultCode == Activity.RESULT_OK
+    // Handle authentication result
+    // ...
+}
+
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    // ...
+    binding.bAuthWithScanner.setOnClickListener {
+        // With ActivityResult API
+
+        val appKey = "[Your appKey]" // Get this value from the Keyri Dashboard
+        val publicApiKey = "[Your publicApiKey]" // Get this optional value from the Keyri Dashboard for Fraud Prevention
+        val serviceEncryptionKey = "[Your serviceEncryptionKey]" // Get this optional value from the Keyri Developer Portal for Fraud Prevention
+        val publicUserId = "public-User-Id" // publicUserId is optional
+        val payload = "Custom payload here"
+
+        easyKeyriAuth(
+            this@MainActivity, // Context
+            easyKeyriAuthLauncher, // ActivityResult API
+            appKey,
+            publicApiKey,
+            serviceEncryptionKey,
+            true, // blockEmulatorDetection
+            payload,
+            publicUserId
+        )
+
+        // Or with on activityResult:
+
+        // This will call an activity that will return a result
+        // Handle this result in onActivityResult function
+        easyKeyriAuth(
+            this@MainActivity, // Activity
+            REQUEST_CODE, // To use onActivityResult
+            appKey,
+            publicApiKey,
+            serviceEncryptionKey,
+            true, // blockEmulatorDetection
+            payload,
+            publicUserId
+        )
+    }
+}
+
+```
+</Tab>
+<Tab>
+```java copy
+private final ActivityResultLauncher<Intent> easyKeyriAuthLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<>() {
+    @Override
+    public void onActivityResult(ActivityResult result) {
+        boolean isSuccess = result.getResultCode() == Activity.RESULT_OK;
+        // Handle authentication result
+        // ...
+    }
+});
+
+@Override
+protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    boolean isSuccess = requestCode == Activity.RESULT_OK;
+    // Handle authentication result
+    // ...
+}
+
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    binding = ActivityAuthBinding.inflate(getLayoutInflater());
+    setContentView(binding.getRoot());
+
+    Uri intentData = getIntent().getData();
+
+    if (intentData != null) {
+        processLink(intentData);
+    }
+}
+
+private void processLink(Uri intentData) {
+    binding.bAuthWithScanner.setOnClickListener(view -> {
+        // With ActivityResult API
+
+        String appKey = "[Your appKey]"; // Get this value from the Keyri Dashboard
+        String publicApiKey = "[Your publicApiKey]"; // Get this optional value from the Keyri Dashboard for Fraud Prevention
+        String serviceEncryptionKey = "[Your serviceEncryptionKey]"; // Get this optional value from the Keyri Developer Portal for Fraud Prevention
+        String publicUserId = "public-User-Id"; // publicUserId is optional
+        String payload = "Custom payload here";
+
+        EasyKeyriAuth.easyKeyriAuth(
+            this, // Context
+            easyKeyriAuthLauncher, // ActivityResult API
+            appKey,
+            publicApiKey,
+            serviceEncryptionKey,
+            true, // blockEmulatorDetection
+            payload,
+            publicUserId
+        );
+
+        // Or with on activityResult:
+
+        // This will call an activity that will return a result
+        // Handle this result in onActivityResult function
+        EasyKeyriAuth.easyKeyriAuth(
+            this, // Context
+            REQUEST_CODE, // To use onActivityResult
+            appKey,
+            publicApiKey,
+            serviceEncryptionKey,
+            true, // blockEmulatorDetection
+            payload,
+            publicUserId
+        );
+    });
+}
+
+```
+</Tab>
+</Tabs>
+
+Or define a custom scanner UI/UX. You can use Firebase ML Kit, ZXing, your own scanner, or any other equivalent. All you need to do is convert to URI, and then you're free to process the response the same way we did above (notice the `process(uri)` function is exactly the same in both cases)
+
+### Jetpack Compose support
+
+Add Keyri Compose dependency to your module `build.gradle` file and sync project:
+
+```kotlin copy
+dependencies {
+    // ...
+    implementation("com.keyri:keyrisdk:VERSION_NUMBER")
+    implementation("com.keyri:compose:VERSION_NUMBER")
+}
+```
+
+Use `ScannerPreview` for retrieving sessionId from scanned QR code. All you need here to provide is:
+
+- `modifier: Modifier` - modifier object to change the appearance of the ScannerPreview.
+
+- `onScanResult: ((Result<String>) -> Unit = {})` - callback for handling sessionId.
+
+- `onClose: () -> Unit = {}` - callback for handling close button.
+
+- `isLoading: Boolean = false` - value to show progress bar.
+
+- `typography: androidx.compose.material3.Typography = defaultTypography` - typography for text elements. After you receive `Session` object you can create your own confirmation dialog or use default: `ConfirmationModalBottomSheet`. Provide next arguments:
+
+- `modalBottomSheetState: ModalBottomSheetState` - state to to manage BottomSheet.
+
+- `coroutineScope: CoroutineScope` - coroutine scope for suspending calls inside BottomSheet.
+
+- `session: Session? = null` - session object to process \(should not be null when modalBottomSheetState is shown\).
+
+- `payload: String` - can be anything (session token or a stringified JSON containing multiple items. Can include things like publicUserId, timestamp, customSignedData and ECDSA signature).
+
+- `onResult: (Result<Unit>) -> Unit` - callback for handling result of user confirmation.
+
+- `typography: androidx.compose.material3.Typography = defaultTypography` - typography for text elements.
+
+To handle deeplink with default confirmation screen you can use `EasyKeyriAuth `composable:
+
+```kotlin copy
+val coroutineScope = rememberCoroutineScope()
+
+val modalBottomSheetState = rememberModalBottomSheetState(
+    initialValue = ModalBottomSheetValue.Hidden,
+    skipHalfExpanded = true
+)
+
+EasyKeyriAuth(
+    modalBottomSheetState,
+    coroutineScope,
+    keyri,
+    sessionId,
+    "Custom payload here",
+    "public-User-Id" // publicUserId is optional
+) { result ->
+    // Process result
+}
+
+```
+
+## Interacting with the API
+
+The following methods are available to interact with the Keyri SDK API, which can be used to craft your own custom flows and leverage the SDK in different ways:
+
+### Kotlin
+
+- `suspend fun Keyri.initiateQrSession(sessionId: String, publicUserId: String?): Result<Session>` - call it after obtaining the sessionId from QR code or deep link. Returns result of Session object with Risk attributes (needed to show confirmation screen) or Throwable error
+
+- `suspend fun Keyri.initializeDefaultConfirmationScreen(fragmentManager: FragmentManager, session: Session, payload: String): Result<Unit>` - to show Confirmation with default UI. Returns result or Throwable error. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
+
+- `suspend fun Keyri.login(publicUserId: String?): Result<LoginObject>` - call this method to generate object for login which includes timestampNonce, signature, publicKey and userId
+
+- `suspend fun Keyri.register(publicUserId: String?): Result<RegisterObject>` - call this method to generate object for register which includes publicKey and userId
+
+- `suspend fun Session.confirm(payload: String, context: Context, trustNewBrowser: Boolean = false): Result<Unit>` - call this function if user confirmed the dialog. Returns authentication result or Throwable error
+
+- `suspend fun Session.deny(payload: String, context: Context): Result<Unit>` - call if the user denied the dialog. Returns denial result or Throwable error
+
+- `suspend fun Keyri.processLink(fragmentManager: FragmentManager, url: Uri, payload: String, publicUserId: String?): Result<Unit>` - process flow with passed uri with showing default confirmation screen. Easiest way to process session from deeplink. Returns result of authentication or Throwable error
+
+- `suspend fun Keyri.sendEvent(publicUserId: String = ANON_USER, eventType: EventType, success: Boolean): Result<FingerprintEventResponse>` - sends fingerprint event and event result for specified publicUserId's
+
+- `suspend fun Keyri.createFingerprint(): Result<FingerprintEventRequest>` - creates and returns fingerprint event object
+
+- `suspend fun Keyri.generateAssociationKey(publicUserId: String = "ANON"): Result<String>` - creates a persistent ECDSA keypair for the given publicUserId (example: email address) or default without arguments and return Base64 string public key
+
+- `suspend fun Keyri.generateUserSignature(publicUserId: String = "ANON", data: String): Result<String>` - returns an ECDSA signature of custom data for sign with the custom publicUserId's privateKey (or, if not provided, anonymous privateKey), customSignedData can be anything
+
+- `suspend fun Keyri.listAssociationKeys(): Result<Map<String, String>>` - returns a map of "association keys" and ECDSA Base64 public keys
+
+- `suspend fun Keyri.listUniqueAccounts(): Result<Map<String, String>>` - returns a map of unique "association keys" and ECDSA Base64 public keys
+
+- `suspend fun Keyri.getAssociationKey(publicUserId: String = "ANON"): Result<String?>` - returns association Base64 public key for the specified publicUserId (or, if not provided, for anonymous). Returns null if not generated yet
+
+- `suspend fun Keyri.removeAssociationKey(publicUserId: String): Result<Unit>` - removes association public key for the specified publicUserId
+
+- `fun easyKeyriAuth(content: Context, easyKeyriAuthLauncher: ActivityResultLauncher<Intent>, appKey: String, publicApiKey: String?, serviceEncryptionKey: String?, blockEmulatorDetection: Boolean = true, payload: String, publicUserId: String?)` - launches scanner activity with default confirmation screen for ActivityResultLauncher
+
+- `fun easyKeyriAuth(activity: Activity, requestCode: Int, appKey: String, publicApiKey: String?, serviceEncryptionKey: String?, blockEmulatorDetection: Boolean = true, payload: String, publicUserId: String?)` - launches scanner activity for result with default confirmation screen for onActivityResult
+
+- `@Composable fun EasyKeyriAuth(sheetState: ModalBottomSheetState, coroutineScope: CoroutineScope, keyri: Keyri, sessionId: String, payload: String, publicUserId: String?, result: (Result<Unit>) -> Unit)` - handle process flow with passed scanned url and showing default confirmation screen. Easiest way to process session from deeplink
+
+- `@Composable fun ConfirmationModalBottomSheet(modalBottomSheetState: ModalBottomSheetState, coroutineScope: CoroutineScope, session: Session? = null, payload: String, onResult: (Result<Unit>) -> Unit, typography: androidx.compose.material3.Typography = defaultTypography)` - to show Confirmation with default UI. Returns result or Throwable error
+
+- `@Composable fun ScannerPreview(modifier: Modifier = Modifier, onScanResult: (Result<String>) -> Unit = {}, onClose: () -> Unit = {}, isLoading: Boolean = false, typography: androidx.compose.material3.Typography = defaultTypography)` - default QR scanner implementation based on ML Kit. Returns result of scanning (string sessionId or error)
+
+Payload can be anything (session token or a stringified JSON containing multiple items. Can include things like publicUserId, timestamp, customSignedData and ECDSA signature)
+
+
+### Java
+
+- `void KeyriSdk.initiateQrSession(String sessionId, @Nullable String publicUserId, KeyriCallback<KeyriSession> callback)` - call it after obtaining the sessionId from QR code or deep link. Returns result of Session object with Risk attributes (needed to show confirmation screen) or Throwable error
+
+- `void KeyriSdk.initializeDefaultConfirmationScreen(FragmentManager fragmentManager, KeyriSession session, String payload, KeyriCallback<Unit> callback)` - to show Confirmation with default UI. Returns result or Throwable error. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
+
+- `void KeyriSdk.login(@Nullable String publicUserId, KeyriCallback<LoginObject> callback)` - call this method to generate object for login which includes timestampNonce, signature, publicKey and userId
+
+- `void KeyriSdk.register(@Nullable String publicUserId, KeyriCallback<RegisterObject> callback)` - call this method to generate object for register which includes publicKey and userId
+
+- `void KeyriSession.confirm(String payload, Context context, boolean trustNewBrowser, KeyriCallback<Unit> callback)` - call this function if user confirmed the dialog. Returns authentication result or Throwable error
+
+- `void KeyriSession.deny(String payload, Context context, KeyriCallback<Unit> callback)` - call if the user denied the dialog. Returns denial result or Throwable error
+
+- `void KeyriSdk.processLink(FragmentManager fragmentManager, Uri url, String payload, @Nullable String publicUserId, KeyriCallback<Unit> callback)` - process flow with passed uri with showing default confirmation screen. Easiest way to process session from deeplink. Returns result of authentication or Throwable error
+
+- `void KeyriSdk.sendEvent(String publicUserId, EventType eventType, boolean success, KeyriCallback<FingerprintEventResponse> callback)` - send fingerprint event and event result for specified publicUserId's
+
+- `void KeyriSdk.createFingerprint(KeyriCallback<FingerprintEventRequest> callback)` - creates and returns fingerprint event object
+
+- `void KeyriSdk.generateAssociationKey(String publicUserId, KeyriCallback<String> callback)` - creates a persistent ECDSA keypair for the given publicUserId (example: email address) or default without arguments and return Base64 string public key
+
+- `void KeyriSdk.generateUserSignature(String publicUserId, String data, KeyriCallback<String> callback)` - returns an ECDSA signature of custom data for sign with the custom publicUserId's privateKey (or, if not provided, anonymous privateKey), data can be anything
+
+- `void KeyriSdk.listAssociationKeys(KeyriCallback<Map<String, String>> callback)` - returns a map of "association keys" and ECDSA Base64 public keys
+
+- `void KeyriSdk.listUniqueAccounts(KeyriCallback<Map<String, String>> callback)` - returns a map of unique "association keys" and ECDSA Base64 public keys
+
+- `void KeyriSdk.getAssociationKey(String publicUserId, KeyriCallback<String> callback)` - returns association Base64 public key for the specified publicUserId (or, if not provided, for anonymous). Returns null if not generated yet
+
+- `void KeyriSdk.removeAssociationKey(String publicUserId, KeyriCallback<Unit> callback)` - removes association public key for the specified publicUserId
+
+- `void EasyKeyriAuth.easyKeyriAuth(Context content, ActivityResultLauncher<Intent> easyKeyriAuthLauncher, String appKey, @Nullable String publicApiKey, @Nullable String serviceEncryptionKey, String payload, boolean blockEmulatorDetection, String payload, @Nullable String publicUserId)` - launches scanner activity with default confirmation screen for ActivityResultLauncher
+
+- `void EasyKeyriAuth.easyKeyriAuth(Activity activity, int requestCode, String appKey, @Nullable String publicApiKey, @Nullable String serviceEncryptionKey, String payload, boolean blockEmulatorDetection, String payload, @Nullable String publicUserId)` - launches scanner activity for result with default confirmation screen for onActivityResult
+
+### Session Object
+
+The session object is returned on successful `initiateQrSession` calls, and is used to handle presenting the situation to the end user and getting their confirmation to complete authentication. Below are some of the key properties and methods that can be triggered. If you are utilizing the built-in views, you are only responsible for calling the confirm/deny methods above
+
+- iPAddressMobile/Widget - The IP Address of both mobile device and web browser
+
+- riskAnalytics - if applicable
+
+- riskStatus - clear, warn or deny
+
+- riskFlagString - if RiskStatus is warn or deny, this string alerts the user to what is triggering the risk situation
+
+- geoData - Location data for both mobile and widget
+
+    - mobile
+
+    - city
+
+    - country_code
+
+    - browser
+
+    - city
+
+    - country_code
+
+- mobileTemplateResponse - Use this object to define confirmation screen UI
+
+- `fun Session.confirm()` and `fun Session.deny()` - see descriptions in **Interacting with the API**.
+
+# Disclaimer
+
+We care deeply about the quality of our product and rigorously test every piece of functionality we offer. That said, every integration is different. Every app on the App Store has a different permutation of build settings, compiler flags, processor requirements, compatibility issues etc and it's impossible for us to cover all of those bases, so we strongly recommend thorough testing of your integration before shipping to production. Please feel free to email us at support@keyri.com to submit a bug report or feature request.

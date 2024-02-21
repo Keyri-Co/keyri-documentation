@@ -1,0 +1,166 @@
+---
+description:
+  Keyri QR authentication provides Supabase IAM customers with a secure,
+  easy-to-use, and convenient authentication system for their end-users.
+---
+
+# Keyri Supabase Integration Guide
+
+Incorporating Keyri QR login into your Supabase-based authentication system is a
+matter of sending the user's `refreshToken` from your mobile app to your web app
+via the Keyri mobile SDK and web Widget. On the mobile side, just load the
+`refreshToken` string as the payload into the Keyri method you're using in your
+app. On the web side, extract the `refreshToken` string from the payload that
+the Widget outputs and load it into the `setSession` method provided by the
+Supabase JS SDK. The following example code walks through how to do this with a
+React-based web app and a Flutter mobile app.
+
+**Usage notes:**
+
+1.  You must first have a Keyri account with a service registered under the
+    domain name on which you will be showing the login QR code. Register in the
+    [Keyri Dashboard](https://app.keyri.com) and create a service for the
+    domain(s) you will deploy.
+
+2.  Your user must already be registered in your Supabase auth system
+
+3.  Your user must already be logged in on your mobile app (the refreshToken
+    must be available and valid for a logged-in session)
+
+## Web
+
+Here's a video walking you through how to incorporate the Keyri Widget into your
+web app:
+
+<br />
+
+<iframe
+  width='560'
+  height='315'
+  src='https://www.youtube.com/embed/jrjrcpc2PFQ'
+  title='YouTube video player'
+  frameborder='0'
+  allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+  allowfullscreen
+></iframe>
+
+Source code for an example web app can be found here:
+https://github.com/Keyri-Co/keyri-example-web-supabase.
+
+The live demo is here: https://keyri-example-web-supabase.vercel.app/
+
+**Example JSX:**
+
+```javascript copy
+import { useEffect } from 'react';
+import { supabase } from '../utils/supabaseClient';
+
+export default function Auth() {
+  // Listen for events emitted by the Keyri Widget and trigger the signup function once
+  // the payload comes in
+  useEffect(() => {
+    window.addEventListener('message', async (evt) => {
+      if (
+        evt.data.keyri &&
+        evt.data.data &&
+        document.location.origin == evt.origin
+      ) {
+        const { data } = evt;
+        if (!data.error) {
+          let refresh_token = JSON.parse(data.data).refreshToken;
+          await handleQrLogin(refresh_token);
+        } else if (data.error) {
+          console.log(`Keyri error: ${data.message}`);
+        }
+      }
+    });
+  }, []);
+
+  // The QR login function uses the refreshToken from the payload in the setSession
+  // Supabase JS SDK method
+  const handleQrLogin = async (refresh_token) => {
+    try {
+      const { session, error } = await supabase.auth.setSession(refresh_token);
+      if (error) throw error;
+    } catch (error) {
+      alert(error.error_description || error.message);
+    }
+  };
+
+  // This is how the Keyri QR Widget is rendered on your webpage. Be sure to include the
+  // Widget HTML file somewhere on the same server as your web app
+  return (
+    <div className='keyriQR'>
+      <iframe
+        title='KeyriQR'
+        src='/KeyriQR.html'
+        id='qr-frame'
+        height='300'
+        width='300'
+        scrolling='no'
+        style={{ border: 'solid 5px white' }}
+      ></iframe>
+    </div>
+  );
+}
+
+```
+
+## Mobile (Flutter Example)
+
+The following example walks you through how to integrate Keyri into a Flutter
+app.
+
+<br />
+<iframe
+  width='560'
+  height='315'
+  src='https://www.youtube.com/embed/oGMsSKyh6tc'
+  title='YouTube video player'
+  frameborder='0'
+  allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+  allowfullscreen
+></iframe>
+
+This Flutter example shows how to extract the refreshToken provided by Supabase
+in your app and send it to the web Widget via the Keyri SDK. The basic flow is:
+
+1.  Make a request to Supabase to authenticate the user
+
+2.  Parse the response to extract the token
+
+3.  Authenticate using Keyri
+
+    1.  Below, we show how to utilize the EasyKeyriAuth function, which takes
+        the user through scanning the code, creating the session, displaying the
+        confirmation screen, and finalizing the payload transmission
+
+    2.  Alternatively, intermediate functions in the Keyri SDK, discussed in the
+        mobile docs, can provide control over displaying a custom QR Scanner
+        and/or Confirmation screen
+
+```dart copy
+// Sign in user with email and password
+// Alternatively one can utilize the Supabase API to accomplish the same thing
+final response = await client.auth.signIn(email: 'email', password: 'password');
+
+if (response.error != null) {
+  // Error
+    print('Error: ${response.error?.message}');
+} else {
+    // Success
+    final session = response.data;
+
+    // This is the payload that needs to be send through Keyri
+    final refreshToken = session.refreshToken
+
+    // EasyKeyriAuth guides the user through scanning and parsing the QR, confirming the session, and configuring the payload
+    // One can also use the initiateQRSession method to use the Keyri Scanner with a custom Confirmation screen
+    // Or the ProcessLink method if you have your own scanner or are using deep linking
+    await keyri
+        .easyKeyriAuth('{"refreshToken":"$refreshToken"}', email)
+        .then((authResult) => _onAuthResult(authResult))
+        .catchError((error, stackTrace) => _onError(error));
+}
+
+```

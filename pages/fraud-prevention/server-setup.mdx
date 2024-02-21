@@ -1,24 +1,20 @@
-import { Callout } from 'nextra-theme-docs';
-
 # Fraud Analytics Server-Side Setup
 
-For analysis and decryption of the object created by the client, you will need
-to hit our REST API Server with a payload like described below.
+For analysis of the object created by the client, you will need to hit our REST
+API with a payload that is outlined below.
 
 ## Node.js Example
 
 If your backend uses a different framework, feel free to reach out to
 support@keyri.com for specific code and guidance.
 
-### Server Code
+### Request
 
 Please be sure to have read the client-side setup documentation
 ([web](/fraud-prevention/web-fingerprinting) or
 [mobile](/fraud-prevention/mobile-fingerprinting)) before proceeding.
 
 ```javascript copy
-// Nothing to import.
-
 const url = 'https://fp.keyri.com/v1/client';
 
 // Create Payload
@@ -29,7 +25,7 @@ const sendBody = {
   // the same "userId" as their "deviceId"
   userId: 'undefined',
   // This can be anything - but "visits","login","signup","access" are common.
-  eventType: 'visits',
+  eventType: 'visit',
   // This can be anything you want to use for later analytics or rules
   metadata: { key: 'value' },
   // We need you to give us the IP address of the client
@@ -52,7 +48,7 @@ let processedData = await fetch(url, {
 let processedDataJson = await processedData.json();
 ```
 
-### Decrypted Object
+### Response
 
 - `riskSummary`: Outcome based on your risk settings (e.g., "warn", "allow",
   "deny").

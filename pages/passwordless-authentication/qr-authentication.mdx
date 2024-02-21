@@ -1,0 +1,175 @@
+---
+description:
+  Keyri’s simple SDKs and API make implementing QR authentication easy, secure,
+  and reliable for your users. Pre-built UIs make implementation even simpler.
+---
+
+import { Tab, Tabs } from 'nextra-theme-docs';
+
+# QR Authentication
+
+Keyri's QR authentication allows your users to log into your web app just by
+scanning a QR code with a phone camera and confirming the login event in your
+mobile app. This multi-factor authentication flow is extremely secure and
+convenient for your users, and can be used for either login or for any
+subsequent high-risk events in your application.
+
+The primary use of this system is to quickly launch QR authentication on your
+multi-client platform. Your users will be able to use your mobile app to
+authenticate into your desktop web platform or smart TV app, all without a
+single click or keystroke. Our frontend Widget, mobile SDKs, and API handle the
+heavy lifting, ensuring the smoothest UX and most secure architecture possible.
+
+The only requirement for using the Keyri QR system is that your platform must
+have both a mobile app and another client app that will show the QR code. The
+client displays the QR code through the Keyri Widget, while the mobile app uses
+the Keyri SDK to send payloads over to the Widget via our API.
+
+If you currently only have a mobile app, you can launch a web app or other
+client like a smart TV app without having to set up authentication on it, just
+by installing the Keyri QR widget. In doing so, the authentication and
+authorization system you already have in your mobile app will be instantly
+extended to your new client app by sending authorization tokens to it from the
+mobile app. Keyri integration into your system is comprised of three parts:
+
+1. [Web frontend](./qr-authentication/qr-web-widget) (wherever the QR code is
+   shown, for example, desktop or smart TV login page)
+2. [Mobile app](./mobile-app-authentication) (use our mobile SDK in your app to
+   send payloads to the Widget)
+3. [Server](./server-setup) (optional: only required if going through the
+   server-side authentication strategy, not
+   [client session extension](./qr-authentication/session-extension))
+
+Below is code for how to implement QR authentication on your mobile app. You must also install the [Keyri QR Widget](./qr-authentication/qr-web-widget). See[mobile SDK installation and initialization instructions](../mobile-sdks/installation) to get started on your mobile app.
+
+## High-Level Overview
+
+The Keyri flow proceeds as follows, taking QR login as an example:
+
+1.  User navigates to web login page
+
+    - Keyri QR widget loaded
+
+      1.  Creates a session-specific P-256 keypair
+
+      2.  Establishes a websocket connection with Keyri API
+
+      3.  Receives session ID from Keyri API
+
+      4.  Renders QR code with session ID
+
+2.  User scans QR code with mobile phone containing your app
+
+3.  Your app extracts the session ID from the QR code and hands it to the Keyri
+    SDK
+
+4.  SDK returns a session object and presents relevant security information to
+    the user for their confirmation
+
+5.  User confirms
+
+6.  Application gives SDK a payload
+
+    - In the case of client-side authorization, payload is the session token
+      currently active in the app
+
+    - In the case of server-side authentication, payload is an ECDSA-signed
+      authentication request
+
+7.  SDK encrypts payload using browser's public key
+
+8.  Keyri API recieves encrypted payload and passes it back to Keyri widget on
+    the browser to be decrypted
+
+For a more visual representation of this flow and some more details into its
+inner workings, see the diagrams on the
+[client session extension](./qr-authentication/session-extension) and
+[server-side authentication](./server-setup) documentation pages, each of which
+represent two distinct ways to implement QR login with Keyri. The vast majority
+of the steps you see here are automated by the Keyri Widget and mobile SDKs.
+
+Read on to learn more about specific features of Keyri QR authentication.
+
+## Mobile Login Examples
+
+<Tabs items={['Swift', 'Kotlin', 'Dart/Flutter', 'React Native']}>
+<Tab>
+```swift copy
+func qrLogin(username: String) throws {
+    let keyri = KeyriInterface(appKey: appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey)
+
+    let loginObject = keyri.login(publicUserId: username)
+
+    let jsonLoginObject = try JSONSerialization.data(withJSONObject: loginObject, options: .prettyPrinted)
+
+    keyri.easyKeyriAuth(payload: jsonLoginObject,publicUserId: username) { res in
+        // Process result
+    }
+}
+```
+</Tab>
+<Tab>
+```kotlin copy
+private val easyKeyriAuthLauncher =
+    (this as ComponentActivity).registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        // Process result
+}
+
+fun qrLogin(username: String) {
+    val keyri = Keyri(this, appKey, publicApiKey, serviceEncryptionKey)
+
+    lifecycleScope.launch(Dispatchers.IO) {
+        val loginObject = keyri.login(username)
+
+        val jsonLoginObject = Gson().toJson(loginObject)
+
+        withContext(Dispatchers.Main) {
+            easyKeyriAuth(
+                this@AuthActivity,
+                easyKeyriAuthLauncher,
+                appKey,
+                publicApiKey,
+                serviceEncryptionKey,
+                true,
+                jsonLoginObject,
+                username,
+            )
+        }
+    }
+}
+
+```
+</Tab>
+<Tab>
+```dart copy
+late Keyri keyri = Keyri(appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey, blockEmulatorDetection: true);
+
+void qrLogin(String username) async {
+    var loginObject = await keyri.login(publicUserId: username);
+
+    keyri
+        .easyKeyriAuth(loginObject.toJson().toString(), publicUserId: username)
+        .then((authResult) => {
+            // Process result
+        });
+}
+```
+</Tab>
+<Tab>
+```javascript copy
+async function qrLogin(username: string) {
+    Keyri.initialize({
+        appKey: KEYRI_APP_KEY,
+        publicApiKey: KEYRI_PUBLIC_API_KEY,
+        serviceEncryptionKey: SERVICE_ENCRYPTION_KEY,
+        blockEmulatorDetection: true,
+    });
+
+    const loginObject = await Keyri.login(username);
+    const authResult = await Keyri.easyKeyriAuth(JSON.stringify(loginObject), username)
+
+    // Process result
+}
+```
+</Tab>
+</Tabs>

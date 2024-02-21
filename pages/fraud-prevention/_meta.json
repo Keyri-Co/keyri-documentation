@@ -1,10 +1,7 @@
 {
-  "fraud-dashboard": "Getting Started: Fraud Dashboard",
-  "web-fingerprinting": "Web App Setup",
-  "server-setup": "Server-Side Setup",
-  "mobile-fingerprinting": "Mobile App Setup",
-  "use-cases": "Fraud Prevention Use Cases",
-  "custom-rules": "Custom Rules",
-  "events": "Event Types",
-  "risk-signals": "Risk Signal Reference"
+  "getting-started": "Getting Started",
+  "web-app-setup": "Web App Setup",
+  "mobile-app-setup": "Mobile App Setup",
+  "server-setup": "Server Setup",
+  "risk-rules": "Risk Rules Engine"
 }

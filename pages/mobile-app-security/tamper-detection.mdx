@@ -1,0 +1,24 @@
+---
+description: Implement tamper detection checks for your mobile app.
+---
+
+import { Tabs, Tab } from 'nextra-theme-docs';
+
+# Tamper Detection Configuration
+
+Keyri's tamper detection feature allows you to detect if your mobile app assets
+and/or logic have been tampered with. It is based on checksum comparisons. You
+first submit your app bundles' checksums to Keyri, and the SDK will compare them
+with the current state of the app at runtime. If a mismatch is detected, the SDK
+will terminate the app.
+
+Note that this feature is entirely optional and disabled by default. It is
+enabled when you submit your app's checksums to Keyri. Runtime checks are
+performed by the SDK at initialization automatically.
+
+## Checksum Registration
+
+<Tabs items={['iOS', 'Android']}>
+  <Tab>// iOS instructions</Tab>
+  <Tab>// Android instructions</Tab>
+</Tabs>

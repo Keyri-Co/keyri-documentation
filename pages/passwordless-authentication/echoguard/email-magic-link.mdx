@@ -1,0 +1,213 @@
+---
+description: Simple, inexpensive email verification
+---
+
+import { Tab, Tabs } from 'nextra-theme-docs';
+
+# EchoGuard Email Magic Link
+
+EchoGuard provides a simple and secure email magic link solution that allows you
+to authenticate users by proving that they own their email address. An email
+containing a link with a secret query param is sent to an address they provide.
+Once they click the link, they are directed to a page that extracts the query
+param to verify they clicked a link only they could have received.
+
+## Set up your Callback URL
+
+First, create an endpoint on your backend that accepts a POST request. We will
+send a webhook to this endpoint when the user clicks the magic link. The request
+body will contain the user's email address and any metadata you provided when
+you made the API call, as follows:
+
+```json filename="Webhook"
+{
+  "confirmationId": [CONFIRMATION-ID],
+  "email": [USER'S-PHONE-NUMBER],
+  "validationStatus": "valid",
+  "metadata": {
+    [KEY-1]: [VALUE-1]
+  },
+  "timestamp": [TIME-OF-VERIFICATION]
+}
+```
+
+It will additionally contain an `x-signature` header that is a SHA-256 ECDSA
+signature of the request body. You can, optionally, use this signature to verify
+that the request came from us. To do so, you will need to use our public key,
+located here: [LINK](https://static.keyri.com/keyri-echo-guard-public-key).
+Example verification code as follows:
+
+<Tabs items={['Node.js', 'Django']}>
+<Tab>
+```javascript filename="Express Middleware" copy
+const crypto = require('crypto');
+const axios = require('axios');
+
+const fetchPublicKey = async () => { const response = await
+axios.get('https://static.keyri.com/keyri-echo-guard-public-key'); return
+response.data; };
+
+function signatureVerificationMiddleware(req, res, next) { const
+verifyDataWithECDSA = async (data, signature, publicKey) => { const verify =
+crypto.createVerify('SHA256'); verify.update(data); return verify.verify( { key:
+publicKey, }, signature, 'base64' ); };
+
+(async () => { try { const receivedData = JSON.stringify(req.body); const
+receivedSignature = req.headers['x-signature']; const publicKey = await
+fetchPublicKey(); const isValidSignature = await
+verifyDataWithECDSA(receivedData, receivedSignature, publicKey);
+
+    if (isValidSignature) {
+      next(); // Proceed to the next middleware or route handler
+    } else {
+      res.status(403).send('Invalid Signature');
+    }
+    } catch (error) {
+      console.error("Error verifying signature:", error);
+      res.status(500).send('Internal Server Error');
+    }
+
+})(); }
+
+````
+</Tab>
+<Tab>
+```python filename="Utility Function" copy
+import requests
+import hashlib
+from Crypto.Signature import DSS
+from Crypto.Hash import SHA256
+from Crypto.PublicKey import ECC
+
+def fetch_public_key():
+  response = requests.get('https://static.keyri.com/keyri-echo-guard-public-key')
+  return ECC.import_key(response.text)
+
+def verify_data_with_ecdsa(data, signature, public_key):
+  h = SHA256.new(data.encode())
+  verifier = DSS.new(public_key, 'fips-186-3')
+  try:
+      verifier.verify(h, bytes.fromhex(signature))
+      return True
+  except ValueError:
+      return False
+````
+
+```python filename="Django Middleware" copy
+from django.http import JsonResponse
+
+class SignatureVerificationMiddleware:
+  def __init__(self, get_response):
+      self.get_response = get_response
+
+  def __call__(self, request):
+      body = request.body.decode('utf-8')
+      signature = request.headers.get('X-Signature')
+
+      public_key = fetch_public_key()
+
+      if not verify_data_with_ecdsa(body, signature, public_key):
+          return JsonResponse({"error": "Invalid Signature"}, status=403)
+
+      response = self.get_response(request)
+      return response
+```
+
+</Tab>
+</Tabs>
+
+## Set Up Your Landing URL
+
+Now create a static page on your frontend that will be the landing page that the
+user arrives on after clicking the magic link. If your application is a mobile
+app, this would be a deep link path. This page/path should contain a script that
+makes a request to the EchoGuard API to verify the user's email address. The
+request should include the `confirmation` secret string, that you derive from
+the query params of the URL as follows:
+
+```javascript filename="Landing URL" copy
+const confirmationSecret = new URLSearchParams(window.location.search).get(
+  'confirmation'
+);
+
+const response = await fetch(
+  'https://api.echoguard.keyri.com/verify-email',
+  {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        confirmationSecret,
+      }),
+    }
+  );
+  const data = await response.json();
+  // handle the response
+}
+```
+
+## API Call to Initiate Magic Link Flow
+
+Now that you've set up your callback URL, you can make a request to our API to
+confirm a user's email address. You can also, **optionally**, provide `metadata`
+that will be included in the webhook so that you can more easily track the
+status of the email confirmation "session" once we send the webhook based on
+your backend architecture.
+
+```shell filename="Request" copy
+curl --request POST \
+     --url https://api.echoguard.keyri.com/confirm-email \
+     --header 'Content-Type: application/json' \
+     --header 'x-api-key: [YOUR-API-KEY]' \
+     --data-raw '
+  {
+    "email": [USERS-EMAIL-ADDRESS],
+    "callbackUrl": [YOUR-CALLBACK-URL],
+    "landingUrl": [YOUR-LANDING-URL],
+    "metadata": {
+        [KEY-1]: [VALUE-1],
+        ...
+    }
+  }
+'
+```
+
+In response, you will receive the following JSON object:
+
+```json filename="Response"
+{
+  "confirmationId": [CONFIRMATION-ID],
+  "email": [USERS-EMAIL-ADDRESS],
+  "metadata": {
+        [KEY-1]: [VALUE-1],
+        ...
+  },
+  "expiresAt": "2023-08-30T19:12:19.293Z"
+}
+```
+
+At this point, the email containing the magic link has been sent to the user.
+The link will take them to your `landingUrl`, with an added `confirmation` query
+param. The `landingUrl` should extract this query param and send it to
+"https://api.echoguard.keyri.com/verify-email".
+
+## Notifying the Client of Verification Status
+
+We will only send the webhook if the user's verification was successful. Each
+email confirmation session is valid for 5 minutes as indicated by the
+`expiresAt` field we send when you initiate the flow, so be sure to implement a
+timeout/refresh strategy. If the user does not click the magic link within that
+period, the session will expire, and we will not send the webhook.
+
+Since we notify you of verification via webhook, the flow is asynchronous and
+out-of-band from the client application's perspective, which means that you will
+need to notify the client of the verification status on your server's
+initiative. You can do this in at least three ways:
+
+1. Having the client poll an endpoint on your backend that checks the status of
+   the verification session
+2. Using a WebSocket connection to push the status to the client
+3. Using a server-side event subscription to push the status to the client
+4. In native mobile apps, using a push notification to push the status to the
+   client
