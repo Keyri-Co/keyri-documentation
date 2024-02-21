@@ -2,6 +2,8 @@
 description: Mobile device and app hardening for consumer apps
 ---
 
+import { Tab, Tabs } from 'nextra-theme-docs';
+
 # Mobile Security
 
 Keyri SDKs are embedded with a suite of security checks as outlined below. These
@@ -26,3 +28,24 @@ data within your application can potentially be compromised in such a situation.
 
 Please be sure to install Keyri mobile SDKs as outlined in our documentation:
 [SDK installation and initialization](./mobile-sdks/installation)
+
+## Block emulator detection
+
+Keyri SDK constructor has `blockEmulatorDetection` which by default set to `true`.
+That way, if the SDK detects an emulator during initialization, the app won't crash.
+But if you want to deny run your app on emulators, set this parameter to `false`:
+
+<Tabs items={['Swift', 'Kotlin']}>
+<Tab>
+```swift copy
+let keyri = KeyriInterface(appKey: appKey, blockEmulatorDetection: false)
+
+````
+</Tab>
+<Tab>
+```kotlin copy
+val keyri = Keyri(context, appKey, blockEmulatorDetection = false)
+
+````
+</Tab>
+</Tabs>

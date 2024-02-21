@@ -4,6 +4,8 @@ description:
   to your mobile app using device proof of ownership and biometrics.
 ---
 
+import { Tab, Tabs } from 'nextra-theme-docs';
+
 # Mobile App authentication
 
 Keyri enables true passwordless authentication in mobile apps using
@@ -28,27 +30,153 @@ that can then be validated by your backend application using the key pair's
 public key, which is extractable from the device and can be passed to your
 backend applications.
 
-## Practical Example - iOS
+## Practical Example
 
-Let's say you have a user with a username of "Jane" registering or logging into
-your iOS app through any method - Keyri passwordless, standard password, social
-login, email link, etc.
+<Tabs items={['Swift', 'Kotlin', 'Dart/Flutter', 'React Native']}>
+<Tab>
+```swift copy
+let keyri = KeyriInterface(appKey: appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey)
 
-To generate a persistent key pair for Jane when she logs in, run
-`func generateAssociationKey(publicUserId: "Jane").` This will create a private
-key that will be stored in the phone's Secure Enclave, and return its associated
-public key. You can pass this public key to your user database and associate it
-with Jane's account, similar to how you would treat a hashed password.
+func login(username: String) async throws {
+    let loginObject = keyri.login(publicUserId: username)
 
-To authenticate Jane, run
-`func generateUserSignature(publicUserId: "Jane", data: Data("I'm trying to log in"))`,
-with a biometrics (FaceID or TouchID) check optionally preceding it. This will
-return a signature of the `data` from Jane's private key. Pass this `signature`
-and `data` to your backend, and validate that signature on your backend with
-ECDSA. If validated, then you can trust that Jane is using that specific device
-on that specific session. You can opt to call this Keyri method without
-biometrics at any time and thereby continuously authenticate Jane in the
-background as well.
+    authService.login(urlSuffix: "api/login", body: loginObject)
+}
+
+func register(username: String) async throws {
+    let registerObject = keyri.register(publicUserId: username)
+
+    authService.register(urlSuffix: "api/register", body: registerObject)
+}
+
+func makeAuthApiCall(urlSuffix: String, body: [String: Any]) {
+    guard let url = URL(string: BASE_URL + urlSuffix) else {
+        print("Can't parse request URL: \(urlString)")
+
+        return
+    }
+
+    var request = URLRequest(url: url)
+
+    request.httpMethod = "POST"
+    request.httpBody = body
+
+    URLSession.shared.dataTask(with: request) { data, response, error in
+        // Process result
+    }.resume()
+}
+
+````
+</Tab>
+<Tab>
+```kotlin copy
+val keyri = Keyri(this@AuthActivity, appKey, publicApiKey, serviceEncryptionKey)
+
+fun login(username: String) {
+    lifecycleScope.launch(Dispatchers.IO) {
+        val loginObject = keyri.login(username)
+
+        val loginResult = makeApiCall {
+            provideAuthApiService().login(loginObject)
+        }
+    }
+}
+
+fun register(username: String) {
+    lifecycleScope.launch(Dispatchers.IO) {
+        val registerObject = keyri.register(username)
+
+        val registerResult = makeApiCall {
+            provideAuthApiService().register(registerObject)
+        }
+    }
+}
+
+fun provideAuthApiService(): AuthApiService {
+    return provideApiService(BASE_URL, AuthApiService::class.java)
+}
+
+// ...
+
+interface AuthApiService {
+    @POST("api/login")
+    suspend fun login(
+        @Body loginRequest: LoginObject,
+    ): Response<LoginResult>
+
+    @POST("api/register")
+    suspend fun register(
+        @Body registerObject: RegisterObject,
+    ): Response<RegisterResult>
+}
+
+````
+</Tab>
+<Tab>
+```dart copy
+late Keyri keyri = Keyri(appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey, blockEmulatorDetection: true);
+
+void login(String username) {
+    keyri.login(publicUserId: username)
+        .then((loginObject) => {
+            makeAuthApiCall('api/login', loginObject.toJson())
+        });
+}
+
+void register(String username) {
+    keyri.register(publicUserId: username)
+        .then((registerObject) => {
+            makeAuthApiCall('api/register', registerObject.toJson())
+        });
+}
+
+Future<http.Response> makeAuthApiCall(String urlSuffix, Map<String, dynamic> body) {
+    return http.post(
+        Uri.parse(BASE_URL + urlSuffix),
+        headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(body),
+    );
+}
+
+````
+</Tab>
+<Tab>
+```javascript copy
+Keyri.initialize({
+    appKey: appKey,
+    publicApiKey: publicApiKey,
+    serviceEncryptionKey: serviceEncryptionKey,
+    blockEmulatorDetection: true,
+});
+
+const login = useCallback(async (username: string) => {
+    const loginObject = await Keyri.login(username)
+
+    await makeAuthApiCall('api/login', JSON.stringify(loginObject))
+}, []);
+
+const register = useCallback(async (username: string) => {
+    const registerObject = await Keyri.register(username)
+
+    await makeAuthApiCall('api/register', JSON.stringify(registerObject));
+}, []);
+
+function makeAuthApiCall(urlSuffix: string, body: string): Promise<Response> {
+    return fetch(BASE_URL + urlSuffix, {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: body,
+    });
+}
+
+````
+</Tab>
+</Tabs>
 
 ## Backend Setup
 

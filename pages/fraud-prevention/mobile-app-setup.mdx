@@ -79,14 +79,31 @@ func registerUser(username: String) throws {
                 // Keyri Handles saving the key in the Secure Enclave for you
                 // For example, you can later use this key pair to passwordlessly authenticate the user
 
-                // Optionally sign custom data with the key at this stage
-                // remember, the key can always be retrieved with getAssociationKey
-                keyri.sendEvent(publicUserId: username, eventType: EventType.Signup, success: true)
+                let fingerprint = keyri.createFingerprint()
+
+                sendFingerprintToBackend(fingerprint: fingerprint)
             case .failure(let error):
                 // Account already registered, suggest to the user to log in with that existing account
                 // keyri.login(publicUserId: username)
         }
     }
+}
+
+func sendFingerprintToBackend(fingerprint: [String: Any]) {
+    guard let url = URL(string: BASE_URL + "api/fingerprint") else {
+        print("Can't parse request URL: \(urlString)")
+
+        return
+    }
+
+    var request = URLRequest(url: url)
+
+    request.httpMethod = "POST"
+    request.httpBody = body
+
+    URLSession.shared.dataTask(with: request) { data, response, error in
+        // Process result
+    }.resume()
 }
 
 ````
@@ -102,13 +119,30 @@ fun registerUser(username: String) {
         // Keyri Handles saving the key in the Secure Enclave for you
         // For example, you can later use this key pair to passwordlessly authenticate the user
 
-        // Optionally sign custom data with the key at this stage
-        // remember, the key can always be retrieved with getAssociationKey
-        keyri.sendEvent(publicUserId = username, eventType = EventType.Signup, success = true)
+        val fingerprint = keyri.createFingerprint()
+
+        val fingerprintResult = makeApiCall {
+            sendFingerprintToBackend(fingerprint)
+        }
+
+        // Process result
     }.onFailure { error ->
         // Account already registered, suggest to the user to log in with that existing account
         // keyri.login(publicUserId = username)
     }
+}
+
+fun provideAuthApiService(): FingerprintApiService {
+    return provideApiService(BASE_URL, FingerprintApiService::class.java)
+}
+
+// ...
+
+interface AuthApiService {
+    @POST("api/fingerprint")
+    suspend fun sendFingerprintToBackend(
+        @Body fingerprint: FingerprintEventRequest,
+    ): Response<FingeprintResult>
 }
 
 ````
@@ -126,9 +160,24 @@ void registerUser(String username) {
             // Keyri Handles saving the key in the Secure Enclave for you
             // For example, you can later use this key pair to passwordlessly authenticate the user
 
-            // Optionally sign custom data with the key at this stage
-            // remember, the key can always be retrieved with getAssociationKey
-            keyri.sendEvent(username, EventType.Signup, true)
+            FingerprintEventRequest fingerprint = keyri.createFingerprint()
+
+            URL url = new URL(BASE_URL + "api/fingerprint");
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setRequestProperty("Content-Type", "application/json");
+
+            String fingerprintJson = Gson().toJson(fingerprint);
+
+            httpURLConnection.setDoOutput(true);
+
+            try (OutputStream outputStream = httpURLConnection.getOutputStream()) {
+                outputStream.write(fingerprintJson.getBytes(StandardCharsets.UTF_8));
+                outputStream.flush();
+            }
+
+            int responseCode = httpURLConnection.getResponseCode();
+            // Process result
         }
 
         @Override
@@ -153,14 +202,24 @@ void registerUser(String username) {
             // Keyri Handles saving the key in the Secure Enclave for you
             // For example, you can later use this key pair to passwordlessly authenticate the user
 
-            // Optionally sign custom data with the key at this stage
-            // remember, the key can always be retrieved with getAssociationKey
-            keyri.sendEvent(publicUserId: username, eventType: EventType.Signup, success: true)
+            var fingerprint = await keyri.createFingerprint()
+
+            sendFingerprintToBackend(fingerprint)
         })
         .catchError((error, stackTrace) => {
             // Account already registered, suggest to the user to log in with that existing account
             // keyri.login(publicUserId: username)
         });
+}
+
+Future<http.Response> sendFingerprintToBackend(Map<String, dynamic> body) {
+    return http.post(
+        Uri.parse(BASE_URL + "api/fingerprint"),
+        headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(body),
+    );
 }
 
 ````
@@ -177,14 +236,25 @@ function registerUser(username: string) {
             // Keyri Handles saving the key in the Secure Enclave for you
             // For example, you can later use this key pair to passwordlessly authenticate the user
 
-            // Optionally sign custom data with the key at this stage
-            // remember, the key can always be retrieved with getAssociationKey
-            Keyri.sendEvent(username, EventType.Signup, true)
+            const fingerprint = await Keyri.createFingerprint();
+
+            sendFingerprintToBackend(JSON.stringify(fingerprint));
         })
         .catch((error) => {
             // Account already registered, suggest to the user to log in with that existing account
             // Keyri.login(username)
         });
+}
+
+function sendFingerprintToBackend(body: string): Promise<Response> {
+    return fetch(BASE_URL + 'api/fingerprint', {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: body,
+    });
 }
 
 ````
