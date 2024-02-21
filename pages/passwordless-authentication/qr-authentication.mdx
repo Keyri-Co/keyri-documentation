@@ -4,6 +4,8 @@ description:
   and reliable for your users. Pre-built UIs make implementation even simpler.
 ---
 
+import { Tab, Tabs } from 'nextra-theme-docs';
+
 # QR Authentication
 
 Keyri's QR authentication allows your users to log into your web app just by
@@ -92,3 +94,90 @@ represent two distinct ways to implement QR login with Keyri. The vast majority
 of the steps you see here are automated by the Keyri Widget and mobile SDKs.
 
 Read on to learn more about specific features of Keyri QR authentication.
+
+## Login example
+
+<Tabs items={['Swift', 'Kotlin', 'Dart/Flutter', 'React Native']}>
+<Tab>
+```swift copy
+func qrLogin(username: String) throws {
+    let keyri = KeyriInterface(appKey: appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey)
+
+    let loginObject = keyri.login(publicUserId: username)
+
+    let jsonLoginObject = try JSONSerialization.data(withJSONObject: loginObject, options: .prettyPrinted)
+
+    keyri.easyKeyriAuth(payload: jsonLoginObject,publicUserId: username) { res in
+        // Process result
+    }
+}
+
+````
+</Tab>
+<Tab>
+```kotlin copy
+private val easyKeyriAuthLauncher =
+    (this as ComponentActivity).registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        // Process result
+}
+
+fun qrLogin(username: String) {
+    val keyri = Keyri(this, appKey, publicApiKey, serviceEncryptionKey)
+
+    lifecycleScope.launch(Dispatchers.IO) {
+        val loginObject = keyri.login(username)
+
+        val jsonLoginObject = Gson().toJson(loginObject)
+
+        withContext(Dispatchers.Main) {
+            easyKeyriAuth(
+                this@AuthActivity,
+                easyKeyriAuthLauncher,
+                appKey,
+                publicApiKey,
+                serviceEncryptionKey,
+                true,
+                jsonLoginObject,
+                username,
+            )
+        }
+    }
+}
+
+````
+</Tab>
+<Tab>
+```dart copy
+late Keyri keyri = Keyri(appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey, blockEmulatorDetection: true);
+
+void qrLogin(String username) async {
+    var loginObject = await keyri.login(publicUserId: username);
+
+    keyri
+        .easyKeyriAuth(loginObject.toJson().toString(), publicUserId: username)
+        .then((authResult) => {
+            // Process result
+        });
+}
+
+````
+</Tab>
+<Tab>
+```javascript copy
+async function qrLogin(username: string) {
+    Keyri.initialize({
+        appKey: KEYRI_APP_KEY,
+        publicApiKey: KEYRI_PUBLIC_API_KEY,
+        serviceEncryptionKey: SERVICE_ENCRYPTION_KEY,
+        blockEmulatorDetection: true,
+    });
+
+    const loginObject = await Keyri.login(username);
+    const authResult = await Keyri.easyKeyriAuth(JSON.stringify(loginObject), username)
+
+    // Process result
+}
+
+````
+</Tab>
+</Tabs>
