@@ -39,22 +39,20 @@ key.
 let keyri = KeyriInterface(appKey: appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey)
 
 func login(username: String) async throws { let loginObject =
-keyri.login(publicUserId: username)
+    keyri.login(publicUserId: username)
 
     authService.login(urlSuffix: "api/login", body: loginObject)
-
 }
 
 func register(username: String) async throws { let registerObject =
-keyri.register(publicUserId: username)
+    keyri.register(publicUserId: username)
 
     authService.register(urlSuffix: "api/register", body: registerObject)
-
 }
 
-func makeAuthApiCall(urlSuffix: String, body: [String: Any]) { guard let url =
-URL(string: BASE_URL + urlSuffix) else { print("Can't parse request URL:
-\(urlString)")
+func makeAuthApiCall(urlSuffix: String, body: [String: Any]) {
+    guard let url = URL(string: BASE_URL + urlSuffix) else {
+        print("Can't parse request URL:\(urlString)")
 
         return
     }
@@ -67,8 +65,8 @@ URL(string: BASE_URL + urlSuffix) else { print("Can't parse request URL:
     URLSession.shared.dataTask(with: request) { data, response, error in
         // Process result
     }.resume()
-
 }
+
 ```
 </Tab>
 <Tab>

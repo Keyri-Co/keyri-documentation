@@ -95,12 +95,11 @@ func registerUser(username: String) throws {
                 // keyri.login(publicUserId: username)
         }
     }
-
 }
 
-func sendFingerprintToBackend(fingerprint: [String: Any]) { guard let url =
-URL(string: BASE_URL + "api/fingerprint") else { print("Can't parse request URL:
-\(urlString)")
+func sendFingerprintToBackend(fingerprint: [String: Any]) {
+    guard let url = URL(string: BASE_URL + "api/fingerprint") else {
+        print("Can't parse request URL:\(urlString)")
 
         return
     }
@@ -113,8 +112,8 @@ URL(string: BASE_URL + "api/fingerprint") else { print("Can't parse request URL:
     URLSession.shared.dataTask(with: request) { data, response, error in
         // Process result
     }.resume()
-
 }
+
 ```
 </Tab>
 <Tab>
@@ -194,8 +193,8 @@ void registerUser(String username) {
             // keyri.login(username)
         }
     });
-
 }
+
 ```
 </Tab>
 <Tab>
@@ -229,6 +228,7 @@ Future<http.Response> sendFingerprintToBackend(Map<String, dynamic> body) {
         body: jsonEncode(body),
     );
 }
+
 ```
 </Tab>
 <Tab>
@@ -254,9 +254,13 @@ function registerUser(username: string) {
 
 }
 
-function sendFingerprintToBackend(body: string): Promise<Response> { return
-fetch(BASE_URL + 'api/fingerprint', { method: 'POST', headers: { Accept:
-'application/json', 'Content-Type': 'application/json', }, body: body, }); }
+function sendFingerprintToBackend(body: string): Promise<Response> {
+    return fetch(BASE_URL + 'api/fingerprint', {
+        method: 'POST',
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json', },
+        body: body,
+    });
+}
 
 ```
 </Tab>
@@ -432,7 +436,6 @@ public class MyBackupAgent extends BackupAgentHelper() {
 
         addHelper("YOUR BACKUP KEY", helper);
     }
-
 }
 
 ````

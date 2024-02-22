@@ -207,7 +207,7 @@ Auth0
             let payload = "{\"refreshToken\":\"\(credentials.refreshToken ?? "")\"}"
             print(payload)
 
-            //3
+            // 3
             keyri.easyKeyriAuth(payload: payload, publicUserId: username) { easyKeyriAuthRes in
                 switch easyKeyriAuthRes {
                     case .success:
@@ -250,8 +250,10 @@ private fun getAuth0Profile(account: Auth0, credentials: Credentials) {
 
         override fun onSuccess(result: UserProfile) {
             val email = result.email
+            // 2
             val payload = "{\"refreshToken\":\"(credentials.refreshToken ?? \"\")\"}"
 
+            // 3
             easyKeyriAuth(
                 context = this@MainActivity,
                 easyKeyriAuthLauncher = easyKeyriAuthLauncher,
