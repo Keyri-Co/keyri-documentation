@@ -120,6 +120,16 @@ module.exports = withNextra({
         destination: '/passwordless-authentication/integrations/:path',
         permanent: true,
       },
+      {
+        source: '/echoguard/email-magic-link',
+        destination: '/passwordless-authentication/echoguard/email-magic-link',
+        permanent: true,
+      },
+      {
+        source: '/echoguard/reverse-sms',
+        destination: '/passwordless-authentication/echoguard/reverse-sms',
+        permanent: true,
+      },
     ];
   },
 });
