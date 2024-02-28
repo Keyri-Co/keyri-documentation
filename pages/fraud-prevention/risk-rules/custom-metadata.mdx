@@ -1,0 +1,65 @@
+# Working with Custom Metadata
+
+You can supply the Keyri risk engine with custom metadata about the events your
+users generate and build rules that utilize this data. This enables you to
+create custom rules that are specific to your business and the events that are
+important to you.
+
+## Sending Custom Metadata
+
+Custom metadata should be sent to Keyri from your server at the same time as you
+send the encrypted fingerprint object. See [server setup](../server-setup) for
+more details.
+
+```javascript {12,13} copy
+const url = 'https://fp.keyri.com/v1/client';
+
+// Create Payload
+const sendBody = {
+  // this comes from the client application
+  encryptedB64Payload: 'eyJjbGllbnRFbmNyeX...U4UmVJK09wOHc9PSJ9',
+  // the string "undefined" is special. It tells our API to give the user
+  // the same "userId" as their "deviceId"
+  userId: 'abc123',
+  // This can be anything - but "visits","login","signup","access" are common.
+  eventType: 'withdrawal',
+  // This can be anything you want to use for later analytics or rules
+  metadata: { key: 'value', amount: '500' },
+  // We need you to give us the IP address of the client
+  ipAddress,
+  // We need you to give us the headers the client gave you
+  headers: event.headers,
+  // This is your public encryption key. (app.keyri.com > setup & credentials > Service Encryption Key)
+  Service_Encryption_Key,
+  // If not provided, you'll have to decrypt the payload yourself
+  Service_Decryption_Key,
+};
+
+// Send and receive response
+let processedData = await fetch(url, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(sendBody),
+});
+
+let processedDataJson = await processedData.json();
+```
+
+## Using Custom Metadata in Rules
+
+When creating custom rules in the low-code or no-code rule builder, the metadata
+for the current event can be accessed through `eventMetadata.<key>`, and
+historical metadata for the user or device can be accessed through
+`userModel.metadata.<key>` or `deviceModel.metadata.<key>`, respectively, where
+`<key>` is the key of the metadata you want to access.
+
+### Example Rules Using Custom Metadata
+
+See [example custom rules](./example-custom-rules) for a more complete list of
+custom rules. A few examples of rules using custom metadata are:
+
+1. [Override Keyri's Risk Determination with your Own Risk Model](./example-custom-rules#override-keyris-risk-determination-with-your-own-risk-model)
+2. [Limit Transactions to a Certain Amount](./example-custom-rules#limit-transactions-to-a-certain-amount)
+3. [Limit Transaction Totals over a Period of Time](./example-custom-rules#limit-transaction-totals-over-a-period-of-time)
+4. [Block High-Value Transactions from a New Country](./example-custom-rules#block-high-value-transactions-from-a-new-country)
+5. [Transaction Anomaly Detection](./example-custom-rules#transaction-anomaly-detection)

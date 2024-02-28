@@ -1,6 +1,7 @@
 {
   "built-in-rules": "Built-In Rules",
   "standard-event-types": "Standard Event Types",
+  "custom-metadata": "Custom Metadata",
   "low-code-builder": "Low-Code Rule Builder",
   "example-custom-rules": "Example Custom Rules"
 }
