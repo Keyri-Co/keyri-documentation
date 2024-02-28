@@ -1,0 +1,146 @@
+# Working with Custom Metadata
+
+You can supply the Keyri risk engine with custom metadata about the events your
+users generate and build rules that utilize this data. This enables you to
+create custom rules that are specific to your business and the events that are
+important to you.
+
+## Sending Custom Metadata
+
+Custom metadata should be sent to Keyri from your server at the same time as you
+send the encrypted fingerprint object. See [server setup](../server-setup) for
+more details.
+
+```javascript {12,13} copy
+const url = 'https://fp.keyri.com/v1/client';
+
+// Create Payload
+const sendBody = {
+  // this comes from the client application
+  encryptedB64Payload: 'eyJjbGllbnRFbmNyeX...U4UmVJK09wOHc9PSJ9',
+  // the string "undefined" is special. It tells our API to give the user
+  // the same "userId" as their "deviceId"
+  userId: 'abc123',
+  // This can be anything - but "visits","login","signup","access" are common.
+  eventType: 'withdrawal',
+  // This can be anything you want to use for later analytics or rules
+  metadata: { amount: '500' },
+  // We need you to give us the IP address of the client
+  ipAddress,
+  // We need you to give us the headers the client gave you
+  headers: event.headers,
+  // This is your public encryption key. (app.keyri.com > setup & credentials > Service Encryption Key)
+  Service_Encryption_Key,
+  // If not provided, you'll have to decrypt the payload yourself
+  Service_Decryption_Key,
+};
+
+// Send and receive response
+let processedData = await fetch(url, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(sendBody),
+});
+
+let processedDataJson = await processedData.json();
+```
+
+## Using Custom Metadata in Rules
+
+When creating custom rules in the low-code or no-code rule builder, the metadata
+for the current event can be accessed through the `eventMetadata`, and
+historical metadata for the user or device can be accessed through
+`userModel.metadata.<key>` or `deviceModel.metadata.<key>`, respectively, where
+`<key>` is the key of the metadata you want to access.
+
+### Example Rules Using Custom Metadata
+
+See [example custom rules](./example-custom-rules) for a more complete list of
+custom rules. A few examples of rules using custom metadata are:
+
+#### Limit Transactions to a Certain Amount
+
+If you want to limit the amount of money that can be transferred in a single
+event, you can add metadata when triggering the event to indicate the amount. Be
+sure to name the metadata field the same as the one in the rule. Here's it's
+named `amount`.
+
+```json copy
+{
+  "rule": "Transaction threshold - $1000",
+  "conditions": {
+    "$and": [
+      {
+        "eventMetadata.amount": {
+          "$gt": 1000
+        }
+      }
+    ]
+  },
+  "outcome": "deny",
+  "signal": "Transaction_threshold_exceeded",
+  "enabled": true,
+  "strength": 2
+}
+```
+
+#### Limit Transaction Totals over a Period of Time
+
+You can use built-in math functionality to query and sum the total value of the
+amounts a given user has transacted over a period of time.
+
+```json copy
+{
+  "rule": "24-hour spend threshold - $2500",
+  "conditions": {
+    "$and": [
+      {
+        "2500": {
+          "$lte": {
+            "$sum": [
+              "userModel.metadata.amount._sum_24_hours",
+              "eventMetadata.amount"
+            ]
+          }
+        }
+      },
+      {
+        "eventMetadata.amount": {
+          "$gt": 0
+        }
+      }
+    ]
+  },
+  "outcome": "deny",
+  "signal": "24-hour_spend_threshold_exceeded",
+  "enabled": true,
+  "strength": 2
+}
+```
+
+#### Override Keyri's Risk Determination with your Own Risk Model
+
+If you already have a risk model, you can use it in conjunction with Keyri
+rulesets or use its determination to simply override Keyri's determination. Pass
+in your risk score as metadata and use it in your ruleset. In this example,
+we're overriding Keyri if the risk score from your model is very low. It has a
+`strength` value of 2 to override rules with the default strength value of 1.
+
+```json copy
+{
+  "rule": "Override Keyri with own risk model",
+  "conditions": {
+    "$and": [
+      {
+        "metadata.riskScore": {
+          "$lte": 5
+        }
+      }
+    ]
+  },
+  "outcome": "allow",
+  "signal": "override_keyri_with_own_risk_model",
+  "strength": 10,
+  "enabled": true
+}
+```
