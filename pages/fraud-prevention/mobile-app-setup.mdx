@@ -152,6 +152,7 @@ interface AuthApiService {
         @Body fingerprint: FingerprintEventRequest,
     ): Response<FingeprintResult>
 }
+
 ```
 </Tab>
 <Tab>
@@ -251,7 +252,6 @@ function registerUser(username: string) {
             // Account already registered, suggest to the user to log in with that existing account
             // Keyri.login(username)
         });
-
 }
 
 function sendFingerprintToBackend(body: string): Promise<Response> {
@@ -295,6 +295,7 @@ recommend explicitly setting the attribute in your manifest as shown below:
         ...
     </application>
 </manifest>
+
 ```
 
 [](https://github.com/Keyri-Co/keyri-android-whitelabel-sdk/blob/master/keyrisdk/src/main/java/com/keyrico/keyrisdk/backup/BACKUP.md#control-backup-on-android-11-and-lower)**Control
@@ -311,6 +312,7 @@ on devices running Android 11 (API level 30) or lower.
 <application android:fullBackupContent="@xml/backup_rules">
     ...
 </application>
+
 ```
 
 2. Create an XML file called `@xml/backup_rules` in the `res/xml/` directory.
@@ -323,6 +325,7 @@ on devices running Android 11 (API level 30) or lower.
     <include domain="sharedpref" path="." />
     <exclude domain="sharedpref" path="device.xml" />
 </full-backup-content>
+
 ```
 
 If you have more granular control over sharedPref backups, make sure you have
@@ -344,6 +347,7 @@ running Android 12 or higher.
 <application android:dataExtractionRules="backup_rules.xml">
     ...
 </application>
+
 ```
 
 2. Create an XML file called `backup_rules.xml` in the `res/xml/` directory.
@@ -358,6 +362,7 @@ running Android 12 or higher.
         <exclude domain="sharedpref" path="device.xml" />
     </cloud-backup>
 </data-extraction-rules>
+
 ```
 
 If you have more granular control over sharedPref backups, make sure you have
@@ -453,6 +458,7 @@ After it just add your `MyBackupAgent` to `AndroidManifest.xml`:
         </activity>
     </application>
 </manifest>
+
 ```
 
 Or you can just use
@@ -468,6 +474,7 @@ implements the necessary logic under the hood as shown below:&#x20;
         </activity>
     </application>
 </manifest>
+
 ```
 
 ### Testing backup
@@ -487,4 +494,3 @@ sure to disclose the following data collection practice:
 
 An analogous disclosure is not required for iOS apps, since the device data is
 not used by Keyri for cross-app tracking.
-

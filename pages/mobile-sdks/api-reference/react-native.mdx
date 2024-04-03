@@ -47,6 +47,7 @@ To handle Universal Links (e.g., for QR login straight from the user's built-in 
 	</array>
 </dict>
 </plist>
+
 ```
 
 This will handle all links with the following scheme: `https://{yourCompany}.onekey.to?sessionId={sessionId}`
@@ -72,6 +73,7 @@ To handle Android App Links (e.g., for QR login straight from the user's built-i
         </intent-filter>
     </activity>
 </application>
+
 ```
 
 This will handle all links with the following scheme: `https://{yourCompany}.onekey.to?sessionId={sessionId}`
@@ -98,6 +100,7 @@ const getInitialUrl = async () => {
   }
 };
 getInitialUrl();
+
 ```
 
 **Note:** Keyri will create your `https://{yourCompany}.onekey.to` page automatically once you configure it in the [dashboard](https://app.keyri.com)
@@ -115,7 +118,7 @@ const InitialScreen: React.FC<InitialScreenProps> = ({ route }) => {
     const sessionId: string = params?.sessionId ?? '';
     const options = {
       sessionId: sessionId,
-      publicUserId: ''
+      publicUserId: 'example@mail.com'
     };
     await Keyri.initiateQrSession(options);
     await Keyri.initializeDefaultConfirmationScreen('payload');
@@ -206,11 +209,13 @@ The following methods are available to interact with the Keyri SDK API, which ca
 
 - `register: (publicUserId?: string) => Promise<RegisterObject>` - call this method to generate object for register which includes publicKey and userId
 
+- `getCorrectedTimestampSeconds(): Promise<number>` - call this method to get timestamp (in seconds) synchronized with NTP
+
 - `processLink: (options: ProcessLinkOptions) => Promise<boolean>` - process flow with passed uri with showing default confirmation screen. Easiest way to process session from deeplink. Returns result of authentication or error
 
 - `initiateQrSession: (sessionId: string, publicUserId?: string) => Promise<KeyriSession>` - call it after obtaining the sessionId from QR code or deep link. Returns Session object with Risk attributes (needed to show confirmation screen) or Exception
 
-- `initializeDefaultConfirmationScreen: (payload: string) => Promise<boolean>` - to show Confirmation with default UI. Returns Boolean result. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
+- `initializeDefaultConfirmationScreen: (payload: string) => Promise<boolean>` - to show Confirmation with default UI. Returns Boolean result
 
 - `confirmSession: (payload: string, trustNewBrowser?: boolean) => Promise<boolean>` - call this function if user confirmed the dialog, trustNewBrowser is false by default. Returns Boolean authentication result
 

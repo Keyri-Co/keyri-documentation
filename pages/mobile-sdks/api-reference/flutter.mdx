@@ -67,7 +67,6 @@ void main() {
 const String appKey = "[Your app key here]"; // Change it before launch
 const String? publicApiKey = null; // Change it before launch, optional
 const String? serviceEncryptionKey = null; // Change it before launch, optional
-const bool blockEmulatorDetection = true;
 const String? publicUserId = null; // Change it before launch, optional
 
 class MyApp extends StatelessWidget {
@@ -92,7 +91,7 @@ class KeyriHomePage extends StatefulWidget {
 }
 
 class _KeyriHomePageState extends State<KeyriHomePage> {
-  Keyri keyri = Keyri(appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey, blockEmulatorDetection: true);
+  Keyri keyri = Keyri.primary(appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey);
 
   @override
   Widget build(BuildContext context) {
@@ -160,7 +159,7 @@ class KeyriScannerAuthPage extends StatefulWidget {
 class _KeyriScannerAuthPageState extends State<KeyriScannerAuthPage> {
   bool _isLoading = false;
 
-  Keyri keyri = Keyri(appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey, blockEmulatorDetection: true);
+  Keyri keyri = Keyri.primary(appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey);
 
   void onMobileScannerDetect(BarcodeCapture barcodes) {
     if (barcodes.barcodes.isNotEmpty && !_isLoading) {
@@ -244,6 +243,7 @@ class _KeyriScannerAuthPageState extends State<KeyriScannerAuthPage> {
     });
   }
 }
+
 ```
 
 ## Deep linking
@@ -263,6 +263,7 @@ To handle Universal Links (e.g., for QR login straight from the user's built-in 
 	</array>
 </dict>
 </plist>
+
 ```
 
 This will handle all links with the following scheme: `https://{yourCompany}.onekey.to?sessionId={sessionId}`
@@ -278,11 +279,14 @@ func application(_ application: UIApplication, continue userActivity: NSUserActi
     else {
         return false
     }
+
     let keyri = KeyriInterface(appKey: appKey)
-    keyri.processLink(url: incomingURL, payload: 'Custom', publicUserId: 'username')
+
+    keyri.processLink(url: incomingURL, payload: 'Custom', publicUserId: 'example@mail.com')
 
     return true
 }
+
 ```
 
 **Note:** Keyri will set up the required `/.well-known/apple-app-site-association` JSON at your `https://{yourSubdomain}.onekey.to` page as required by Apple to handle Universal Link handling. Details on this mechanism are described here: https://developer.apple.com/documentation/Xcode/supporting-associated-domains
@@ -306,6 +310,7 @@ To handle Android App Links \(e.g., for QR login straight from the user's built-
         </intent-filter>
     </activity>
 </application>
+
 ```
 
 In the activity where the processing of links is declared, you need to add handlers in the `onNewIntent()` and `onCreate()` methods, and pass \`sessionId\` to \`easyKeyriAuth\` method:
@@ -337,13 +342,13 @@ private fun processLink(data: Uri?) {
                 "[Your appKey]", // Get this value from the Keyri dashboard
                 "[Your publicApiKey]", // Get this value from the Keyri dashboard, optional,
                 "[Your serviceEncryptionKey]", // Get this value from the Keyri dashboard, optional
-                true, // blockEmulatorDetection
                 "Custom payload here",
                 "public-User-ID", // publicUserId is optional
             )
         }
     } ?: Log.e("Keyri", "Failed to process link")
 }
+
 ```
 
 ## Interacting with the API
@@ -354,11 +359,13 @@ The following methods are available to interact with the Keyri SDK API, which ca
 
 - `Future<bool> easyKeyriAuth(String payload, {String? publicUserId})` - handle process flow with passed scanned url and showing default confirmation screen. Easiest way to process session from deeplink
 
-- `Future<bool> initializeDefaultConfirmationScreen(String payload)` - to show Confirmation with default UI. Returns Boolean result. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
+- `Future<bool> initializeDefaultConfirmationScreen(String payload)` - to show Confirmation with default UI. Returns Boolean result
 
 - `Future<LoginObject> login({String? publicUserId})` - call this method to generate object for login which includes timestampNonce, signature, publicKey and userId
 
 - `Future<RegisterObject> register({String? publicUserId})` - call this method to generate object for register which includes publicKey and userId
+
+- `Future<int> getCorrectedTimestampSeconds() ` - call this method to get timestamp (in seconds) synchronized with NTP
 
 - `Future<bool> confirmSession(String payload, bool trustNewBrowser)` - call this function if user confirmed the dialog, trustNewBrowser is false by default. Returns Boolean authentication result
 

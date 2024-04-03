@@ -247,9 +247,8 @@ override fun onCreate(savedInstanceState: Bundle?) {
             appKey,
             publicApiKey,
             serviceEncryptionKey,
-            true, // blockEmulatorDetection
             payload,
-            publicUserId
+            publicUserId,
         )
 
         // Or with on activityResult:
@@ -262,9 +261,8 @@ override fun onCreate(savedInstanceState: Bundle?) {
             appKey,
             publicApiKey,
             serviceEncryptionKey,
-            true, // blockEmulatorDetection
             payload,
-            publicUserId
+            publicUserId,
         )
     }
 }
@@ -319,9 +317,8 @@ private void processLink(Uri intentData) {
             appKey,
             publicApiKey,
             serviceEncryptionKey,
-            true, // blockEmulatorDetection
             payload,
-            publicUserId
+            publicUserId,
         );
 
         // Or with on activityResult:
@@ -334,9 +331,8 @@ private void processLink(Uri intentData) {
             appKey,
             publicApiKey,
             serviceEncryptionKey,
-            true, // blockEmulatorDetection
             payload,
-            publicUserId
+            publicUserId,
         );
     });
 }
@@ -420,6 +416,8 @@ The following methods are available to interact with the Keyri SDK API, which ca
 
 - `suspend fun Keyri.register(publicUserId: String?): Result<RegisterObject>` - call this method to generate object for register which includes publicKey and userId
 
+- `suspend fun Keyri.getCorrectedTimestampSeconds(): Long` - call this method to get timestamp (in seconds) synchronized with NTP
+
 - `suspend fun Session.confirm(payload: String, context: Context, trustNewBrowser: Boolean = false): Result<Unit>` - call this function if user confirmed the dialog. Returns authentication result or Throwable error
 
 - `suspend fun Session.deny(payload: String, context: Context): Result<Unit>` - call if the user denied the dialog. Returns denial result or Throwable error
@@ -442,9 +440,9 @@ The following methods are available to interact with the Keyri SDK API, which ca
 
 - `suspend fun Keyri.removeAssociationKey(publicUserId: String): Result<Unit>` - removes association public key for the specified publicUserId
 
-- `fun easyKeyriAuth(content: Context, easyKeyriAuthLauncher: ActivityResultLauncher<Intent>, appKey: String, publicApiKey: String?, serviceEncryptionKey: String?, blockEmulatorDetection: Boolean = true, payload: String, publicUserId: String?)` - launches scanner activity with default confirmation screen for ActivityResultLauncher
+- `fun easyKeyriAuth(content: Context, easyKeyriAuthLauncher: ActivityResultLauncher<Intent>, appKey: String, publicApiKey: String?, serviceEncryptionKey: String?, payload: String, publicUserId: String?, detectionsConfig: KeyriDetectionsConfig = KeyriDetectionsConfig())` - launches scanner activity with default confirmation screen for ActivityResultLauncher
 
-- `fun easyKeyriAuth(activity: Activity, requestCode: Int, appKey: String, publicApiKey: String?, serviceEncryptionKey: String?, blockEmulatorDetection: Boolean = true, payload: String, publicUserId: String?)` - launches scanner activity for result with default confirmation screen for onActivityResult
+- `fun easyKeyriAuth(activity: Activity, requestCode: Int, appKey: String, publicApiKey: String?, serviceEncryptionKey: String?, payload: String, publicUserId: String?, detectionsConfig: KeyriDetectionsConfig = KeyriDetectionsConfig())` - launches scanner activity for result with default confirmation screen for onActivityResult
 
 - `@Composable fun EasyKeyriAuth(sheetState: ModalBottomSheetState, coroutineScope: CoroutineScope, keyri: Keyri, sessionId: String, payload: String, publicUserId: String?, result: (Result<Unit>) -> Unit)` - handle process flow with passed scanned url and showing default confirmation screen. Easiest way to process session from deeplink
 
@@ -464,6 +462,8 @@ Payload can be anything (session token or a stringified JSON containing multiple
 - `void KeyriSdk.login(@Nullable String publicUserId, KeyriCallback<LoginObject> callback)` - call this method to generate object for login which includes timestampNonce, signature, publicKey and userId
 
 - `void KeyriSdk.register(@Nullable String publicUserId, KeyriCallback<RegisterObject> callback)` - call this method to generate object for register which includes publicKey and userId
+
+- `void KeyriSdk.getCorrectedTimestampSeconds(KeyriCallback<Long> callback)` - call this method to get timestamp (in seconds) synchronized with NTP
 
 - `void KeyriSession.confirm(String payload, Context context, boolean trustNewBrowser, KeyriCallback<Unit> callback)` - call this function if user confirmed the dialog. Returns authentication result or Throwable error
 
@@ -487,9 +487,9 @@ Payload can be anything (session token or a stringified JSON containing multiple
 
 - `void KeyriSdk.removeAssociationKey(String publicUserId, KeyriCallback<Unit> callback)` - removes association public key for the specified publicUserId
 
-- `void EasyKeyriAuth.easyKeyriAuth(Context content, ActivityResultLauncher<Intent> easyKeyriAuthLauncher, String appKey, @Nullable String publicApiKey, @Nullable String serviceEncryptionKey, String payload, boolean blockEmulatorDetection, String payload, @Nullable String publicUserId)` - launches scanner activity with default confirmation screen for ActivityResultLauncher
+- `void EasyKeyriAuth.easyKeyriAuth(Context content, ActivityResultLauncher<Intent> easyKeyriAuthLauncher, String appKey, @Nullable String publicApiKey, @Nullable String serviceEncryptionKey, String payload, String payload, @Nullable String publicUserId, KeyriDetectionsConfig detectionsConfig)` - launches scanner activity with default confirmation screen for ActivityResultLauncher
 
-- `void EasyKeyriAuth.easyKeyriAuth(Activity activity, int requestCode, String appKey, @Nullable String publicApiKey, @Nullable String serviceEncryptionKey, String payload, boolean blockEmulatorDetection, String payload, @Nullable String publicUserId)` - launches scanner activity for result with default confirmation screen for onActivityResult
+- `void EasyKeyriAuth.easyKeyriAuth(Activity activity, int requestCode, String appKey, @Nullable String publicApiKey, @Nullable String serviceEncryptionKey, String payload, String payload, @Nullable String publicUserId, KeyriDetectionsConfig detectionsConfig)` - launches scanner activity for result with default confirmation screen for onActivityResult
 
 ### Session Object
 

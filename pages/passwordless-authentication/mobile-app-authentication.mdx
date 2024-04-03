@@ -38,14 +38,14 @@ key.
 ```swift copy
 let keyri = KeyriInterface(appKey: appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey)
 
-func login(username: String) async throws { let loginObject =
-    keyri.login(publicUserId: username)
+func login(username: String) async throws {
+    let loginObject = keyri.login(publicUserId: username)
 
     authService.login(urlSuffix: "api/login", body: loginObject)
 }
 
-func register(username: String) async throws { let registerObject =
-    keyri.register(publicUserId: username)
+func register(username: String) async throws {
+    let registerObject = keyri.register(publicUserId: username)
 
     authService.register(urlSuffix: "api/register", body: registerObject)
 }
@@ -110,11 +110,12 @@ interface AuthApiService {
         @Body registerObject: RegisterObject,
     ): Response<RegisterResult>
 }
+
 ```
 </Tab>
 <Tab>
 ```dart copy
-late Keyri keyri = Keyri(appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey, blockEmulatorDetection: true);
+late Keyri keyri = Keyri(appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey);
 
 void login(String username) {
     keyri.login(publicUserId: username)
@@ -147,8 +148,7 @@ Future<http.Response> makeAuthApiCall(String urlSuffix, Map<String, dynamic> bod
 Keyri.initialize({
     appKey: appKey,
     publicApiKey: publicApiKey,
-    serviceEncryptionKey: serviceEncryptionKey,
-    blockEmulatorDetection: true,
+    serviceEncryptionKey: serviceEncryptionKey
 });
 
 const login = useCallback(async (username: string) => {
@@ -173,6 +173,7 @@ function makeAuthApiCall(urlSuffix: string, body: string): Promise<Response> {
         body: body,
     });
 }
+
 ```
 </Tab>
 </Tabs>

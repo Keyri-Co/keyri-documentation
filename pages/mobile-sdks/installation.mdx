@@ -116,38 +116,124 @@ Below are the installation instructions for each platform.
 
 ## Initialization
 
-Initialize the Keyri object with keys from the dashboard. If you're using fraud
+Initialize the Keyri object with `appKey` from the dashboard. If you're using fraud
 prevention, the `publicApiKey` and `serviceEncryptionKey` are required.
 
-<Tabs items={['iOS', 'Kotlin', 'Java', 'React Native', 'Flutter', 'Cordova']}>
+Also, you can optionally configure and provide `KeyriDetectionsConfig` object with next params:
+
+- `blockEmulatorDetection` - set this param to false if you want to deny run your app on emulators, **true** by default.
+- `blockRootDetection` - set this param to true if you want to allow running your app without rooted device check, **false** by default.
+- `blockDangerousAppsDetection` - set this param to true if you want to allow running your app without dangerous apps check, **false** by default.
+- `blockTamperDetection` - set this param to true if you want to allow running your app without tamper detection check, **false** by default.
+- `blockSwizzleDetection` - set this param to true if you want to allow running your app without swizzle detection check, **false** by default.
+
+<Tabs items={['Swift', 'Objective-C', 'Kotlin', 'Java', 'React Native', 'Flutter', 'Cordova']}>
     <Tab>
         ```swift copy
-        public init(appKey: String, publicApiKey: String? = nil, serviceEncryptionKey: String? = nil, blockEmulatorDetection: Bool? = true)
+        let detectionsConfig = KeyriDetectionsConfig(
+            // Configure desired checks
+        )
+
+        let keyri = KeyriInterface(
+            appKey: String,
+            publicApiKey: publicApiKey,
+            serviceEncryptionKey: serviceEncryptionKey,
+            detectionsConfig: detectionsConfig // Optional
+        )
+
+        ```
+    </Tab>
+    <Tab>
+        ```objective-c copy
+        KeyriDetectionsConfig *detectionsConfig = [[KeyriDetectionsConfig alloc]
+            // initWith...
+            // Configure desired checks
+        ];
+
+        KeyriObjC *keyri = [[KeyriObjC alloc]
+            initWithAppKey:appKey
+            publicApiKey:publicApiKey
+            serviceEncryptionKey:serviceEncryptionKey
+            detectionsConfig:detectionsConfig // Optional
+        ];
+
         ```
     </Tab>
     <Tab>
         ```kotlin copy
-        val keyri = Keyri(this@MainActivity, appKey, publicApiKey, serviceEncryptionKey)
+        val detectionsConfig = KeyriDetectionsConfig(
+            // Configure desired checks
+        )
+
+        val keyri = Keyri(
+            context = context,
+            appKey = appKey,
+            publicApiKey = publicApiKey,
+            serviceEncryptionKey = serviceEncryptionKey,
+            detectionsConfig = detectionsConfig // Optional
+        )
+
         ```
     </Tab>
     <Tab>
         ```java copy
-        KeyriSdk keyri = new KeyriSdk(this, appKey, publicApiKey, serviceEncryptionKey);
+        KeyriDetectionsConfig detectionsConfig = new KeyriDetectionsConfig(
+            // Configure desired checks
+        );
+
+        KeyriSdk keyri = new KeyriSdk(
+            this,
+            appKey,
+            publicApiKey,
+            serviceEncryptionKey,
+            detectionsConfig // Optional
+        );
+
         ```
     </Tab>
     <Tab>
         ```javascript copy
-        Keyri.initialize({appKey: appKey, publicApiKey: publicApiKey,serviceEncryptionKey: serviceEncryptionKey})
+        let detectionsConfig: KeyriDetectionsConfig = {
+            // Configure desired checks
+        };
+
+        Keyri.initialize({
+            appKey: appKey,
+            publicApiKey: publicApiKey,
+            serviceEncryptionKey: serviceEncryptionKey,
+            detectionsConfig: detectionsConfig // Optional
+        });
+
         ```
     </Tab>
     <Tab>
         ```dart copy
-        Keyri keyri = Keyri(appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey, blockEmulatorDetection: true);
+        KeyriDetectionsConfig detectionsConfig = KeyriDetectionsConfig(
+            // Configure desired checks
+        );
+
+        Keyri keyri = Keyri(
+            appKey,
+            publicApiKey: publicApiKey,
+            serviceEncryptionKey: serviceEncryptionKey,
+            detectionsConfig: detectionsConfig // Optional
+        );
+
         ```
     </Tab>
     <Tab>
         ```javascript copy
-        Keyri.initialize({appKey: appKey, publicApiKey: publicApiKey,serviceEncryptionKey: serviceEncryptionKey})
+        let detectionsConfig: KeyriDetectionsConfig = {
+            // Configure desired checks
+        };
+
+        Keyri.initialize({
+            appKey: appKey,
+            publicApiKey: publicApiKey,
+            serviceEncryptionKey: serviceEncryptionKey,
+            detectionsConfig: detectionsConfig // Optional
+        });
+
         ```
     </Tab>
 </Tabs>

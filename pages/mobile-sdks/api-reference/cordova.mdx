@@ -38,8 +38,7 @@ the Keyri dashboard
 Keyri.initialize({
     appKey: appKey,
     publicApiKey: publicApiKey,
-    serviceEncryptionKey: serviceEncryptionKey,
-    blockEmulatorDetection: true
+    serviceEncryptionKey: serviceEncryptionKey
 })
     .then((isSuccess) => {
         console.log('CordovaKeyri.initialize', isSuccess);
@@ -142,11 +141,13 @@ The following methods are available to interact with the Keyri SDK API, which ca
 
 - `initiateQrSession(sessionId: string, publicUserId?: string): Promise<KeyriSession>` - call it after obtaining the sessionId from QR code or deep link. Returns Session object with Risk attributes (needed to show confirmation screen) or Exception
 
-- `initializeDefaultConfirmationScreen(payload: string): Promise<boolean>` - to show Confirmation with default UI. Returns Boolean result. Also, you can implement your custom Confirmation Screen, just inherit from BaseConfirmationDialog.kt
+- `initializeDefaultConfirmationScreen(payload: string): Promise<boolean>` - to show Confirmation with default UI. Returns Boolean result
 
 - `login(publicUserId?: string): Promise<LoginObject>` - call this method to generate object for login which includes timestampNonce, signature, publicKey and userId
 
 - `register(publicUserId?: string): Promise<RegisterObject>` - call this method to generate object for register which includes publicKey and userId
+
+- `getCorrectedTimestampSeconds(): Promise<number>` - call this method to get timestamp (in seconds) synchronized with NTP
 
 - `confirmSession(payload: string, trustNewBrowser?: boolean): Promise<boolean>` - call this function if user confirmed the dialog, trustNewBrowser is false by default. Returns Boolean authentication result
 
