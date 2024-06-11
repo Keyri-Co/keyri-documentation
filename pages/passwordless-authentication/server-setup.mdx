@@ -5,7 +5,9 @@ description:
   app.
 ---
 
-# QR Server-Side Authentication
+import { Tab, Tabs } from 'nextra-theme-docs';
+
+# Server-Side Authentication
 
 The Keyri server-side authentication flow is similar to WebAuthn - the user
 supplies your client app with their cryptographic signature, which you then
@@ -77,26 +79,73 @@ For registration, create an API endpoint that accepts the user's association key
 (`pubKey`) whenever they register a new account in your mobile app or log in to
 an existing account on a new mobile device.
 
+<Tabs items={['JavaScript', 'C#']}>
+<Tab>
 ```javascript
 const db = require('../db'); // Give this application access to your database
 const express = require('express');
 
 const app = express();
 
-app.post('/keyriRegistration', (req, res) => {
-  const pubKey = req.body.pubKey;
-  const username = req.body.username;
+app.post('/keyriRegistration', (req, res) => { const pubKey = req.body.pubKey;
+const username = req.body.username;
 
-  const query = 'INSERT INTO users (pubKey, username) VALUES (?, ?)';
-  db.run(query, [pubKey, username], function (err) {
-    if (err) {
-      return res.status(500).json({ message: 'Sever Error' });
+const query = 'INSERT INTO users (pubKey, username) VALUES (?, ?)';
+db.run(query, [pubKey, username], function (err) { if (err) { return
+res.status(500).json({ message: 'Sever Error' }); } return
+res.status(200).json({ message: 'Registration Successful' }); }); });
+````
+</Tab>
+<Tab>
+```cs
+// Controllers/UserController.cs
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.Sqlite;
+using System.Threading.Tasks;
+
+namespace YourNamespace.Controllers
+{
+    [ApiController]
+    [Route("[controller]")]
+    public class UserController : ControllerBase
+    {
+        private readonly SqliteConnection _dbConnection;
+
+        public UserController(SqliteConnection dbConnection)
+        {
+            _dbConnection = dbConnection;
+        }
+
+        [HttpPost("keyriRegistration")]
+        public async Task<IActionResult> KeyriRegistration([FromBody] RegistrationRequest request)
+        {
+            const string query = "INSERT INTO users (pubKey, username) VALUES (@pubKey, @username)";
+
+            using var command = new SqliteCommand(query, _dbConnection);
+            command.Parameters.AddWithValue("@pubKey", request.PubKey);
+            command.Parameters.AddWithValue("@username", request.Username);
+
+            try
+            {
+                await command.ExecuteNonQueryAsync();
+                return Ok(new { message = "Registration Successful" });
+            }
+            catch
+            {
+                return StatusCode(500, new { message = "Server Error" });
+            }
+        }
     }
-    return res.status(200).json({ message: 'Registration Successful' });
-  });
-});
-```
 
+    public class RegistrationRequest
+    {
+        public string PubKey { get; set; }
+        public string Username { get; set; }
+    }
+}
+```
+</Tab>
+</Tabs>
 ### Login
 
 Login is based on ECDSA signature verification. The mobile app will send four
@@ -110,6 +159,8 @@ pieces of data:
 
 4.  `signature`: The ECDSA signature, a SHA256 digest, of the `data`
 
+<Tabs items={['JavaScript', 'C#']}>
+<Tab>
 ```javascript copy
 const crypto = require('crypto');
 const db = require('../db'); // Give this application access to your database
@@ -174,7 +225,163 @@ const verifySignature = (pubKeyB64, data, signatureB64) => {
   }
 };
 ```
+</Tab>
+<Tab>
+```cs
+// Program.cs
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Data.Sqlite;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.Text;
+using System.Threading.Tasks;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Crypto.Parameters;
 
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+builder.Services.AddSingleton<SqliteConnection>(sp =>
+{
+    var connection = new SqliteConnection("Data Source=database.db");
+    connection.Open();
+    return connection;
+});
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.IdleTimeout = TimeSpan.FromMinutes(1);
+});
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+
+app.UseRouting();
+app.UseSession();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
+
+app.Run();
+
+// Controllers/UserController.cs
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.Sqlite;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Text;
+using System.Threading.Tasks;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Crypto.Parameters;
+
+namespace YourNamespace.Controllers
+{
+    [ApiController]
+    [Route("[controller]")]
+    public class UserController : ControllerBase
+    {
+        private readonly SqliteConnection _dbConnection;
+
+        public UserController(SqliteConnection dbConnection)
+        {
+            _dbConnection = dbConnection;
+        }
+
+        [HttpPost("keyriLogin")]
+        public async Task<IActionResult> KeyriLogin([FromBody] KeyriPayload payload)
+        {
+            var query = "SELECT count(0) FROM users WHERE pubKey = @pubKey AND username = @username";
+
+            using var command = new SqliteCommand(query, _dbConnection);
+            command.Parameters.AddWithValue("@pubKey", payload.PubKey);
+            command.Parameters.AddWithValue("@username", payload.Username);
+
+            try
+            {
+                var count = (long)await command.ExecuteScalarAsync();
+
+                if (count == 0)
+                {
+                    return BadRequest(new { message = "User not found" });
+                }
+
+                if (VerifySignature(payload.PubKey, payload.Data, payload.Signature))
+                {
+                    HttpContext.Session.SetString("username", payload.Username);
+                    HttpContext.Session.SetString("loggedIn", "true");
+                    return Ok(new { message = "Login Successful" });
+                }
+                else
+                {
+                    return BadRequest(new { message = "Signature verification failed" });
+                }
+            }
+            catch
+            {
+                return StatusCode(500, new { message = "Server Error" });
+            }
+        }
+
+        private bool VerifySignature(string pubKeyB64, string data, string signatureB64)
+        {
+            if (string.IsNullOrEmpty(pubKeyB64) || string.IsNullOrEmpty(data) || string.IsNullOrEmpty(signatureB64))
+            {
+                throw new Exception("Not Enough Data Provided to Validate Signature");
+            }
+
+            long timestamp = long.Parse(data.Substring(0, 13));
+            long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+            if (Math.Abs(now - timestamp) > 60000)
+            {
+                throw new Exception("Login request timed out - please try again");
+            }
+
+            try
+            {
+                byte[] keyBytes = Convert.FromBase64String(pubKeyB64);
+                byte[] dataBytes = Encoding.UTF8.GetBytes(data);
+                byte[] signatureBytes = Convert.FromBase64String(signatureB64);
+
+                AsymmetricKeyParameter publicKeyParam = PublicKeyFactory.CreateKey(keyBytes);
+                ISigner signer = SignerUtilities.GetSigner("SHA-256withECDSA");
+                signer.Init(false, publicKeyParam);
+                signer.BlockUpdate(dataBytes, 0, dataBytes.Length);
+
+                return signer.VerifySignature(signatureBytes);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Something failed when trying to verify signature", e);
+            }
+        }
+    }
+
+    public class KeyriPayload
+    {
+        public string PubKey { get; set; }
+        public string Username { get; set; }
+        public string Data { get; set; }
+        public string Signature { get; set; }
+    }
+}
+```
+</Tab>
+</Tabs>
 ## Mobile
 
 Please refer to the [Mobile SDK documentation](../mobile-sdks/installation) for
@@ -224,3 +431,4 @@ necessary to include in the `payload`.&#x20;
 4.  `signature`: Generate the signature with
     `getUserSignature(publicUserId: String, data: String)`, which data being the
     timestamp_nonce listed above
+````
