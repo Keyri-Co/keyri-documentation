@@ -102,10 +102,11 @@ func qrLogin(username: String) throws {
 
     let jsonLoginObject = try JSONSerialization.data(withJSONObject: loginObject, options: .prettyPrinted)
 
-    keyri.easyKeyriAuth(payload: jsonLoginObject,publicUserId: username) { res in
+    keyri.easyKeyriAuth(payload: jsonLoginObject, publicUserId: username) { res in
         // Process result
     }
 }
+
 ```
 </Tab>
 <Tab>
@@ -130,7 +131,6 @@ fun qrLogin(username: String) {
                 appKey,
                 publicApiKey,
                 serviceEncryptionKey,
-                true,
                 jsonLoginObject,
                 username,
             )
@@ -142,7 +142,7 @@ fun qrLogin(username: String) {
 </Tab>
 <Tab>
 ```dart copy
-late Keyri keyri = Keyri(appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey, blockEmulatorDetection: true);
+late Keyri keyri = Keyri(appKey, publicApiKey: publicApiKey, serviceEncryptionKey: serviceEncryptionKey);
 
 void qrLogin(String username) async {
     var loginObject = await keyri.login(publicUserId: username);
@@ -153,6 +153,7 @@ void qrLogin(String username) async {
             // Process result
         });
 }
+
 ```
 </Tab>
 <Tab>
@@ -162,7 +163,6 @@ async function qrLogin(username: string) {
         appKey: KEYRI_APP_KEY,
         publicApiKey: KEYRI_PUBLIC_API_KEY,
         serviceEncryptionKey: SERVICE_ENCRYPTION_KEY,
-        blockEmulatorDetection: true,
     });
 
     const loginObject = await Keyri.login(username);
@@ -170,6 +170,7 @@ async function qrLogin(username: string) {
 
     // Process result
 }
+
 ```
 </Tab>
 </Tabs>
